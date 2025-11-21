@@ -1,6 +1,6 @@
 {
   "cli": {
-    "appVersionSource": "local",
+    "appVersionSource": "remote",
     "version": ">= 12.0.0"
   },
   "build": {
@@ -39,19 +39,9 @@
     }
   },
   "submit": {
-    "preview": {
-      "ios": {
-        "appleId": "billygroble@gmail.com",
-        "ascAppId": "6447754932",
-        "appleTeamId": "WXY2PMFQB7"
-      }
-    },
-    "production": {
-      "ios": {
-        "appleId": "billygroble@gmail.com",
-        "ascAppId": "6447754932",
-        "appleTeamId": "WXY2PMFQB7"
-      }
-    }
+    "production": {}
+  },
+  "cli": {
+    "version": ">= 12.0.0"
   }
 }

@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
 		marginBottom: 5,
 	},
 	buttonText: {
-		color: AppColors.primary,
+		color: AppColors.textOnPrimary,
 		fontSize: 18,
 		textAlign: 'center'
 	},
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
 		padding: 10,
 	},
 	buttonText2: {
-		color: AppColors.textOnPrimary,
+		color: AppColors.primary,
 		fontSize: 16,
 		textAlign: 'center'
 	},

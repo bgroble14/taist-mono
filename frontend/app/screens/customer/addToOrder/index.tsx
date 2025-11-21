@@ -94,7 +94,7 @@ const AddToOrder = () => {
         <ScrollView contentContainerStyle={styles.pageView}>
           <View style={styles.heading}>
             <Pressable onPress={() => router.back()}>
-              <FontAwesomeIcon icon={faAngleLeft} size={20} color="#ffffff" />
+              <FontAwesomeIcon icon={faAngleLeft} size={20} color="#1a1a1a" />
             </Pressable>
           </View>
           <View style={styles.menuInfo}>
@@ -160,11 +160,11 @@ const AddToOrder = () => {
               inputContainerStyle={styles.formFieldsContainer}
               inputStyle={styles.formInputFields}
               placeholder="Enter any Special Requests "
-              placeholderTextColor={'#ffffff'}
+              placeholderTextColor={'#999999'}
               variant="outlined"
               onChangeText={onChangeOrderNotes}
               value={orderNotes}
-              color="#ffffff"
+              color="#1a1a1a"
             />
           </View>
           <View style={styles.vcenter}>

@@ -29,7 +29,7 @@ export const AppColors = {
 
   // State colors
   disabled: '#f0f0f0',         // Very light gray - disabled backgrounds
-  disabledText: '#cccccc',     // Light gray - disabled text
+  disabledText: '#999999',     // Light gray - disabled text
 
   // Semantic colors
   error: '#d32f2f',            // Red - errors, destructive actions

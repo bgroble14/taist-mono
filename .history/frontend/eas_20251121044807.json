@@ -1,7 +1,6 @@
 {
   "cli": {
-    "appVersionSource": "local",
-    "version": ">= 12.0.0"
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -19,7 +18,8 @@
         "APP_ENV": "staging"
       },
       "ios": {
-        "resourceClass": "m-medium"
+        "resourceClass": "m-medium",
+        "submitOnBuild": true
       }
     },
     "production": {
@@ -39,19 +39,9 @@
     }
   },
   "submit": {
-    "preview": {
-      "ios": {
-        "appleId": "billygroble@gmail.com",
-        "ascAppId": "6447754932",
-        "appleTeamId": "WXY2PMFQB7"
-      }
-    },
-    "production": {
-      "ios": {
-        "appleId": "billygroble@gmail.com",
-        "ascAppId": "6447754932",
-        "appleTeamId": "WXY2PMFQB7"
-      }
-    }
+    "production": {}
+  },
+  "cli": {
+    "version": ">= 12.0.0"
   }
 }

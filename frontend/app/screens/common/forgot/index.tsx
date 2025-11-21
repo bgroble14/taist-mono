@@ -80,7 +80,7 @@ const Forgot = () => {
       <View style={styles.center}>
         <Image
           style={styles.logo}
-          source={require('../../../assets/images/logo.png')}
+          source={require('../../../assets/images/logo-2.png')}
         />
       </View>
       <View style={styles.vcenter}>
@@ -93,12 +93,12 @@ const Forgot = () => {
               style={styles.formFields}
               inputStyle={styles.formInputFields}
               placeholder="Email "
-              placeholderTextColor={'#ffffff'}
+              placeholderTextColor={'#999999'}
               variant="standard"
               onChangeText={txt => onChangeEmail(txt.toLowerCase())}
               value={email}
               keyboardType="email-address"
-              color="#ffffff"
+              color="#1a1a1a"
               autoCapitalize={'none'}
             />
           </View>
@@ -108,37 +108,37 @@ const Forgot = () => {
               style={styles.formFields}
               inputStyle={styles.formInputFields}
               placeholder="Code "
-              placeholderTextColor={'#ffffff'}
+              placeholderTextColor={'#999999'}
               variant="standard"
               onChangeText={txt => onChangeCode(txt.toLowerCase())}
               value={code}
               keyboardType="default"
-              color="#ffffff"
+              color="#1a1a1a"
               autoCapitalize={'none'}
             />
             <TextInput
               style={styles.formFields}
               inputStyle={styles.formInputFields}
               placeholder="Password "
-              placeholderTextColor={'#ffffff'}
+              placeholderTextColor={'#999999'}
               variant="standard"
               onChangeText={onChangePassword}
               value={password}
               textContentType="password"
               secureTextEntry
-              color="#ffffff"
+              color="#1a1a1a"
             />
             <TextInput
               style={styles.formFields}
               inputStyle={styles.formInputFields}
               placeholder="Confirmation Password "
-              placeholderTextColor={'#ffffff'}
+              placeholderTextColor={'#999999'}
               variant="standard"
               onChangeText={onChangeConfirmPassword}
               value={confirmPassword}
               textContentType="password"
               secureTextEntry
-              color="#ffffff"
+              color="#1a1a1a"
             />
           </View>
         )}

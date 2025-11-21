@@ -16,7 +16,7 @@ const TextBubble = ({msg, isMy}: Props) => {
         {getFormattedTimeA((msg.created_at ?? 0) * 1000)}
       </Text>
       <View style={isMy ? styles.myBubble : styles.bubble}>
-        <Text style={styles.bubbleText}>{msg.message}</Text>
+        <Text style={isMy ? styles.bubbleText : styles.otherBubbleText}>{msg.message}</Text>
       </View>
     </View>
   );

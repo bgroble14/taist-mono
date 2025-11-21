@@ -96,7 +96,7 @@ const Onboarding = ({onStart}: Props) => {
                 key={`pn_${idx}`}
                 style={[
                   styles.paginationIndicator,
-                  pageIndex === idx && {backgroundColor: 'white'},
+                  pageIndex === idx && styles.paginationIndicatorActive,
                 ]}
                 onPress={() => handlePagination(idx)}
               />

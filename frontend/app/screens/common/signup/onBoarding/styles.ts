@@ -53,6 +53,9 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderRadius: 10,
   },
+  paginationIndicatorActive: {
+    backgroundColor: AppColors.primary,
+  },
   button: {
     borderRadius: 12,
     backgroundColor: AppColors.primary,

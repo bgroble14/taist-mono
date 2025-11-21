@@ -5,10 +5,10 @@ import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
 const screenHeight = Dimensions.get('window').height;
 export const styles = StyleSheet.create({
 	main: {
-		flex: 1, 
-		justifyContent: 'space-around', 
+		flex: 1,
+		justifyContent: 'space-around',
 		alignItems: 'center',
-		backgroundColor: '#ff3100',
+		backgroundColor: AppColors.background,
 	},
     container: {
 		flex:1,
@@ -60,7 +60,7 @@ export const styles = StyleSheet.create({
 		alignSelf:'flex-end',
 	},
 	bubble:{
-		backgroundColor:'#ffff00',
+		backgroundColor:AppColors.primary,
 		padding:10,
 		maxWidth:'90%',
 		borderRadius:15,
@@ -71,6 +71,12 @@ export const styles = StyleSheet.create({
 		fontSize:14,
 		fontWeight:'500',
 		color: AppColors.text,
+		letterSpacing: 0.5,
+	},
+	otherBubbleText:{
+		fontSize:14,
+		fontWeight:'500',
+		color: AppColors.textOnPrimary,
 		letterSpacing: 0.5,
 	},
 	bubbleTimeText:{
