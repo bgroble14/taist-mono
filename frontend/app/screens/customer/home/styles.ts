@@ -37,7 +37,15 @@ export const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   calendar: {
-    marginTop: Spacing.sm,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  sectionLabel: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: AppColors.text,
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.md,
   },
   wrapContainer: {
     flexDirection: 'row',
@@ -45,7 +53,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
-    marginVertical: Spacing.sm,
+    marginVertical: Spacing.md,
   },
   chefCardContainer: {
     marginTop: Spacing.lg,

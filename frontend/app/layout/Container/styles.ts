@@ -4,7 +4,7 @@ const screenHeight = Dimensions.get('window').height;
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fa4616',
+    backgroundColor: '#ffffff', // White background for all screens
  
     // position: "relative",
     // marginBottom: 60, // Removed default margin, will be applied conditionally

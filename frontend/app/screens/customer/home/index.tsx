@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
 import StyledTabButton from '@/app/components/styledTabButton';
 import moment from 'moment';
 import EmptyListView from '../../../components/emptyListView/emptyListView';
+import { Spacing } from '../../../../constants/theme';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import { GetSearchChefAPI } from '../../../services/api';
@@ -113,6 +114,7 @@ const Home = () => {
     const time_slot = timeSlotId;
     const timezone_gap = moment().utcOffset() / 60;
 
+    console.log('🔄 REFRESH: Loading chefs...');
     // No loading indicator for refresh
     const searchChefs = await GetSearchChefAPI(
       { week_day, category_id, time_slot, timezone_gap, user_id: self?.id || -1 },
@@ -120,8 +122,11 @@ const Home = () => {
     );
 
     if (searchChefs.success == 1) {
-      console.log('search chf: ', searchChefs?.data);
+      console.log('✅ REFRESH SUCCESS:', searchChefs?.data?.length || 0, 'chefs');
       setChefs(searchChefs.data);
+    } else {
+      console.log('❌ REFRESH FAILED:', searchChefs);
+      setChefs([]);
     }
   };
 
@@ -141,8 +146,13 @@ const Home = () => {
 
     dispatch(hideLoading());
     if (searchChefs.success == 1) {
-      console.log('search chf: ', searchChefs?.data);
+      console.log('🔍 SEARCH CHEFS API SUCCESS');
+      console.log('📊 Total chefs returned:', searchChefs?.data?.length || 0);
+      console.log('👨‍🍳 Chefs data:', JSON.stringify(searchChefs?.data, null, 2));
       setChefs(searchChefs.data);
+    } else {
+      console.log('❌ SEARCH CHEFS API FAILED:', searchChefs);
+      setChefs([]);
     }
   };
 
@@ -209,16 +219,22 @@ const Home = () => {
   };
 
   const filteredChefs = useMemo(() => {
+    console.log('🔄 FILTERING CHEFS');
+    console.log('📋 Total chefs before filter:', chefs.length);
+    
     var filtered = chefs.filter(x => x.menus.length > 0);
-    console.log('chefs ssssss: ', filtered);
+    console.log('📋 Chefs with menus:', filtered.length);
 
     if (searchTerm != '') {
+      console.log('🔍 Searching for:', searchTerm);
       filtered = filtered.filter(
         (x: IUser) =>
           x.first_name?.includes(searchTerm) || x.last_name?.includes(searchTerm),
       );
+      console.log('📋 Chefs after search:', filtered.length);
     }
 
+    console.log('✅ FINAL FILTERED CHEFS COUNT:', filtered.length);
     return filtered;
   }, [chefs, searchTerm]);
 
@@ -247,21 +263,26 @@ const Home = () => {
             </View>
           )}
           {isInArea && (
-            <View style={{ width: '100%', gap: 10 }}>
-              <TextInput
+            <View style={{ width: '100%', gap: Spacing.sm }}>
+              {/* Hidden per TMA-000 */}
+              {/* <TextInput
                 placeholder="Search chefs..."
                 placeholderTextColor={'#999999'}
                 mode="outlined"
                 onChangeText={onChangeSearchTerm}
                 value={searchTerm}
                 style={styles.searchInput}
-              />
+              /> */}
+              
+              <Text style={styles.sectionLabel}>Select Date</Text>
               <CustomCalendar
                 selectedDate={DAY}
                 onDateSelect={handleDayPress}
                 minDate={startDate}
                 maxDate={endDate}
               />
+              
+              <Text style={styles.sectionLabel}>Time Preference</Text>
               <View style={styles.wrapContainer}>
                 {timeSlots.map((item, index) => {
                   return (
@@ -269,17 +290,19 @@ const Home = () => {
                       title={item.label}
                       disabled={timeSlotId != item.id}
                       onPress={() => handleTimeSlotChange(item.id)}
-                      key={`category_${index}`}
+                      key={`time_${index}`}
                     />
                   );
                 })}
               </View>
+              
+              <Text style={styles.sectionLabel}>Cuisine Type</Text>
               <View style={styles.wrapContainer}>
                 <StyledTabButton
                   title={'All'}
                   disabled={0 != categoryId}
                   onPress={() => handleCategoryChange(0)}
-                  key={`category_${-1}`}
+                  key={`category_all`}
                 />
                 {categories.map((item, index) => {
                   return (
@@ -294,8 +317,6 @@ const Home = () => {
               </View>
               <View style={styles.chefCardContainer}>
                 {filteredChefs.map((item, index) => {
-                  console.log('fitlered chef: lngth', filteredChefs.length);
-
                   return (
                     <ChefCard
                       chefInfo={item}
@@ -307,7 +328,12 @@ const Home = () => {
                     />
                   );
                 })}
-                {filteredChefs.length == 0 && <EmptyListView text="No Chefs" />}
+                {filteredChefs.length == 0 && (
+                  <>
+                    <EmptyListView text="No Chefs" />
+                    {console.log('📭 EMPTY STATE: No chefs to display')}
+                  </>
+                )}
               </View>
             </View>
           )}

@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppColors } from '../../../../constants/theme';
 import { BottomNavigationItem } from '../../../features/navigation';
 import { useAppSelector } from '../../../hooks/useRedux';
 

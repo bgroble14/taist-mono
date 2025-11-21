@@ -5,132 +5,168 @@ import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background, // White background
   },
   pageView: {
-    padding: 10,
+    padding: Spacing.xl,
     alignItems: 'center',
-    gap: 10,
+    gap: Spacing.lg,
     width: '100%',
+    paddingBottom: Spacing.xxl,
   },
   heading: {
     width: '100%',
-    marginTop: 10,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.md,
   },
   backIcon: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
   },
   pageTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: AppColors.text,
+    textAlign: 'center',
+    marginBottom: Spacing.lg,
   },
+  
+  // Card-like sections
   checkoutBlock: {
     width: '100%',
+    backgroundColor: AppColors.surface, // Light gray card background
+    borderRadius: 16,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
   },
   checkoutSubheading: {
     fontSize: 18,
+    fontWeight: '700',
     color: AppColors.text,
-    marginVertical: 10,
+    marginBottom: Spacing.md,
+    letterSpacing: 0.3,
   },
   checkoutText: {
-    color: AppColors.text,
-    marginLeft: 10,
+    fontSize: 15,
+    color: AppColors.textSecondary,
+    marginBottom: Spacing.xs,
+    lineHeight: 22,
   },
+  
+  // Calendar section
   calendarWrapper: {
-    marginVertical: 10,
+    marginVertical: Spacing.md,
   },
   timeContainer: {
     flexDirection: 'row',
-    gap: 10,
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
   },
   estimated: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: AppColors.text,
-    margin: 10,
+    fontSize: 13,
+    fontWeight: '600',
+    color: AppColors.textSecondary,
+    marginTop: Spacing.md,
+    fontStyle: 'italic',
   },
+  
+  // Order summary items
   checkoutSummaryItemWrapper: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
-    padding: 10,
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
   checkoutSummaryItemTitle: {
     fontSize: 16,
+    fontWeight: '600',
     color: AppColors.text,
   },
   checkoutSummaryItemAddon: {
-    fontSize: 10,
-    color: AppColors.text,
+    fontSize: 14,
+    color: AppColors.textSecondary,
+    marginTop: Spacing.xs,
   },
   checkoutSummaryItemPriceWrapper: {
     flexDirection: 'row',
-    gap: 20,
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
+  
+  // Address section
   checkoutAddressItemTitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: AppColors.text,
-    marginBottom: 10,
+    marginBottom: Spacing.xs,
+    lineHeight: 22,
   },
+  
+  // Payment section
   checkoutPaymentItemWrapper: {
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 20,
-    padding: 10,
-    borderBottomColor: '#cccccc',
+    gap: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderBottomColor: AppColors.border,
     borderBottomWidth: 1,
   },
   checkoutApplianceItemTitle: {
     fontSize: 16,
     color: AppColors.text,
   },
+  
+  // Switch/Toggle section
   switchWrapper: {
     flexDirection: 'row',
-    gap: 20,
+    gap: Spacing.md,
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 15,
+    marginTop: Spacing.sm,
   },
   switchText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: AppColors.text,
+    lineHeight: 22,
   },
+  
+  // Button section
   vcenter: {
-    flex: 1,
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.lg,
     width: '100%',
   },
   button: {
-    borderRadius: 20,
-    backgroundColor: AppColors.primary,
+    borderRadius: 12,
+    backgroundColor: AppColors.primary, // Orange button
     width: '100%',
-    padding: 12,
-    marginBottom: 5,
+    paddingVertical: 16,
+    marginBottom: Spacing.sm,
+    ...Shadows.md,
   },
   buttonText: {
-    color: AppColors.primary,
+    color: AppColors.textOnPrimary, // White text on orange
     fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   buttonDisabled: {
-    borderRadius: 20,
-    backgroundColor: '#cccccc',
+    borderRadius: 12,
+    backgroundColor: AppColors.disabled,
     width: '100%',
-    padding: 12,
-    marginBottom: 5,
+    paddingVertical: 16,
+    marginBottom: Spacing.sm,
   },
   cardStyle: {
     width: '100%',
     height: 100,
-    borderRadius: 20,
+    borderRadius: 12,
   },
 });

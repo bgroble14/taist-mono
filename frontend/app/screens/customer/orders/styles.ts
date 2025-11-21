@@ -5,12 +5,10 @@ import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background, // White background
   },
   pageView: {
-    padding: 10,
+    padding: Spacing.lg,
     alignItems: 'center',
     width: '100%',
   },
@@ -19,8 +17,8 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    gap: 5,
-    marginTop: 20,
+    gap: Spacing.sm,
+    marginTop: Spacing.lg,
   },
   tab: {
     // backgroundColor:AppColors.surface,
@@ -43,15 +41,16 @@ export const styles = StyleSheet.create({
     color: AppColors.text,
   },
   orderCardContainer: {
-    marginTop: 20,
+    marginTop: Spacing.lg,
     width: '100%',
   },
   orderCard: {
     width: '100%',
     backgroundColor: AppColors.surface,
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
+    borderRadius: 12,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
   },
   orderCardMain: {
     flexDirection: 'row',

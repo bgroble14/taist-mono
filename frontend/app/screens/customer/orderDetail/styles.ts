@@ -8,14 +8,12 @@ export const styles = StyleSheet.create({
   main: {
     flex: 1,
     width: '100%',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background, // White background
   },
   pageView: {
-    padding: 10,
+    padding: Spacing.lg,
     alignItems: 'center',
-    gap: 10,
+    gap: Spacing.md,
     width: '100%',
   },
   heading: {
@@ -89,10 +87,11 @@ export const styles = StyleSheet.create({
   card: {
     width: '100%',
     backgroundColor: AppColors.surface,
-    borderRadius: 10,
-    padding: 10,
-    paddingVertical: 20,
-    rowGap: 25,
+    borderRadius: 12,
+    padding: Spacing.lg,
+    paddingVertical: Spacing.xl,
+    rowGap: Spacing.lg,
+    ...Shadows.sm,
   },
   cardMain: {
     flexDirection: 'row',

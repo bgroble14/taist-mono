@@ -448,7 +448,7 @@ const user: IUser = typeof params?.user === 'string'
           />
           <View style={styles.addressTextWrapper}>
             <Text style={styles.addressText}>ADDRESS </Text>
-            <FontAwesomeIcon icon={faLocationArrow} size={20} color="#ffffff" />
+            <FontAwesomeIcon icon={faLocationArrow} size={20} color="#fa4616" />
           </View>
           <StyledTextInput
             label="Address "
@@ -476,13 +476,13 @@ const user: IUser = typeof params?.user === 'string'
             dropdownStyles={styles.dropdown}
             dropdownTextStyles={styles.dropdownText}
             arrowicon={
-              <FontAwesomeIcon icon={faAngleDown} size={20} color="#ffffff" />
+              <FontAwesomeIcon icon={faAngleDown} size={20} color="#666666" />
             }
             searchicon={
-              <FontAwesomeIcon icon={faSearch} size={15} color="#ffffff" />
+              <FontAwesomeIcon icon={faSearch} size={15} color="#666666" />
             }
             closeicon={
-              <FontAwesomeIcon icon={faClose} size={15} color="#ffffff" />
+              <FontAwesomeIcon icon={faClose} size={15} color="#666666" />
             }
           />
           <StyledTextInput

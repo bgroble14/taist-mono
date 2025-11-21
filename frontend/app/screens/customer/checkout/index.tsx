@@ -389,17 +389,17 @@ const Checkout = () => {
         <ScrollView contentContainerStyle={styles.pageView}>
           <View style={styles.heading}>
             <Pressable onPress={() => goBack()}>
-              <FontAwesomeIcon icon={faAngleLeft} size={20} color="#ffffff" />
+              <FontAwesomeIcon icon={faAngleLeft} size={24} color="#1a1a1a" />
             </Pressable>
           </View>
-          <Text style={styles.pageTitle}>Checkout </Text>
+          <Text style={styles.pageTitle}>Checkout</Text>
           <View style={styles.checkoutBlock}>
-            <Text style={styles.checkoutSubheading}>Order Date & Time </Text>
+            <Text style={styles.checkoutSubheading}>Order Date & Time</Text>
             <Text style={styles.checkoutText}>
-              Select the time for your chef to arrive.{' '}
+              Select the time for your chef to arrive.
             </Text>
             <Text style={styles.checkoutText}>
-              Completion times may vary depending on your appliances.{' '}
+              Completion times may vary depending on your appliances.
             </Text>
             <View style={styles.calendarWrapper}>
               <CustomCalendar
@@ -439,7 +439,7 @@ const Checkout = () => {
             </Text>
           </View>
           <View style={styles.checkoutBlock}>
-            <Text style={styles.checkoutSubheading}>Order Summary </Text>
+            <Text style={styles.checkoutSubheading}>Order Summary</Text>
             {orders.map((o, idx) => {
               return (
                 <OrderItem
@@ -452,58 +452,58 @@ const Checkout = () => {
             <View style={styles.checkoutSummaryItemWrapper}>
               <View>
                 <Text style={styles.checkoutSummaryItemTitle}>
-                  Order Total:{' '}
+                  Order Total:
                 </Text>
               </View>
               <View style={styles.checkoutSummaryItemPriceWrapper}>
                 <Text
                   style={
                     styles.checkoutSummaryItemTitle
-                  }>{`$${price_total.toFixed(2)} `}</Text>
+                  }>{`$${price_total.toFixed(2)}`}</Text>
               </View>
             </View>
           </View>
           <View style={styles.checkoutBlock}>
-            <Text style={styles.checkoutSubheading}>Order Address </Text>
+            <Text style={styles.checkoutSubheading}>Order Address</Text>
             <View style={styles.checkoutSummaryItemWrapper}>
               <View style={{width: '100%'}}>
                 <Text style={styles.checkoutAddressItemTitle}>
-                  {`${self.first_name} ${self.last_name?.substring(0, 1)}. `}
+                  {`${self.first_name} ${self.last_name?.substring(0, 1)}.`}
                 </Text>
                 <Text style={styles.checkoutAddressItemTitle}>
-                  {`${self.phone} `}
+                  {`${self.phone}`}
                 </Text>
                 <Text style={styles.checkoutAddressItemTitle}>
-                  {`${self.address} `}
+                  {`${self.address}`}
                 </Text>
                 <Text style={styles.checkoutAddressItemTitle}>
-                  {`${self.city}, ${self.state}, ${self.zip} `}
+                  {`${self.city}, ${self.state}, ${self.zip}`}
                 </Text>
               </View>
             </View>
           </View>
           <View style={styles.checkoutBlock}>
-            <Text style={styles.checkoutSubheading}>Payment Information </Text>
+            <Text style={styles.checkoutSubheading}>Payment Information</Text>
             <TouchableOpacity
               onPress={handleCreditCard}
               style={styles.checkoutPaymentItemWrapper}>
               <View>
                 <Text style={styles.checkoutSummaryItemTitle}>
-                  Payment Method{' '}
+                  Payment Method
                 </Text>
                 <Text style={styles.checkoutSummaryItemAddon}>
                   {paymentMethod
                     ? `${paymentMethod?.card_type ?? ''} ending in ${
                         paymentMethod?.last4 ?? ''
-                      } `
-                    : `Add payment method `}
+                      }`
+                    : `Add payment method`}
                 </Text>
               </View>
               <View>
                 <FontAwesomeIcon
                   icon={faAngleRight}
                   size={20}
-                  color="#ffffff"
+                  color="#666666"
                 />
               </View>
             </TouchableOpacity>
@@ -539,7 +539,7 @@ const Checkout = () => {
               <StyledSwitch
                 label={`I have the following appliances available for the Chef: ${getAppliances().join(
                   ', ',
-                )}. `}
+                )}`}
                 labelLines={0}
                 value={appliance}
                 onPress={() => onChangeAppliance(!appliance)}
@@ -555,7 +555,7 @@ const Checkout = () => {
                 style={
                   appliance ? GlobalStyles.btnTxt : GlobalStyles.btnDisabledTxt
                 }>
-                PLACE ORDER{' '}
+                PLACE ORDER
               </Text>
             </TouchableOpacity>
           </View>

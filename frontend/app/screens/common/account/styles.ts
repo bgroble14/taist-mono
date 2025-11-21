@@ -6,17 +6,45 @@ const {width, height} = Dimensions.get('window');
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background, // White background
   },
   pageView: {
     width: '100%',
-    padding: Spacing.lg,
+    padding: Spacing.xl,
     alignItems: 'center',
-    gap: Spacing.md,
+    gap: Spacing.lg,
   },
+  
+  // Profile image section
+  profileImageSection: {
+    alignItems: 'center',
+    marginVertical: Spacing.lg,
+  },
+
+  // Section headers
+  sectionHeader: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.xs,
+  },
+  sectionHeaderText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: AppColors.text,
+    letterSpacing: 0.5,
+  },
+  sectionIcon: {
+    color: AppColors.primary, // Orange icon
+  },
+
+  // Form fields
   formFields: {
     width: '100%',
-    marginTop: 15,
+    marginTop: 0,
     color: AppColors.text,
   },
   formFieldsContainer: {
@@ -25,81 +53,107 @@ export const styles = StyleSheet.create({
   formInputFields: {
     color: AppColors.text,
     fontSize: 16,
+    letterSpacing: 0.3,
   },
+  
+  // Address section
   addressTextWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 15,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.xs,
   },
   addressText: {
     flex: 1,
     fontSize: 18,
     fontWeight: '700',
     color: AppColors.text,
-    width: '100%',
+    letterSpacing: 0.5,
   },
+  
+  // Switch/Toggle section
   switchWrapper: {
     flexDirection: 'row',
-    gap: 20,
+    gap: Spacing.md,
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 15,
+    marginTop: Spacing.md,
+    paddingVertical: Spacing.sm,
+    width: '100%',
   },
   switchText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
     color: AppColors.text,
+    flex: 1,
   },
+  
+  // Dropdown styling
   dropdownBox: {
     width: '100%',
-    borderRadius: 4,
-    marginTop: 15,
+    borderRadius: 12,
+    marginTop: Spacing.md,
+    borderWidth: 1,
     borderColor: AppColors.border,
-    color: AppColors.text,
-    paddingHorizontal: 10,
+    backgroundColor: AppColors.background,
+    paddingHorizontal: 16,
     paddingVertical: 16,
   },
   dropdownInput: {
     color: AppColors.text,
     fontSize: 16,
-    paddingLeft: 5,
+    paddingLeft: 0,
   },
   dropdown: {
     borderColor: AppColors.border,
-    borderRadius: 4,
+    borderRadius: 12,
+    backgroundColor: AppColors.background,
+    marginTop: Spacing.xs,
   },
   dropdownText: {
     color: AppColors.text,
-    borderColor: AppColors.border,
+    fontSize: 16,
   },
+  
+  // Button section
   vcenter: {
-    flex: 1,
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.lg,
     width: '100%',
   },
   button: {
     borderRadius: 12,
-    backgroundColor: AppColors.primary,
+    backgroundColor: AppColors.primary, // Orange button
     width: '100%',
     paddingVertical: 16,
     marginBottom: Spacing.sm,
     ...Shadows.md,
   },
   buttonText: {
-    color: AppColors.textOnPrimary,
+    color: AppColors.textOnPrimary, // White text on orange
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+  buttonDisabled: {
+    borderRadius: 12,
+    backgroundColor: AppColors.disabled,
+    width: '100%',
+    paddingVertical: 16,
+    marginBottom: Spacing.sm,
+  },
+  buttonDisabledText: {
+    color: AppColors.disabledText,
     fontSize: 16,
     fontWeight: '700',
     textAlign: 'center',
   },
-  buttonDisabled: {
-    borderRadius: 20,
-    backgroundColor: '#cccccc',
-    width: '100%',
-    padding: 12,
-    marginBottom: 5,
-  },
+  
+  // Modal styling
   modalBG: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -107,16 +161,18 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modal: {
-    width: width * 0.75,
+    width: width * 0.85,
     backgroundColor: AppColors.background,
-    borderRadius: 12,
-    padding: 12,
-    paddingVertical: 20,
-    gap: 20,
+    borderRadius: 16,
+    padding: Spacing.xl,
+    paddingVertical: Spacing.xxl,
+    gap: Spacing.lg,
+    ...Shadows.lg,
   },
   modalText: {
     color: AppColors.text,
     fontSize: 16,
     textAlign: 'center',
+    lineHeight: 24,
   },
 });

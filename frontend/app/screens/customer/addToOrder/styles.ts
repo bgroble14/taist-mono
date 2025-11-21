@@ -5,19 +5,17 @@ import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background, // White background
   },
   pageView: {
-    padding: 10,
+    padding: Spacing.lg,
     alignItems: 'center',
-    gap: 10,
+    gap: Spacing.md,
     width: '100%',
   },
   heading: {
     width: '100%',
-    marginTop: 10,
+    marginTop: Spacing.sm,
   },
   backIcon: {
     width: 20,
@@ -54,11 +52,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 10,
+    gap: Spacing.md,
     backgroundColor: AppColors.surface,
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 12,
+    padding: Spacing.md,
     width: '100%',
+    ...Shadows.sm,
   },
   orderQuantityLabel: {
     fontSize: 16,
@@ -120,21 +119,24 @@ export const styles = StyleSheet.create({
     fontSize: 14,
   },
   vcenter: {
-    flex: 1,
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.lg,
     width: '100%',
   },
   button: {
-    borderRadius: 20,
+    borderRadius: 12,
     backgroundColor: AppColors.primary,
     width: '100%',
-    padding: 12,
-    marginBottom: 5,
+    paddingVertical: 16,
+    marginBottom: Spacing.sm,
+    ...Shadows.md,
   },
   buttonText: {
-    color: AppColors.primary,
+    color: AppColors.textOnPrimary,
     fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
 });

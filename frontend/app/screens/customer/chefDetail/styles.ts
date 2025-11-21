@@ -7,19 +7,17 @@ const screenWidth = Dimensions.get('window').width;
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background, // White background
   },
   pageView: {
-    padding: 10,
+    padding: Spacing.lg,
     alignItems: 'center',
-    gap: 10,
+    gap: Spacing.md,
     width: '100%',
   },
   heading: {
     width: '100%',
-    marginTop: 10,
+    marginTop: Spacing.sm,
   },
   backIcon: {
     width: 20,
@@ -70,14 +68,15 @@ export const styles = StyleSheet.create({
   },
   chefCard: {
     backgroundColor: AppColors.surface,
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 12,
+    padding: Spacing.md,
     width: '100%',
+    ...Shadows.sm,
   },
   chefCardMenuItem: {
-    padding: 10,
+    padding: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
+    borderBottomColor: AppColors.border,
   },
   chefCardMenuItemHeading: {
     flexDirection: 'row',

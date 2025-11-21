@@ -126,68 +126,72 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'transparent',
-    paddingVertical: 10,
+    backgroundColor: '#f5f5f5', // Light gray card background
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    marginBottom: 8,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 15,
+    paddingHorizontal: 8,
+    marginBottom: 16,
   },
   monthYearText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#1a1a1a', // Dark text
+    fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
   },
   navButton: {
-    padding: 10,
+    padding: 8,
   },
   navButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
+    color: '#fa4616', // Orange arrows
+    fontSize: 20,
     fontWeight: 'bold',
   },
   weekContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 10,
+    paddingHorizontal: 4,
     justifyContent: 'space-between',
     width: '100%',
   },
   dayContainer: {
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    minWidth: 45,
-    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    minWidth: 48,
+    borderRadius: 10,
+    backgroundColor: 'transparent',
   },
   selectedDayContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fa4616', // Orange background when selected
   },
   disabledDayContainer: {
-    opacity: 0.5,
+    opacity: 0.4,
   },
   dayName: {
-    color: '#ffffff',
-    fontSize: 12,
+    color: '#666666', // Gray text
+    fontSize: 11,
     fontWeight: '600',
     marginBottom: 4,
   },
   selectedDayName: {
-    color: '#fa4616',
+    color: '#ffffff', // White text when selected
   },
   dayNumber: {
-    color: '#ffffff',
+    color: '#1a1a1a', // Dark text
     fontSize: 18,
     fontWeight: 'bold',
   },
   selectedDayNumber: {
-    color: '#fa4616',
+    color: '#ffffff', // White text when selected
   },
   disabledText: {
-    color: 'rgba(255, 255, 255, 0.3)',
+    color: '#cccccc', // Light gray for disabled
   },
 });
 
