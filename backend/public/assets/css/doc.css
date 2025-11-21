@@ -1,0 +1,100 @@
+h2 {
+	margin: 24px 0px;
+}
+.doc_pane {
+	border-radius: 8px;
+	border: 1px solid #d5d9e1;
+	overflow: hidden;
+	margin-bottom: 20px;
+}
+.doc_pane_header,
+.doc_pane_cont {
+	padding: 6px 12px;	
+}
+.doc_pane_header {
+	background: #F3F6FC;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	user-select: none;
+	padding-right: 8px;
+}
+.doc_pane_header i {
+	font-size: 18px;
+	margin-left: auto;
+	cursor: pointer;
+	padding: 3px 6px;
+	border-radius: 20px;
+}
+.doc_pane_header i:hover {
+	background: #ddd;
+}
+.doc_pane_header i.fa-angle-up {
+	display: none;
+}
+.sel .doc_pane_header i.fa-angle-up {
+	display: inline-block;
+}
+.sel .doc_pane_header i.fa-angle-down {
+	display: none;
+}
+.sel .doc_pane_cont {
+	display: block;
+}
+.doc_pane_cont {
+	line-height: 30px;
+	color: #333;
+	border-top: 1px solid #d5d9e1;
+	display: none;
+}
+.desc {
+	padding-left: 26px;
+	color: #555;
+}
+.method {
+	margin-left: auto;
+	margin-left: 20px;
+	padding: 1px 6px;
+	color: #fff;
+	background: #004494;
+	font-size: 12px;
+	border-radius: 3px;
+	font-weight: 400;
+}
+.method.get {
+	background: #008b4b;
+}
+.method.delete {
+	background: #ad1c1c;
+}
+.pl16 {
+	padding-left: 16px;
+}
+.text {
+/*	background: #eee;*/
+	color: #004494;
+	padding: 0px 0px;
+	display: inline-block;
+}
+table tr td {
+    vertical-align: top;
+    padding-right: 10px;
+}
+table.table {
+    border: 1px solid #ddd;
+}
+table.table .table tr:first-child > td {
+    border: 0px;
+}
+table.table tr > td:first-child {
+    width: 120px;
+}
+strong {
+    font-weight: 600;
+}
+div > table.table {
+	margin-top: 8px;
+}
+.table > tbody > tr > td {
+	padding: 4px;
+}

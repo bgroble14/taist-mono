@@ -1,0 +1,32 @@
+{
+  "name": "taist-mono",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Taist monorepo containing backend (Laravel) and frontend (React Native Expo)",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "frontend": "cd frontend && npm start",
+    "frontend:android": "cd frontend && npm run android",
+    "frontend:ios": "cd frontend && npm run ios",
+    "frontend:install": "cd frontend && npm install",
+    "backend:install": "cd backend && composer install",
+    "backend:serve": "cd backend && php artisan serve",
+    "install:all": "npm run frontend:install && npm run backend:install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bgroble14/taist-mono.git"
+  },
+  "keywords": [
+    "monorepo",
+    "taist",
+    "laravel",
+    "react-native",
+    "expo"
+  ],
+  "author": "William Groble",
+  "license": "ISC"
+}
+

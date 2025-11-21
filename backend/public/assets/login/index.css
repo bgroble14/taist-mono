@@ -1,0 +1,14 @@
+.bt.bt_white {
+	color: #44474F;
+	border-color: #44474F;
+	background: transparent;
+}
+html, body {
+	background: #F3F6FC;
+}
+.top_nav {
+	background: transparent;
+}
+.slogin {
+	box-shadow: none;
+}

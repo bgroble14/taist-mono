@@ -1,0 +1,79 @@
+import { Dimensions, StyleSheet } from "react-native";
+
+const screenHeight = Dimensions.get('window').height;
+export const styles = StyleSheet.create({
+	main: {
+		flex: 1, 
+		justifyContent: 'space-around', 
+		alignItems: 'center',
+		backgroundColor: '#ff3100',
+	},
+    container: {
+		flex:1,
+		padding:10,
+	},
+	bottomContainer: {
+        width: '100%',
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'space-between',
+		marginBottom:20,
+		borderRadius:5,
+		borderWidth:1.5,
+        borderColor:'#ffffff',
+    },
+    textInput:{
+        flex:1,
+        fontSize: 16,
+        fontWeight: '500',
+        color: 'white',
+        paddingTop:10,
+        padding:10,
+        letterSpacing: 0.5,
+    },
+	btnFly:{
+		padding:10
+	},
+	msgContainer:{
+		flex:1,
+		justifyContent:'flex-end',
+		minHeight:screenHeight,
+		gap:10,
+		paddingBottom:10,
+	},
+	myBubbleContainer:{
+		width:'100%',
+		alignItems:'flex-end',
+	},
+	bubbleContainer:{
+		width:'100%',
+		alignItems:'flex-start',
+	},
+	myBubble:{
+		backgroundColor:'#ffffff',
+		padding:10,
+		maxWidth:'90%',
+		borderRadius:15,
+		borderBottomRightRadius:0,
+		alignSelf:'flex-end',
+	},
+	bubble:{
+		backgroundColor:'#ffff00',
+		padding:10,
+		maxWidth:'90%',
+		borderRadius:15,
+		borderBottomLeftRadius:0,
+		alignSelf:'flex-start'
+	},
+	bubbleText:{
+		fontSize:14,
+		fontWeight:'500',
+		color:'#000000',
+		letterSpacing: 0.5,
+	},
+	bubbleTimeText:{
+		fontSize:12,
+		color:'#ffffff',
+		letterSpacing: 0.5,
+	}
+});

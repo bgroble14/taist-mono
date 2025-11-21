@@ -1,0 +1,19 @@
+export default interface OrderInterface {
+  id?: number;
+  chef_user_id?: number;
+  menu_id?: number;
+  customer_user_id?: number;
+  amount?: number;
+  total_price?: number;
+  addons?: string;
+  address?: string;
+  order_date?: number;
+  order_time?: string;
+  status?: number; //1: Requested, 2:Accepted, 3:Completed, 4:Cancelled, 5:Rejected, 6:Expired
+  notes?: string;
+  rating?: number;
+  review?: string;
+  tip_amount?: number;
+  created_at?: number;
+  updated_at?: number;
+}

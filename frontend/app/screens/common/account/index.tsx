@@ -1,0 +1,556 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  AppState,
+  Modal,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  Text, View
+} from 'react-native';
+
+// NPM
+import {
+  faAngleDown,
+  faClose,
+  faLocationArrow,
+  faSearch
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { SelectList } from 'react-native-dropdown-select-list';
+import {
+  check,
+  checkNotifications,
+  openSettings,
+  PERMISSIONS,
+  RESULTS,
+} from 'react-native-permissions';
+
+// Replace react-native-date-picker with community datetimepicker
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+// Types & Services
+import { IUser } from '../../../types/index';
+
+// Reducers
+// import {setUser} from 'reducers/userSlice';
+
+// Hooks
+import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
+
+import { navigate } from '@/app/utils/navigation';
+import { useFocusEffect } from '@react-navigation/native';
+import { router, useLocalSearchParams } from 'expo-router';
+import moment from 'moment';
+import StyledButton from '../../../components/styledButton';
+import StyledPhotoPicker from '../../../components/styledPhotoPicker';
+import StyledProfileImage from '../../../components/styledProfileImage';
+import StyledSwitch from '../../../components/styledSwitch';
+import StyledTextInput from '../../../components/styledTextInput';
+import Container from '../../../layout/Container';
+import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
+import {
+  LoginAPI,
+  RegisterAPI,
+  UpdateUserAPI,
+  VerifyPhoneAPI,
+} from '../../../services/api';
+import { checkLocalPath, getImageURL } from '../../../utils/functions';
+import { ShowErrorToast } from '../../../utils/toast';
+import { getFormattedDate } from '../../../utils/validations';
+import { styles } from './styles';
+
+
+
+const Account = () => {
+  const selfInfo = useAppSelector(x => x.user.user);
+  const dispatch = useAppDispatch();
+  const appState = useRef(AppState.currentState);
+
+  const params = useLocalSearchParams();
+
+  const from: string = Array.isArray(params?.from)
+    ? params.from[0] ?? ''
+    : params?.from ?? '';
+const user: IUser = typeof params?.user === 'string'
+  ? JSON.parse(params.user)
+  : (params?.user as IUser) || {};
+  
+  const [errors, setErrors] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [userInfo, setUserInfo] = useState<IUser>({});
+  const [openBirthdayPicker, setOpenBirthdayPicker] = useState(false);
+  const [pushNotifications, onChangePushNotifications] = useState(true);
+  const [locationServices, onChangeLocationServices] = useState(true);
+  const [felony, onChangeFelony] = useState(false);
+  const [visibleVerifyCode, onChangeVisibleVerifyCode] = useState(false);
+  const [verificationCode, onChangeVerificationCode] = useState('');
+  const [verificationCode1, onChangeVerificationCode1] = useState(''); //server
+
+  const statesData = [
+    {key: '1', value: 'Alabama '},
+    {key: '2', value: 'Alaska '},
+    {key: '3', value: 'Arizona '},
+    {key: '4', value: 'Arkansas '},
+    {key: '5', value: 'California '},
+    {key: '6', value: 'Colorado '},
+    {key: '7', value: 'Connecticut '},
+    {key: '8', value: 'Delaware '},
+    {key: '9', value: 'Florida '},
+    {key: '10', value: 'Georgia '},
+    {key: '11', value: 'Hawaii '},
+    {key: '12', value: 'Idaho '},
+    {key: '13', value: 'Illinois '},
+    {key: '14', value: 'Indiana '},
+    {key: '15', value: 'Iowa '},
+    {key: '16', value: 'Kansas '},
+    {key: '17', value: 'Kentucky '},
+    {key: '18', value: 'Louisiana '},
+    {key: '19', value: 'Maine '},
+    {key: '20', value: 'Maryland '},
+    {key: '21', value: 'Massachusetts '},
+    {key: '22', value: 'Michigan '},
+    {key: '23', value: 'Minnesota '},
+    {key: '24', value: 'Mississippi '},
+    {key: '25', value: 'Missouri '},
+    {key: '26', value: 'Montana '},
+    {key: '27', value: 'Nebraska '},
+    {key: '28', value: 'Nevada '},
+    {key: '29', value: 'New Hampshire '},
+    {key: '30', value: 'New Jersey '},
+    {key: '31', value: 'New Mexico '},
+    {key: '32', value: 'New York '},
+    {key: '33', value: 'North Carolina '},
+    {key: '34', value: 'North Dakota '},
+    {key: '35', value: 'Ohio '},
+    {key: '36', value: 'Oklahoma '},
+    {key: '37', value: 'Oregon '},
+    {key: '38', value: 'Pennsylvania '},
+    {key: '39', value: 'Rhode Island '},
+    {key: '40', value: 'South Carolina '},
+    {key: '41', value: 'South Dakota '},
+    {key: '42', value: 'Tennessee '},
+    {key: '43', value: 'Texas '},
+    {key: '44', value: 'Utah '},
+    {key: '45', value: 'Vermont '},
+    {key: '46', value: 'Virginia '},
+    {key: '47', value: 'Washington '},
+    {key: '48', value: 'West Virginia '},
+    {key: '49', value: 'Wisconsin '},
+    {key: '50', value: 'Wyoming '},
+  ];
+
+  useEffect(() => {
+    if (from === 'Signup') {
+      setUserInfo(user);
+    } else {
+      setUserInfo(selfInfo);
+    }
+  }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState == 'active'
+      ) {
+        console.log('App has come to the foreground!');
+        handleCheckPermissions();
+      }
+      appState.current = nextAppState;
+    });
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      handleCheckPermissions();
+    }, [appState]),
+  );
+
+  const handleCheckPermissions = async () => {
+    if (Platform.OS === 'android') {
+      check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION).then(result => {
+        if (result === RESULTS.GRANTED) onChangeLocationServices(true);
+        else
+          check(PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION).then(result1 => {
+            if (result1 == RESULTS.GRANTED) onChangeLocationServices(true);
+            else onChangeLocationServices(false);
+          });
+      });
+    } else {
+      check(PERMISSIONS.IOS.LOCATION_ALWAYS).then(result => {
+        if (result === RESULTS.GRANTED) onChangeLocationServices(true);
+        else
+          check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE).then(result1 => {
+            if (result1 == RESULTS.GRANTED) onChangeLocationServices(true);
+            else onChangeLocationServices(false);
+          });
+      });
+    }
+
+    checkNotifications().then(({status, settings}) => {
+      if (status === RESULTS.GRANTED) onChangePushNotifications(true);
+      else onChangePushNotifications(false);
+    });
+  };
+
+  const handleCheckFieldsAndVerifyPhone = async () => {
+    if (checkEmptyFieldInUserInfo() !== '') {
+      ShowErrorToast(checkEmptyFieldInUserInfo());
+      return;
+    }
+
+    var params: any = {...userInfo};
+    const path = userInfo.photo;
+    if (checkLocalPath(path)) {
+      params.photo = {
+        uri: userInfo.photo,
+        type: 'image/jpeg',
+        name: 'photo.jpg',
+      };
+    }
+
+    dispatch(showLoading());
+    const resp = await VerifyPhoneAPI(userInfo.phone ?? '');
+    dispatch(hideLoading());
+    if (resp.success == 0) {
+      ShowErrorToast(resp.error || resp.message);
+      return;
+    }
+    const code = resp.data.code;
+    onChangeVerificationCode1(code);
+    onChangeVisibleVerifyCode(true);
+  };
+
+  const handleVerify = () => {
+    console.log('verificationCode:', verificationCode + ' --->>' + verificationCode1);
+    if (verificationCode != verificationCode1) {
+      ShowErrorToast('Please enter the verification code again');
+      return;
+    }
+    onChangeVisibleVerifyCode(false);
+    if (from == 'Signup') {
+      handleSignUp();
+    } else {
+      handleSave();
+    }
+  };
+
+  const handleSave = async () => {
+    if (checkEmptyFieldInUserInfo() !== '') {
+      ShowErrorToast(checkEmptyFieldInUserInfo());
+      return;
+    }
+
+    var params: any = {...userInfo};
+    const path = userInfo.photo;
+    if (checkLocalPath(path)) {
+      params.photo = {
+        uri: userInfo.photo,
+        type: 'image/jpeg',
+        name: 'photo.jpg',
+      };
+    }
+
+    dispatch(showLoading());
+    const resp = await UpdateUserAPI(params, dispatch);
+    dispatch(hideLoading());
+    if (resp.success == 1) {
+      console.log("Response Success:",resp.success);
+      console.log("User data:",resp.data);
+      console.log("Current user info from Redux:",selfInfo);
+      
+      // Navigate based on user type - check both response and current user info
+      const userType = resp.data?.user_type || userInfo.user_type || selfInfo?.user_type;
+      
+      console.log("Determined user type for navigation:",userType);
+      
+      if (userType === 1) {
+        // Customer - go to customer tabs
+        console.log("Navigating to customer tabs");
+        navigate.toCustomer.tabs();
+      } else if (userType === 2) {
+        // Chef - go to chef tabs (equivalent to chef dashboard)
+        console.log("Navigating to chef tabs");
+        navigate.toChef.tabs();
+      } else {
+        // Fallback error
+        console.error("Unable to determine user type for navigation", {
+          respUserType: resp.data?.user_type,
+          userInfoUserType: userInfo.user_type,
+          selfInfoUserType: selfInfo?.user_type
+        });
+        // Default to chef tabs since the logs show user_type: 2
+        navigate.toChef.tabs();
+      }
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (checkEmptyFieldInUserInfo() !== '') {
+      ShowErrorToast(checkEmptyFieldInUserInfo());
+      return;
+    }
+
+    var params: any = {...userInfo};
+    const path = userInfo.photo;
+    if (checkLocalPath(path)) {
+      params.photo = {
+        uri: userInfo.photo,
+        type: 'image/jpeg',
+        name: 'photo.jpg',
+      };
+    }
+    params.is_pending = 1;
+
+    dispatch(showLoading());
+    const resp_register = await RegisterAPI(params, dispatch);
+    if (resp_register.success == 0) {
+      dispatch(hideLoading());
+      ShowErrorToast(resp_register.message ?? resp_register.error);
+      return;
+    }
+
+    const resp_login = await LoginAPI(
+      {email: userInfo.email, password: userInfo.password, remember: true},
+      dispatch,
+    );
+
+    if (resp_login.success == 0) {
+      dispatch(hideLoading());
+      ShowErrorToast(resp_login.message ?? resp_login.error);
+      return;
+    }
+
+    dispatch(hideLoading());
+
+    // Replace navigator.reset with router.replace for Expo Router
+    const homeRoute = resp_login.data?.user?.user_type == 1
+      ? '/screens/customer/home'
+      : '/screens/chef/(tabs)/home';
+      
+    router.replace(homeRoute);
+    
+  };
+
+  const checkEmptyFieldInUserInfo = () => {
+    if (userInfo.first_name == undefined || userInfo.first_name.length == 0) {
+      return 'Please enter the first name';
+    }
+    if (userInfo.last_name == undefined || userInfo.last_name.length == 0) {
+      return 'Please enter the last name';
+    }
+    if (userInfo.birthday == undefined || userInfo.birthday == 0) {
+      return 'Please select the birthday';
+    }
+    if (userInfo.address == undefined || userInfo.address.length == 0) {
+      return 'Please enter the address';
+    }
+    if (userInfo.city == undefined || userInfo.city.length == 0) {
+      return 'Please enter the city';
+    }
+    if (userInfo.state == undefined || userInfo.state.length == 0) {
+      return 'Please select a state';
+    }
+    if (userInfo.zip == undefined || userInfo.zip.length == 0) {
+      return 'Please enter the zip code';
+    }
+    if (
+      userInfo.user_type === 2 &&
+      (userInfo.photo == undefined || userInfo.photo.length == 0)
+    ) {
+      return 'Please add your photo';
+    }
+    return '';
+  };
+
+  // Handler for the new DateTimePicker
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    const currentDate = selectedDate || (userInfo.birthday ? moment(userInfo.birthday * 1000).toDate() : new Date());
+    
+    // On Android, the picker closes automatically
+    if (Platform.OS === 'android') {
+      setOpenBirthdayPicker(false);
+    }
+    
+    if (event.type === 'set') {
+      // User confirmed the date
+      setUserInfo({...userInfo, birthday: currentDate.getTime() / 1000});
+      if (Platform.OS === 'ios') {
+        setOpenBirthdayPicker(false);
+      }
+    } else if (event.type === 'dismissed') {
+      // User cancelled
+      setOpenBirthdayPicker(false);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.main}>
+      <Container
+        backMode={
+          from == 'Signup' ? true : userInfo.user_type === 1 ? false : true
+        }
+        title={from == 'Signup' ? 'Sign Up' : 'ACCOUNT'}>
+        <ScrollView contentContainerStyle={styles.pageView}>
+          {userInfo.user_type === 2 && (
+            <View>
+              <StyledPhotoPicker
+                content={
+                  <StyledProfileImage
+                    url={getImageURL(userInfo.photo)}
+                    size={160}
+                  />
+                }
+                onPhoto={path => {
+                  setUserInfo({
+                    ...userInfo,
+                    photo: path,
+                  });
+                }}
+                onHide={() => {}}
+              />
+            </View>
+          )}
+          <StyledTextInput
+            label="First Name "
+            placeholder="First Name "
+            onChangeText={val => {
+              setUserInfo({...userInfo, first_name: val});
+            }}
+            value={userInfo.first_name ?? ''}
+          />
+          <StyledTextInput
+            label="Last Name "
+            placeholder="Last Name "
+            onChangeText={val => setUserInfo({...userInfo, last_name: val})}
+            value={userInfo.last_name ?? ''}
+          />
+          <StyledTextInput
+            label="Birthday "
+            placeholder="Birthday "
+            onPress={() => setOpenBirthdayPicker(true)}
+            value={
+              userInfo.birthday && typeof userInfo.birthday == 'number'
+                ? getFormattedDate(userInfo.birthday * 1000)
+                : ''
+            }
+          />
+          <StyledTextInput
+            label="Phone Number "
+            placeholder="Phone Number "
+            keyboardType={'phone-pad'}
+            onChangeText={val => setUserInfo({...userInfo, phone: val})}
+            value={userInfo.phone ?? ''}
+          />
+          <View style={styles.addressTextWrapper}>
+            <Text style={styles.addressText}>ADDRESS </Text>
+            <FontAwesomeIcon icon={faLocationArrow} size={20} color="#ffffff" />
+          </View>
+          <StyledTextInput
+            label="Address "
+            placeholder="Address "
+            onChangeText={val => setUserInfo({...userInfo, address: val})}
+            value={userInfo.address ?? ''}
+          />
+          <StyledTextInput
+            label="City "
+            placeholder="City "
+            onChangeText={val => setUserInfo({...userInfo, city: val})}
+            value={userInfo.city ?? ''}
+          />
+          <SelectList
+            setSelected={(key: string) => {
+              const opt = statesData.find(x => x.key == key);
+              if (opt) setUserInfo({...userInfo, state: opt.value});
+            }}
+            data={statesData}
+            save={'key'}
+            placeholder={userInfo.state ? `${userInfo.state} ` : 'State '}
+            searchPlaceholder="Search "
+            boxStyles={styles.dropdownBox}
+            inputStyles={styles.dropdownInput}
+            dropdownStyles={styles.dropdown}
+            dropdownTextStyles={styles.dropdownText}
+            arrowicon={
+              <FontAwesomeIcon icon={faAngleDown} size={20} color="#ffffff" />
+            }
+            searchicon={
+              <FontAwesomeIcon icon={faSearch} size={15} color="#ffffff" />
+            }
+            closeicon={
+              <FontAwesomeIcon icon={faClose} size={15} color="#ffffff" />
+            }
+          />
+          <StyledTextInput
+            label="ZIP "
+            placeholder="ZIP "
+            onChangeText={val => setUserInfo({...userInfo, zip: val})}
+            value={userInfo.zip ?? ''}
+          />
+
+          <View style={styles.switchWrapper}>
+            <StyledSwitch
+              label="Push notifications "
+              value={pushNotifications}
+              onPress={() => openSettings()}
+            />
+          </View>
+          <View style={styles.switchWrapper}>
+            <StyledSwitch
+              label="Location Services "
+              value={locationServices}
+              onPress={() => {
+                openSettings();
+              }}
+            />
+          </View>
+          <View style={styles.vcenter}>
+            <StyledButton
+              title={from == 'Signup' ? 'Sign Up' : 'SAVE '}
+              onPress={() => {
+                from == 'Signup'
+                  ? handleCheckFieldsAndVerifyPhone()
+                  : handleSave();
+              }}
+            />
+          </View>
+        </ScrollView>
+        
+        {/* Replace DatePicker with DateTimePicker */}
+        {openBirthdayPicker && (
+          <DateTimePicker
+            value={
+              userInfo.birthday
+                ? moment(userInfo.birthday * 1000).toDate()
+                : moment().toDate()
+            }
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={onDateChange}
+          />
+        )}
+      </Container>
+      <Modal transparent visible={visibleVerifyCode}>
+        <Pressable
+          onPress={() => onChangeVisibleVerifyCode(false)}
+          style={styles.modalBG}>
+          <View style={styles.modal}>
+            <Text style={styles.modalText}>{`Please check your phone`} </Text>
+            <StyledTextInput
+              label="Verification Code "
+              value={verificationCode}
+              onChangeText={onChangeVerificationCode}
+            />
+            <StyledButton title={'Verify '} onPress={handleVerify} />
+          </View>
+        </Pressable>
+      </Modal>
+    </SafeAreaView>
+  );
+};
+
+export default Account;
