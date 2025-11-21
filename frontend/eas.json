@@ -1,4 +1,10 @@
 {
+  "cli": {
+    "appVersionSource": "remote"
+  },
+  "hooks": {
+    "prebuild": "./eas-hooks/eas-build-pre-install.sh"
+  },
   "build": {
     "development": {
       "developmentClient": true,
