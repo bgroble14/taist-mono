@@ -1,5 +1,6 @@
 import Geolocation from "@react-native-community/geolocation";
 import axios from "axios";
+import Constants from "expo-constants";
 import { GetFCMToken } from "../firebase";
 import { updateChefPaymentMthod, updateChefProfile } from "../reducers/chefSlice";
 
@@ -32,16 +33,37 @@ import {
   StoreLoginData,
 } from "../utils/storage";
 
-// prod
-export const BASE_URL = `https://taist.codeupscale.com/mapi/`;
-export const Photo_URL = `https://taist.codeupscale.com/assets/uploads/images/`;
-export const HTML_URL = `https://taist.codeupscale.com/assets/uploads/html/`;
+// Environment-based configuration
+const APP_ENV = Constants.expoConfig?.extra?.APP_ENV || 'production';
 
-// staging
-// export const BASE_URL = `https://taist.cloudupscale.com/mapi/`;
-//  export const Photo_URL = `https://taist.cloudupscale.com/assets/uploads/images/`;
-//  export const HTML_URL = `https://taist.cloudupscale.com/assets/uploads/html/`;
-// const BASE_URL = `http://192.168.1.201:80/v2/api`;
+// Determine URLs based on environment
+const getEnvironmentUrls = () => {
+  if (APP_ENV === 'staging' || APP_ENV === 'development') {
+    // Staging environment
+    return {
+      BASE_URL: 'https://taist.cloudupscale.com/mapi/',
+      Photo_URL: 'https://taist.cloudupscale.com/assets/uploads/images/',
+      HTML_URL: 'https://taist.cloudupscale.com/assets/uploads/html/',
+    };
+  } else {
+    // Production environment
+    return {
+      BASE_URL: 'https://taist.codeupscale.com/mapi/',
+      Photo_URL: 'https://taist.codeupscale.com/assets/uploads/images/',
+      HTML_URL: 'https://taist.codeupscale.com/assets/uploads/html/',
+    };
+  }
+};
+
+const environmentUrls = getEnvironmentUrls();
+
+export const BASE_URL = environmentUrls.BASE_URL;
+export const Photo_URL = environmentUrls.Photo_URL;
+export const HTML_URL = environmentUrls.HTML_URL;
+
+// Log current environment for debugging
+console.log('🌍 Environment:', APP_ENV);
+console.log('🔗 API URL:', BASE_URL);
 
 const API_KEY =
   "ra_jk6YK9QmAVqTazHIrF1vi3qnbtagCIJoZAzCR51lCpYY9nkTN6aPVeX15J49k";
