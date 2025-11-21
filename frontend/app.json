@@ -59,7 +59,7 @@
           "required": false
         },
         {
-          "name": "android.hardware.camera.front", 
+          "name": "android.hardware.camera.front",
           "required": false
         }
       ],
@@ -188,7 +188,6 @@
       [
         "@stripe/stripe-react-native",
         {
-          "merchantIdentifier": "your.merchant.id",
           "enableGooglePay": true
         }
       ],
@@ -206,8 +205,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "7ec3f7e8-be36-4627-b2e9-98fc3e77a418"
+        "projectId": "0bad62e8-4a7c-46bd-9d4c-931018151fae"
       }
-    }
+    },
+    "owner": "bgroble"
   }
 }
