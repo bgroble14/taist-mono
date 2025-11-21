@@ -1,4 +1,6 @@
 import { Dimensions, StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 const screenHeight = Dimensions.get('window').height;
 export const styles = StyleSheet.create({
@@ -20,13 +22,13 @@ export const styles = StyleSheet.create({
 		marginBottom:20,
 		borderRadius:5,
 		borderWidth:1.5,
-        borderColor:'#ffffff',
+        borderColor:AppColors.border,
     },
     textInput:{
         flex:1,
         fontSize: 16,
         fontWeight: '500',
-        color: 'white',
+        color: AppColors.text,
         paddingTop:10,
         padding:10,
         letterSpacing: 0.5,
@@ -50,7 +52,7 @@ export const styles = StyleSheet.create({
 		alignItems:'flex-start',
 	},
 	myBubble:{
-		backgroundColor:'#ffffff',
+		backgroundColor:AppColors.surface,
 		padding:10,
 		maxWidth:'90%',
 		borderRadius:15,
@@ -68,12 +70,12 @@ export const styles = StyleSheet.create({
 	bubbleText:{
 		fontSize:14,
 		fontWeight:'500',
-		color:'#000000',
+		color: AppColors.text,
 		letterSpacing: 0.5,
 	},
 	bubbleTimeText:{
 		fontSize:12,
-		color:'#ffffff',
+		color: AppColors.text,
 		letterSpacing: 0.5,
 	}
 });

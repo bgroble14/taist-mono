@@ -1,10 +1,12 @@
 import { StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
 	container: {
         flex: 1,
 		padding: 20,
-        backgroundColor: '#fa4616',
+        backgroundColor: AppColors.background,
 	},
 	center: {
 		flex: 1,
@@ -26,17 +28,17 @@ export const styles = StyleSheet.create({
 		fontSize: 24,
 		fontWeight: '700',
 		textAlign: 'center',
-		color: '#ffffff'
+		color: AppColors.text
 	},
 	button: {
 		borderRadius: 20,
-		backgroundColor: '#feffff',
+		backgroundColor: AppColors.primary,
 		width: '100%',
 		padding: 10,
 		marginBottom: 5,
 	},
 	buttonText: {
-		color: '#fa4616',
+		color: AppColors.primary,
 		fontSize: 18,
 		textAlign: 'center'
 	},
@@ -45,7 +47,7 @@ export const styles = StyleSheet.create({
 		padding: 10,
 	},
 	buttonText2: {
-		color: '#ffffff',
+		color: AppColors.textOnPrimary,
 		fontSize: 16,
 		textAlign: 'center'
 	},
@@ -53,7 +55,7 @@ export const styles = StyleSheet.create({
 		marginTop: 20,
 	},
     formInputFields: {
-		color: '#ffffff',
+		color: AppColors.text,
         fontSize: 18,
 	},
     forgot: {
@@ -62,7 +64,7 @@ export const styles = StyleSheet.create({
 	},
     forgotText: {
         fontSize: 14, 
-        color: '#ffffff',
+        color: AppColors.text,
         letterSpacing: 0.1
     },
 });

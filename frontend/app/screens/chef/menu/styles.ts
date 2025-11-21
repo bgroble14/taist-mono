@@ -1,11 +1,13 @@
 import {StyleSheet} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   pageView: {
     padding: 10,
@@ -16,7 +18,7 @@ export const styles = StyleSheet.create({
   },
   missingHeading: {
     fontSize: 25,
-    color: '#ffffff',
+    color: AppColors.text,
     textAlign: 'center',
     marginTop: 20,
   },
@@ -27,7 +29,7 @@ export const styles = StyleSheet.create({
   },
   missingSubheading: {
     fontSize: 18,
-    color: '#ffffff',
+    color: AppColors.text,
     textAlign: 'center',
   },
   cardContainer: {
@@ -35,7 +37,7 @@ export const styles = StyleSheet.create({
     gap: 20,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.surface,
     borderRadius: 10,
     width: '100%',
     paddingHorizontal: 20,
@@ -50,10 +52,10 @@ export const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '500',
-    color: '#000000',
+    color: AppColors.text,
   },
   cardText: {
-    color: '#000000',
+    color: AppColors.text,
   },
   tabContainer: {
     flexDirection: 'row',

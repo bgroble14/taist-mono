@@ -1,51 +1,62 @@
 import { Dimensions, StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
 
 const screen_width = Dimensions.get('window').width;
 const screen_height = Dimensions.get('window').height;
 
 export const styles = StyleSheet.create({
+	// Loading splash (orange branding screen)
+	splash: {
+		backgroundColor: AppColors.primary,
+		width: screen_width,
+		height: screen_height,
+		paddingHorizontal: 48,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	splashLogo: {
+		width: '100%',
+		height: '100%',
+		resizeMode: 'contain',
+	},
 	outdatedText: {
-		color: 'white',
-		fontSize: 18,
+		color: AppColors.textOnPrimary,
+		fontSize: 16,
 		textAlign: 'center',
 		marginTop: 20,
+		fontWeight: '600',
 	},
+
+	// Main splash screen (white with buttons)
 	main: {
-		flex: 1, 
-		justifyContent: 'space-around', 
+		flex: 1,
+		justifyContent: 'space-between',
 		alignItems: 'center',
-		backgroundColor: '#fa4616',
+		backgroundColor: AppColors.background,
+		paddingTop: 80,
+		paddingBottom: 40,
 	},
-	splash:{
-		backgroundColor: '#fa4616',
-		width:screen_width,
-		height:screen_height,
-		paddingHorizontal:48,
-		alignItems:'center',
-	},
-	splashLogo:{
-		width:'100%',
-		height:'100%',
-		resizeMode:'contain',
-	},
-    logo: {
-		width: 160,
-		height: 80
+	logo: {
+		width: 180,
+		height: 90,
+		resizeMode: 'contain',
 	},
 	buttonsWrapper: {
 		width: '100%',
-		padding: 20
+		paddingHorizontal: Spacing.xl,
+		gap: Spacing.md,
 	},
 	button: {
-		borderRadius: 20,
-		backgroundColor: '#feffff',
-		width: '100%',
-		padding: 10,
-		marginBottom: 20,
+		borderRadius: 12,
+		backgroundColor: AppColors.primary,
+		paddingVertical: 16,
+		alignItems: 'center',
+		...Shadows.md,
 	},
 	buttonText: {
-		color: '#fa4616',
-		fontSize: 18,
-		textAlign: 'center'
+		color: AppColors.textOnPrimary,
+		fontSize: 16,
+		fontWeight: '700',
+		letterSpacing: 0.5,
 	}
 });

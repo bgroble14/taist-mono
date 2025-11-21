@@ -1,29 +1,29 @@
 import {Dimensions, StyleSheet} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 const {width, height} = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   pageView: {
     width: '100%',
-    padding: 10,
+    padding: Spacing.lg,
     alignItems: 'center',
-    gap: 20,
+    gap: Spacing.md,
   },
   formFields: {
     width: '100%',
     marginTop: 15,
-    color: '#ffffff',
+    color: AppColors.text,
   },
   formFieldsContainer: {
     backgroundColor: 'transparent',
   },
   formInputFields: {
-    color: '#ffffff',
+    color: AppColors.text,
     fontSize: 16,
   },
   addressTextWrapper: {
@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
     width: '100%',
   },
   switchWrapper: {
@@ -49,29 +49,29 @@ export const styles = StyleSheet.create({
   switchText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   dropdownBox: {
     width: '100%',
     borderRadius: 4,
     marginTop: 15,
-    borderColor: '#ffffff',
-    color: '#ffffff',
+    borderColor: AppColors.border,
+    color: AppColors.text,
     paddingHorizontal: 10,
     paddingVertical: 16,
   },
   dropdownInput: {
-    color: '#ffffff',
+    color: AppColors.text,
     fontSize: 16,
     paddingLeft: 5,
   },
   dropdown: {
-    borderColor: '#ffffff',
+    borderColor: AppColors.border,
     borderRadius: 4,
   },
   dropdownText: {
-    color: '#ffffff',
-    borderColor: '#ffffff',
+    color: AppColors.text,
+    borderColor: AppColors.border,
   },
   vcenter: {
     flex: 1,
@@ -80,15 +80,17 @@ export const styles = StyleSheet.create({
     width: '100%',
   },
   button: {
-    borderRadius: 20,
-    backgroundColor: '#feffff',
+    borderRadius: 12,
+    backgroundColor: AppColors.primary,
     width: '100%',
-    padding: 12,
-    marginBottom: 5,
+    paddingVertical: 16,
+    marginBottom: Spacing.sm,
+    ...Shadows.md,
   },
   buttonText: {
-    color: '#fa4616',
+    color: AppColors.textOnPrimary,
     fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
   },
   buttonDisabled: {
@@ -106,14 +108,14 @@ export const styles = StyleSheet.create({
   },
   modal: {
     width: width * 0.75,
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
     borderRadius: 12,
     padding: 12,
     paddingVertical: 20,
     gap: 20,
   },
   modalText: {
-    color: '#ffffff',
+    color: AppColors.text,
     fontSize: 16,
     textAlign: 'center',
   },

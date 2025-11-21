@@ -55,41 +55,58 @@ const Login = () => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.center}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{flexGrow: 1}}
+      keyboardShouldPersistTaps="handled"
+    >
+      {/* Logo Section */}
+      <View style={styles.logoContainer}>
         <Image
           style={styles.logo}
           source={require('../../../assets/images/logo.png')}
         />
       </View>
-      <View style={styles.vcenter}>
-        <View>
-          <Text style={styles.heading}>Login</Text>
-        </View>
-        <View>
+
+      {/* Welcome Text */}
+      <View style={{marginBottom: 32}}>
+        <Text style={styles.welcomeText}>Welcome back</Text>
+        <Text style={styles.subtitleText}>Sign in to continue</Text>
+      </View>
+
+      {/* Form Section */}
+      <View style={styles.formContainer}>
+        {/* Email Input */}
+        <View style={styles.inputWrapper}>
+          <Text style={styles.inputLabel}>Email</Text>
           <TextInput
             style={styles.formFields}
             inputStyle={styles.formInputFields}
-            placeholder="Email "
-            placeholderTextColor={'#ffffff'}
-            variant="standard"
+            placeholder="Enter your email"
+            placeholderTextColor={'#999999'}
+            variant="outlined"
             onChangeText={txt => onChangeEmail(txt.toLowerCase())}
             value={email}
             keyboardType="email-address"
-            color="#ffffff"
+            color="#1a1a1a"
             autoCapitalize={'none'}
           />
+        </View>
+
+        {/* Password Input */}
+        <View style={styles.inputWrapper}>
+          <Text style={styles.inputLabel}>Password</Text>
           <TextInput
             style={styles.formFields}
             inputStyle={styles.formInputFields}
-            placeholder="Password "
-            placeholderTextColor={'#ffffff'}
-            variant="standard"
+            placeholder="Enter your password"
+            placeholderTextColor={'#999999'}
+            variant="outlined"
             onChangeText={onChangePassword}
             value={password}
             textContentType="password"
             secureTextEntry={!visiblePassword}
-            color="#ffffff"
+            color="#1a1a1a"
             trailing={props => (
               <IconButton
                 icon={props => (
@@ -98,7 +115,7 @@ const Login = () => {
                       width: 20,
                       height: 20,
                       resizeMode: 'contain',
-                      tintColor: 'white',
+                      tintColor: '#666666',
                     }}
                     source={
                       visiblePassword
@@ -115,45 +132,34 @@ const Login = () => {
             )}
           />
         </View>
-        <Button
-          style={styles.forgot}
-          variant="text"
-          uppercase={false}
-          titleStyle={styles.forgotText}
-          compact={true}
-          title="Forgot Password?"
-          onPress={handleForgot}
-        />
+
+        {/* Forgot Password */}
+        <View style={styles.forgotContainer}>
+          <Pressable style={styles.forgotButton} onPress={handleForgot}>
+            <Text style={styles.forgotText}>Forgot Password?</Text>
+          </Pressable>
+        </View>
       </View>
-      <View style={styles.vcenter}>
-        <Pressable style={styles.button} onPress={() => handleLogin()}>
-          <Text style={styles.buttonText}>Login</Text>
-        </Pressable>
-        <Pressable
-          style={styles.button2}
-          onPress={() =>   navigate.toCommon.signup()}>
-          <Text style={styles.buttonText2}>Sign Up</Text>
+
+      {/* Login Button */}
+      <Pressable style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Log In</Text>
+      </Pressable>
+
+      {/* Divider */}
+      <View style={styles.dividerContainer}>
+        <View style={styles.divider} />
+        <Text style={styles.dividerText}>or</Text>
+        <View style={styles.divider} />
+      </View>
+
+      {/* Sign Up Link */}
+      <View style={styles.signupContainer}>
+        <Text style={styles.signupText}>Don't have an account?</Text>
+        <Pressable style={styles.signupButton} onPress={() => navigate.toCommon.signup()}>
+          <Text style={styles.signupButtonText}>Sign Up</Text>
         </Pressable>
       </View>
-      {/* <View
-        style={{
-          alignItems: 'center',
-          marginTop: 30,
-          gap: 10,
-        }}>
-        <StyledCheckBox
-          value={chefMode}
-          onPress={() => onChangeChefMode(!chefMode)}
-          label="Chef Mode "
-        />
-        {chefMode && (
-          <StyledCheckBox
-            value={pendingChef}
-            onPress={() => onChangePending(!pendingChef)}
-            label="Pending Chef"
-          />
-        )}
-      </View> */}
     </ScrollView>
   );
 };

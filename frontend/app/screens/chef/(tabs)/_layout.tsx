@@ -5,7 +5,7 @@ import { Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavigationItem } from '../../../features/navigation';
 import { useAppSelector } from '../../../hooks/useRedux';
-
+import { AppColors } from '../../../../constants/theme';
 export default function TabLayout() {
   const user = useAppSelector((x: any) => x.user.user);
   const insets = useSafeAreaInsets();
@@ -17,8 +17,9 @@ export default function TabLayout() {
         headerShown: false,
         tabBarShowLabel: true,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopWidth: 0,
+          backgroundColor: AppColors.background,
+          borderTopWidth: 1,
+          borderTopColor: AppColors.border,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
@@ -44,7 +45,7 @@ export default function TabLayout() {
               icon={
                 <FontAwesomeIcon
                   icon={faHouse}
-                  color={focused ? '#fa4616' : '#000000'}
+                  color={focused ? AppColors.primary : AppColors.textSecondary}
                   size={20}
                 />
               }
@@ -53,7 +54,7 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }: any) => (
             <Text
               style={{
-                color: focused ? '#fa4616' : '#000000',
+                color: focused ? AppColors.primary : AppColors.textSecondary,
                 fontSize: 11,
                 fontWeight: '700',
               }}>
@@ -72,7 +73,7 @@ export default function TabLayout() {
               icon={
                 <FontAwesomeIcon
                   icon={faCreditCard}
-                  color={focused ? '#fa4616' : '#000000'}
+                  color={focused ? AppColors.primary : AppColors.textSecondary}
                   size={20}
                 />
               }
@@ -81,7 +82,7 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }: any) => (
             <Text
               style={{
-                color: focused ? '#fa4616' : '#000000',
+                color: focused ? AppColors.primary : AppColors.textSecondary,
                 fontSize: 11,
                 fontWeight: '700',
               }}>
@@ -100,7 +101,7 @@ export default function TabLayout() {
               icon={
                 <FontAwesomeIcon
                   icon={faBookBookmark}
-                  color={focused ? '#fa4616' : '#000000'}
+                  color={focused ? AppColors.primary : AppColors.textSecondary}
                   size={20}
                 />
               }
@@ -109,7 +110,7 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }: any) => (
             <Text
               style={{
-                color: focused ? '#fa4616' : '#000000',
+                color: focused ? AppColors.primary : AppColors.textSecondary,
                 fontSize: 11,
                 fontWeight: '700',
               }}>
@@ -128,7 +129,7 @@ export default function TabLayout() {
               icon={
                 <FontAwesomeIcon
                   icon={faAddressCard}
-                  color={focused ? '#fa4616' : '#000000'}
+                  color={focused ? AppColors.primary : AppColors.textSecondary}
                   size={20}
                 />
               }
@@ -137,7 +138,7 @@ export default function TabLayout() {
           tabBarLabel: ({ focused }: any) => (
             <Text
               style={{
-                color: focused ? '#fa4616' : '#000000',
+                color: focused ? AppColors.primary : AppColors.textSecondary,
                 fontSize: 11,
                 fontWeight: '700',
               }}>
@@ -157,7 +158,7 @@ export default function TabLayout() {
                 icon={
                   <FontAwesomeIcon
                     icon={faDollarSign}
-                    color={focused ? '#fa4616' : '#000000'}
+                    color={focused ? AppColors.primary : AppColors.textSecondary}
                     size={20}
                   />
                 }
@@ -166,7 +167,7 @@ export default function TabLayout() {
             tabBarLabel: ({ focused }: any) => (
               <Text
                 style={{
-                  color: focused ? '#fa4616' : '#000000',
+                  color: focused ? AppColors.primary : AppColors.textSecondary,
                   fontSize: 11,
                   fontWeight: '700',
                 }}>

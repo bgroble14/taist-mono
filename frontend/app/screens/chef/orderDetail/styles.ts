@@ -1,4 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -7,7 +9,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   pageView: {
     padding: 10,
@@ -44,7 +46,7 @@ export const styles = StyleSheet.create({
   headTitle: {
     fontWeight: '500',
     fontSize: 20,
-    color: '#ffffff',
+    color: AppColors.text,
     textAlign: 'center',
     position: 'absolute',
     top: 0,
@@ -55,28 +57,28 @@ export const styles = StyleSheet.create({
   title: {
     fontWeight: '700',
     fontSize: 20,
-    color: '#ffffff',
+    color: AppColors.text,
     marginTop: 20,
   },
   titleBlack: {
     fontWeight: '700',
     fontSize: 20,
-    color: '#000000',
+    color: AppColors.text,
     margin: 5,
     marginTop: 10,
   },
   text: {
-    color: '#000000',
+    color: AppColors.text,
     fontWeight: '600',
   },
   textRight: {
-    color: '#000000',
+    color: AppColors.text,
     fontWeight: '600',
     textAlign: 'right',
   },
   card: {
     width: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.surface,
     borderRadius: 10,
     padding: 20,
     paddingVertical: 20,
@@ -100,7 +102,7 @@ export const styles = StyleSheet.create({
   },
   statusBox: {
     borderRadius: 20,
-    backgroundColor: '#feffff',
+    backgroundColor: AppColors.surface,
     shadowColor: '#000000',
     shadowOffset: {width: 2.5, height: 2.5},
     shadowOpacity: 0.2,
@@ -110,7 +112,7 @@ export const styles = StyleSheet.create({
     padding: 12,
   },
   statusText: {
-    color: '#fa4616',
+    color: AppColors.primary,
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
@@ -126,7 +128,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnText: {
-    color: '#ffffff',
+    color: AppColors.textOnPrimary,
     fontSize: 14,
     fontWeight: '500',
   },

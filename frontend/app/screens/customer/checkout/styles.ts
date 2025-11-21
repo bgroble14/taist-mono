@@ -1,11 +1,13 @@
 import {StyleSheet} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   pageView: {
     padding: 10,
@@ -24,18 +26,18 @@ export const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   checkoutBlock: {
     width: '100%',
   },
   checkoutSubheading: {
     fontSize: 18,
-    color: '#ffffff',
+    color: AppColors.text,
     marginVertical: 10,
   },
   checkoutText: {
-    color: '#ffffff',
+    color: AppColors.text,
     marginLeft: 10,
   },
   calendarWrapper: {
@@ -48,7 +50,7 @@ export const styles = StyleSheet.create({
   estimated: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
     margin: 10,
   },
   checkoutSummaryItemWrapper: {
@@ -60,11 +62,11 @@ export const styles = StyleSheet.create({
   },
   checkoutSummaryItemTitle: {
     fontSize: 16,
-    color: '#ffffff',
+    color: AppColors.text,
   },
   checkoutSummaryItemAddon: {
     fontSize: 10,
-    color: '#ffffff',
+    color: AppColors.text,
   },
   checkoutSummaryItemPriceWrapper: {
     flexDirection: 'row',
@@ -72,7 +74,7 @@ export const styles = StyleSheet.create({
   },
   checkoutAddressItemTitle: {
     fontSize: 16,
-    color: '#ffffff',
+    color: AppColors.text,
     marginBottom: 10,
   },
   checkoutPaymentItemWrapper: {
@@ -87,7 +89,7 @@ export const styles = StyleSheet.create({
   },
   checkoutApplianceItemTitle: {
     fontSize: 16,
-    color: '#ffffff',
+    color: AppColors.text,
   },
   switchWrapper: {
     flexDirection: 'row',
@@ -99,7 +101,7 @@ export const styles = StyleSheet.create({
   switchText: {
     flex: 1,
     fontSize: 16,
-    color: '#ffffff',
+    color: AppColors.text,
   },
   vcenter: {
     flex: 1,
@@ -109,13 +111,13 @@ export const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 20,
-    backgroundColor: '#feffff',
+    backgroundColor: AppColors.primary,
     width: '100%',
     padding: 12,
     marginBottom: 5,
   },
   buttonText: {
-    color: '#fa4616',
+    color: AppColors.primary,
     fontSize: 16,
     textAlign: 'center',
   },

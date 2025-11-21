@@ -1,14 +1,11 @@
 import { StyleSheet } from 'react-native';
+import { AppColors, Shadows } from '../../../constants/theme';
 
-  const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   btn: {
     borderRadius: 20,
-    backgroundColor: '#feffff',
-    shadowColor: '#000000',
-    shadowOffset: {width: 2.5, height: 2.5},
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    backgroundColor: AppColors.primary, // Changed from white to orange
+    ...Shadows.lg,
     width: '100%',
     padding: 12,
     marginBottom: 5,
@@ -16,7 +13,7 @@ import { StyleSheet } from 'react-native';
     alignItems: 'center',
   },
   btnTxt: {
-    color: '#fa4616',
+    color: AppColors.textOnPrimary, // Changed from orange to white
     fontSize: 18,
     letterSpacing: 0.5,
     fontWeight: '700',
@@ -24,12 +21,8 @@ import { StyleSheet } from 'react-native';
   },
   btnDisabled: {
     borderRadius: 20,
-    backgroundColor: '#000000',
-    shadowColor: '#000000',
-    shadowOffset: {width: 2.5, height: 2.5},
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
+    backgroundColor: AppColors.disabled, // Changed from black to light gray
+    ...Shadows.lg,
     width: '100%',
     padding: 12,
     marginBottom: 5,
@@ -37,7 +30,7 @@ import { StyleSheet } from 'react-native';
     alignItems: 'center',
   },
   btnDisabledTxt: {
-    color: '#ffffff',
+    color: AppColors.disabledText, // Changed from white to gray
     fontSize: 18,
     letterSpacing: 0.5,
     fontWeight: '700',

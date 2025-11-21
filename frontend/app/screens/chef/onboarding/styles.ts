@@ -1,4 +1,6 @@
 import { Dimensions, StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 const screenWidth = Dimensions.get("window").width;
 export const styles = StyleSheet.create({
@@ -6,7 +8,7 @@ export const styles = StyleSheet.create({
 		flex: 1, 
 		justifyContent: 'space-around', 
 		alignItems: 'center',
-		backgroundColor: '#fa4616',
+		backgroundColor: AppColors.background,
 	},
 	pageView: {
 		width:screenWidth,
@@ -21,10 +23,10 @@ export const styles = StyleSheet.create({
     pageTitle: {
 		fontSize: 20,
 		fontWeight: '700',
-		color: '#ffffff'
+		color: AppColors.text
 	},
 	pageText:{
-		color: '#ffffff'
+		color: AppColors.text
 	},
     subPageView:{
 		width:'100%',
@@ -48,14 +50,14 @@ export const styles = StyleSheet.create({
 	},
 	button: {
 		borderRadius: 20,
-		backgroundColor: '#feffff',
+		backgroundColor: AppColors.primary,
 		width: 200,
 		padding: 10,
 		alignSelf:'center',
 		marginBottom: 5,
 	},
 	buttonText: {
-		color: '#fa4616',
+		color: AppColors.primary,
 		fontSize: 18,
 		textAlign: 'center'
 	},

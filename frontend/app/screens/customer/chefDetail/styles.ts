@@ -1,4 +1,6 @@
 import {StyleSheet, Dimensions} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -7,7 +9,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   pageView: {
     padding: 10,
@@ -26,7 +28,7 @@ export const styles = StyleSheet.create({
   chefName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   chefCardContainer: {
     marginTop: 20,
@@ -49,25 +51,25 @@ export const styles = StyleSheet.create({
     marginTop: 5,
   },
   chefCardDescription: {
-    color: '#000000',
+    color: AppColors.text,
   },
   chefCardInsured: {
     fontWeight: '700',
-    color: '#000000',
+    color: AppColors.text,
   },
   chefCardReviewHeading: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   chefCardAllergenHeading: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
     marginTop: 10,
   },
   chefCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.surface,
     borderRadius: 10,
     padding: 10,
     width: '100%',
@@ -88,16 +90,16 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     width: '70%',
-    color: '#000000',
+    color: AppColors.text,
   },
   chefCardMenuItemPrice: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#000000',
+    color: AppColors.text,
   },
   chefCardMenuItemDescription: {
     marginVertical: 5,
-    color: '#000000',
+    color: AppColors.text,
   },
   chefCardInnerReview: {
     flexDirection: 'row',
@@ -108,7 +110,7 @@ export const styles = StyleSheet.create({
   },
   chefCardInnerReviewDate: {
     fontWeight: '700',
-    color: '#000000',
+    color: AppColors.text,
   },
   allegenContainer: {
     flexDirection: 'row',
@@ -124,7 +126,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkoutButtonLabel: {
-    color: '#ffffff',
+    color: AppColors.textOnPrimary,
     fontSize: 16,
     textAlign: 'center',
   },

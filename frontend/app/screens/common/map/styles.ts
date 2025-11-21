@@ -1,4 +1,6 @@
 import {StyleSheet} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
   main: {
@@ -15,7 +17,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   center: {
     flex: 1,

@@ -1,11 +1,13 @@
 import {StyleSheet} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   pageView: {
     padding: 10,
@@ -24,7 +26,7 @@ export const styles = StyleSheet.create({
   headTitle: {
     fontWeight: '500',
     fontSize: 20,
-    color: '#ffffff',
+    color: AppColors.text,
     textAlign: 'center',
     position: 'absolute',
     top: 0,
@@ -40,29 +42,29 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '500',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   subTitle: {
     fontSize: 16,
     fontWeight: '400',
-    color: '#ffffff',
+    color: AppColors.text,
     textAlign: 'center',
   },
   text: {
-    color: '#ffffff',
+    color: AppColors.text,
   },
   text1: {
-    color: '#fa4616',
+    color: AppColors.primary,
   },
   formFields: {
     width: '100%',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   formFieldsContainer: {
     backgroundColor: 'transparent',
   },
   formInputFields: {
-    color: '#ffffff',
+    color: AppColors.text,
     fontSize: 14,
   },
   tabContainer: {
@@ -74,24 +76,24 @@ export const styles = StyleSheet.create({
   },
   tab: {
     borderRadius: 20,
-    backgroundColor: '#feffff',
+    backgroundColor: AppColors.surface,
     padding: 15,
     paddingVertical: 10,
   },
   tabText: {
-    color: '#fa4616',
+    color: AppColors.primary,
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
   },
   tabDisabled: {
     borderRadius: 20,
-    backgroundColor: '#000000',
+    backgroundColor: AppColors.disabled,
     padding: 15,
     paddingVertical: 10,
   },
   tabDisabledText: {
-    color: '#ffffff',
+    color: AppColors.text,
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
@@ -112,7 +114,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     padding: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.surface,
     borderRadius: 10,
   },
   applianceImg: {
@@ -123,13 +125,13 @@ export const styles = StyleSheet.create({
   applianceText: {
     fontSize: 16,
     fontWeight: '400',
-    color: '#ffffff',
+    color: AppColors.text,
     textAlign: 'center',
   },
   applianceTextSelected: {
     fontSize: 16,
     fontWeight: '400',
-    color: '#fa4616',
+    color: AppColors.primary,
     textAlign: 'center',
   },
   completionTimeContainer: {
@@ -141,7 +143,7 @@ export const styles = StyleSheet.create({
   },
   customizationItem: {
     width: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.surface,
     borderRadius: 10,
     padding: 10,
     flexDirection: 'row',

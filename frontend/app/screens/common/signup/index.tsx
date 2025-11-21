@@ -1,5 +1,5 @@
 import { navigate } from '@/app/utils/navigation';
-import { IconButton, Text, TextInput } from '@react-native-material/core';
+import { Text, TextInput } from 'react-native-paper';
 import React from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
 import { IUser } from '../../../types/index';
@@ -82,78 +82,61 @@ const Signup = () => {
         </View>
       )}
       {step == 2 && (
-        <View style={styles.vcenter}>
+        <View style={styles.formContainer}>
           <View>
             <Text style={styles.heading}>Sign Up</Text>
+            <Text style={styles.subheading}>Create your account to get started</Text>
           </View>
-          <View>
-            <TextInput
-              style={styles.formFields}
-              inputStyle={styles.formInputFields}
-              placeholder="Email "
-              placeholderTextColor={'#ffffff'}
-              variant="standard"
-              onChangeText={txt => onChangeEmail(txt.toLowerCase())}
-              value={email}
-              keyboardType="email-address"
-              color="#ffffff"
-              autoCapitalize={'none'}
-            />
-            <TextInput
-              style={styles.formFields}
-              inputStyle={styles.formInputFields}
-              placeholder="Password "
-              placeholderTextColor={'#ffffff'}
-              variant="standard"
-              onChangeText={onChangePassword}
-              value={password}
-              textContentType="password"
-              secureTextEntry={true}
-              color="#ffffff"
-              trailing={props => (
-                <IconButton icon={props => <></>} {...props} />
-              )}
-            />
+          <View style={styles.formContent}>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <TextInput
+                placeholder="Enter your email"
+                placeholderTextColor={'#999999'}
+                mode="outlined"
+                onChangeText={txt => onChangeEmail(txt.toLowerCase())}
+                value={email}
+                keyboardType="email-address"
+                autoCapitalize={'none'}
+                style={styles.input}
+              />
+            </View>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Password</Text>
+              <TextInput
+                placeholder="Enter your password"
+                placeholderTextColor={'#999999'}
+                mode="outlined"
+                onChangeText={onChangePassword}
+                value={password}
+                textContentType="password"
+                secureTextEntry={true}
+                style={styles.input}
+              />
+            </View>
           </View>
         </View>
       )}
       {step == 2 && (
-        <View style={styles.vcenter}>
-          <Pressable style={styles.button} onPress={() => handleSignup()}>
-            <Text style={styles.buttonText}>Join Now</Text>
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.signupButton} onPress={() => handleSignup()}>
+            <Text style={styles.signupButtonText}>Join Now</Text>
           </Pressable>
           <Pressable
-            style={styles.button2}
+            style={styles.loginLink}
             onPress={() => navigate.toCommon.login()}>
-            <Text style={styles.buttonText2}>Login</Text>
+            <Text style={styles.loginLinkText}>Already have an account? Log in</Text>
           </Pressable>
         </View>
       )}
       {step == 2 && (
-        <View style={styles.vcenter}>
-          {/* <View>
-            <Text style={styles.heading2}>Or sign up with:</Text>
-          </View>
-          <View style={styles.socialIconsWrapper}>
-            <View style={styles.socialIconContainer}>
-              <Image
-                style={styles.socialIcon}
-                source={require('../../../assets/icons/apple.png')}
-              />
-            </View>
-            <View style={styles.socialIconContainer}>
-              <Image
-                style={styles.socialIcon}
-                source={require('../../../assets/icons/google.png')}
-              />
-            </View>
-          </View> */}
+        <View style={styles.termsContainer}>
           <View style={styles.terms}>
-            <Text style={styles.termsText}>I agree to Taist's </Text>
+            <Text style={styles.termsText}>By signing up, you agree to Taist's </Text>
             <Text
-              style={styles.termsButton}
+              style={styles.termsLink}
               onPress={() => navigate.toCommon.terms()}>
-              Terms and Conditions{' '}
+              Terms and Conditions
             </Text>
           </View>
         </View>

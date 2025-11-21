@@ -1,29 +1,26 @@
 import {StyleSheet} from 'react-native';
+import {AppColors, Shadows, Spacing} from '../../constants/theme';
 
 const GlobalStyles = StyleSheet.create({
   main: {
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background, // Changed from orange to white
   },
   pageView: {
-    padding: 10,
+    padding: Spacing.sm,
     alignItems: 'center',
-    gap: 10,
+    gap: Spacing.sm,
     width: '100%',
   },
   whiteCardContainer: {
     width: '100%',
     borderRadius: 10,
-    backgroundColor: '#ffffff',
-    padding: 15,
-    gap: 10,
-    elevation: 5,
-    shadowRadius: 5,
-    shadowOffset: {width: 2.5, height: 2.5},
-    shadowOpacity: 0.3,
-    shadowColor: '#000000',
+    backgroundColor: AppColors.surface, // Changed to light gray surface
+    padding: Spacing.md,
+    gap: Spacing.sm,
+    ...Shadows.lg,
   },
   rowCenter: {
     flexDirection: 'row',
@@ -37,26 +34,26 @@ const GlobalStyles = StyleSheet.create({
   },
   btn: {
     borderRadius: 20,
-    backgroundColor: '#feffff',
+    backgroundColor: AppColors.primary, // Changed from white to orange
     // width: '100%',
     padding: 12,
     marginBottom: 5,
   },
   btnTxt: {
-    color: '#fa4616',
+    color: AppColors.textOnPrimary, // Changed from orange to white (text on orange button)
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
   },
   btnDisabled: {
     borderRadius: 20,
-    backgroundColor: '#000000',
+    backgroundColor: AppColors.disabled, // Changed from black to light gray
     width: '100%',
     padding: 12,
     marginBottom: 5,
   },
   btnDisabledTxt: {
-    color: '#ffffff',
+    color: AppColors.disabledText, // Changed from white to gray
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',

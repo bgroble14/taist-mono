@@ -176,7 +176,7 @@ const Splash = () => {
     <SafeAreaView style={styles.main}>
       <Image
         style={styles.logo}
-        source={require('../../../assets/images/logo.png')}
+        source={require('../../../assets/images/logo-2.png')}
       />
       <View style={styles.buttonsWrapper}>
         <Pressable style={styles.button} onPress={handleLogin}>

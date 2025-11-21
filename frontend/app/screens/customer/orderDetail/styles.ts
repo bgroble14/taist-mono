@@ -1,4 +1,6 @@
 import { Dimensions, StyleSheet } from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -8,7 +10,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   pageView: {
     padding: 10,
@@ -38,7 +40,7 @@ export const styles = StyleSheet.create({
   chefName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
     letterSpacing: 0.5,
   },
   absoluteContainter: {
@@ -51,7 +53,7 @@ export const styles = StyleSheet.create({
   headTitle: {
     fontWeight: '700',
     fontSize: 20,
-    color: '#ffffff',
+    color: AppColors.text,
     textAlign: 'center',
     position: 'absolute',
     top: 0,
@@ -63,30 +65,30 @@ export const styles = StyleSheet.create({
   title: {
     fontWeight: '700',
     fontSize: 20,
-    color: '#ffffff',
+    color: AppColors.text,
     marginTop: 30,
     letterSpacing: 0.5,
   },
   titleBlack: {
     fontWeight: '700',
     fontSize: 20,
-    color: '#000000',
+    color: AppColors.text,
     margin: 5,
     marginTop: 10,
     letterSpacing: 0.5,
   },
   text: {
-    color: '#000000',
+    color: AppColors.text,
     fontWeight: '600',
   },
   textRight: {
-    color: '#000000',
+    color: AppColors.text,
     fontWeight: '600',
     textAlign: 'right',
   },
   card: {
     width: '100%',
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.surface,
     borderRadius: 10,
     padding: 10,
     paddingVertical: 20,
@@ -124,7 +126,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   btnSubmitLabel: {
-    color: '#ffffff',
+    color: AppColors.textOnPrimary,
     fontSize: 16,
     textAlign: 'center',
     letterSpacing: 0.5,
@@ -141,7 +143,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnText: {
-    color: '#ffffff',
+    color: AppColors.textOnPrimary,
     fontSize: 14,
     letterSpacing: 0.5,
   },

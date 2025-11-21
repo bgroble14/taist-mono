@@ -1,11 +1,13 @@
 import {StyleSheet} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
   main: {
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.background,
   },
   pageView: {
     padding: 10,
@@ -33,27 +35,27 @@ export const styles = StyleSheet.create({
   menuInfoTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   menuInfoPrice: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   menuInfoSize: {
     fontSize: 12,
-    color: '#ffffff',
+    color: AppColors.text,
   },
   menuInfoDescription: {
     marginTop: 10,
-    color: '#ffffff',
+    color: AppColors.text,
   },
   orderQuantity: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: AppColors.surface,
     borderRadius: 10,
     padding: 10,
     width: '100%',
@@ -61,7 +63,7 @@ export const styles = StyleSheet.create({
   orderQuantityLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#000000',
+    color: AppColors.text,
   },
   orderQuantityAction: {
     flexDirection: 'row',
@@ -70,7 +72,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   orderQuantityButton: {
-    backgroundColor: '#fa4616',
+    backgroundColor: AppColors.primary,
     borderRadius: 4,
     width: 40,
     height: 30,
@@ -78,13 +80,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   orderQuantityButtonText: {
-    color: '#ffffff',
+    color: AppColors.textOnPrimary,
     fontSize: 20,
   },
   orderQuantityValue: {
     width: 30,
     textAlign: 'center',
-    color: '#000000',
+    color: AppColors.text,
   },
   orderAddonsWrapper: {
     paddingVertical: 10,
@@ -93,7 +95,7 @@ export const styles = StyleSheet.create({
   orderAddonsLabel: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   orderAddonContainer: {
     alignItems: 'center',
@@ -104,17 +106,17 @@ export const styles = StyleSheet.create({
     transform: [{scaleX: 0.8}, {scaleY: 0.8}],
   },
   orderAddonText: {
-    color: '#ffffff',
+    color: AppColors.text,
   },
   formFields: {
     marginTop: 15,
-    color: '#ffffff',
+    color: AppColors.text,
   },
   formFieldsContainer: {
     backgroundColor: 'transparent',
   },
   formInputFields: {
-    color: '#ffffff',
+    color: AppColors.text,
     fontSize: 14,
   },
   vcenter: {
@@ -125,13 +127,13 @@ export const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 20,
-    backgroundColor: '#feffff',
+    backgroundColor: AppColors.primary,
     width: '100%',
     padding: 12,
     marginBottom: 5,
   },
   buttonText: {
-    color: '#fa4616',
+    color: AppColors.primary,
     fontSize: 16,
     textAlign: 'center',
   },

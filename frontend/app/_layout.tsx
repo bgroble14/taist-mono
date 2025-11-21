@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
+import { PaperProvider } from 'react-native-paper';
 
 import { useColorScheme } from 'react-native';
 import ProgressProvider from './services/ProgressProvider';
@@ -18,6 +19,7 @@ import { persistor, store } from './store';
 import { StripPublishableKey } from './utils/constance';
 import { initializeNavigation } from './utils/navigation';
 import { toastConfig } from './utils/toast';
+import AppTheme from '../constants/theme';
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
@@ -39,21 +41,23 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <ProgressProvider>
-          <StripeProvider publishableKey={StripPublishableKey}>
-            <SafeAreaProvider>
-              <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="index" options={{ headerShown: false }} />
-                  <Stack.Screen name="screens" options={{ headerShown: false }} />
-                  <Stack.Screen name="(not-found)" options={{ title: 'Not Found' }} />
-                </Stack>
-                <StatusBar style="auto" />
-              </ThemeProvider>
-            </SafeAreaProvider>
-          </StripeProvider>
-          <Toast config={toastConfig} />
-        </ProgressProvider>
+        <PaperProvider theme={AppTheme}>
+          <ProgressProvider>
+            <StripeProvider publishableKey={StripPublishableKey}>
+              <SafeAreaProvider>
+                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="index" options={{ headerShown: false }} />
+                    <Stack.Screen name="screens" options={{ headerShown: false }} />
+                    <Stack.Screen name="(not-found)" options={{ title: 'Not Found' }} />
+                  </Stack>
+                  <StatusBar style="auto" />
+                </ThemeProvider>
+              </SafeAreaProvider>
+            </StripeProvider>
+            <Toast config={toastConfig} />
+          </ProgressProvider>
+        </PaperProvider>
       </PersistGate>
     </Provider>
   );

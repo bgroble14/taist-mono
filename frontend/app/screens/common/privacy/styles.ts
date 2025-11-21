@@ -1,4 +1,6 @@
 import { StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
 	main: {
@@ -22,24 +24,24 @@ export const styles = StyleSheet.create({
 		height: 20
 	},
 	heading: {
-		color: '#ffffff',
+		color: AppColors.text,
 		fontSize: 30,
 		fontWeight: '700',
 	},
 	subheading: {
-		color: '#ffffff',
+		color: AppColors.text,
 		fontSize: 18,
 		fontWeight: '700',
 	},
 	textWrapper: {
-		color: '#ffffff',
+		color: AppColors.text,
 		marginTop: 10
 	},
 	textNormal: {
-		color: '#ffffff',
+		color: AppColors.text,
 	},
 	textBold: {
-		color: '#ffffff',
+		color: AppColors.text,
 		fontWeight: '700'
 	}
 });

@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
 	main: {
 		flex: 1, 
 		justifyContent: 'space-around', 
 		alignItems: 'center',
-		backgroundColor: '#fa4616',
+		backgroundColor: AppColors.background,
 	},
     container: {
 		padding: 20,
@@ -18,26 +20,26 @@ export const styles = StyleSheet.create({
 		height: 20
 	},
 	heading: {
-		color: '#ffffff',
+		color: AppColors.text,
 		fontSize: 30,
 		fontWeight: '700',
 		marginVertical: 10
 	},
 	subheading: {
-		color: '#ffffff',
+		color: AppColors.text,
 		fontSize: 18,
 		fontWeight: '700',
 		marginTop: 20
 	},
 	textWrapper: {
-		color: '#ffffff',
+		color: AppColors.text,
 		marginTop: 10
 	},
 	textNormal: {
-		color: '#ffffff',
+		color: AppColors.text,
 	},
 	textBold: {
-		color: '#ffffff',
+		color: AppColors.text,
 		fontWeight: '700'
 	}
 });

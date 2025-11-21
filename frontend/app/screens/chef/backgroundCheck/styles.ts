@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
 	main: {
 		flex: 1, 
 		justifyContent: 'space-around', 
 		alignItems: 'center',
-		backgroundColor: '#fa4616',
+		backgroundColor: AppColors.background,
 	},
 	pageView: {
 		width: '100%',
@@ -23,7 +25,7 @@ export const styles = StyleSheet.create({
 		flex: 1,
 		fontSize: 18,
 		fontWeight: '700',
-		color: '#ffffff',
+		color: AppColors.text,
 		width: '100%'
 	},
 	switchWrapper: {
@@ -34,29 +36,29 @@ export const styles = StyleSheet.create({
     agreeText: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#ffffff'
+        color: AppColors.text
     },
     dropdownBox: {
 		width: '100%',
         borderRadius: 4,
         marginTop: 15,
-        borderColor: '#ffffff',
-        color: '#ffffff',
+        borderColor: AppColors.border,
+        color: AppColors.text,
         paddingHorizontal: 10,
         paddingVertical: 16,
     },
     dropdownInput: {
-        color: '#ffffff',
+        color: AppColors.text,
         fontSize: 16,
         paddingLeft: 5
     },
     dropdown: {
-        borderColor: '#ffffff',
+        borderColor: AppColors.border,
         borderRadius: 4,
     },
     dropdownText: {
-        color: '#ffffff',
-        borderColor: '#ffffff',
+        color: AppColors.text,
+        borderColor: AppColors.border,
     },
 	vcenter: {
         width: '100%',

@@ -1,4 +1,6 @@
 import {Dimensions, StyleSheet} from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../../constants/theme';
+
 
 const screenWidth = Dimensions.get('window').width;
 const viewHeight = Dimensions.get('window').height - 130;
@@ -24,11 +26,11 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     textAlign: 'center',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   pageDesc: {
     textAlign: 'center',
-    color: '#ffffff',
+    color: AppColors.text,
   },
   subPageView: {
     width: '100%',
@@ -52,16 +54,17 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
   },
   button: {
-    borderRadius: 20,
-    backgroundColor: '#feffff',
+    borderRadius: 12,
+    backgroundColor: AppColors.primary,
     width: 200,
-    padding: 10,
+    paddingVertical: 14,
     alignSelf: 'center',
-    marginBottom: 5,
+    ...Shadows.md,
   },
   buttonText: {
-    color: '#fa4616',
-    fontSize: 18,
+    color: AppColors.textOnPrimary,
+    fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
   },
 });

@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
 	main: {
 		flex: 1, 
 		justifyContent: 'space-around', 
 		alignItems: 'center',
-		backgroundColor: '#fa4616',
+		backgroundColor: AppColors.background,
 	},
 	pageView: {
 		padding: 10,
@@ -24,11 +26,11 @@ export const styles = StyleSheet.create({
     pageTitle: {
 		fontSize: 24,
 		fontWeight: '700',
-		color: '#ffffff'
+		color: AppColors.text
 	},
     subheading: {
 		fontSize: 18,
-		color: '#ffffff',
+		color: AppColors.text,
 		marginVertical: 10,
         textAlign: 'center'
 	},
@@ -42,7 +44,7 @@ export const styles = StyleSheet.create({
     switchText: {
 		flex: 1,
         fontSize: 16,
-        color: '#ffffff'
+        color: AppColors.text
     },
     vcenter: {
 		flex: 1,

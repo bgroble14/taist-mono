@@ -1,133 +1,193 @@
 import { Dimensions, StyleSheet } from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
 
 const screenHeight = Dimensions.get('window').height;
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fa4616',
-    borderColor: 'green',
-    paddingTop: 20,
+    backgroundColor: AppColors.background,
   },
   center: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  vcenter: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
+    paddingTop: Spacing.lg,
   },
   logo: {
     width: 120,
     height: 60,
-    // margin: 20,
-    marginTop: 20,
-    marginBottom: 10,
+    resizeMode: 'contain',
   },
+
+  // User type selection screen
   signupOptionWrapper: {
-    height: screenHeight - 200,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: Spacing.xl,
+    gap: Spacing.lg,
   },
   signupOption: {
     width: '100%',
-    borderRadius: 30,
-    borderWidth: 3,
-    borderColor: '#ffffff',
-    padding: 10,
-    marginBottom: 20,
+    borderRadius: 16,
+    backgroundColor: AppColors.surface,
+    padding: Spacing.xl,
+    ...Shadows.md,
   },
   signupOptionHeading: {
-    color: '#ffffff',
-    fontSize: 18,
+    color: AppColors.text,
+    fontSize: 20,
     fontWeight: '700',
     textAlign: 'center',
+    marginBottom: Spacing.sm,
   },
   signupOptionText: {
-    color: '#ffffff',
+    color: AppColors.textSecondary,
+    fontSize: 15,
     textAlign: 'center',
-    marginVertical: 30,
+    lineHeight: 22,
+    marginBottom: Spacing.lg,
   },
-  signupOptionButton: {
-    padding: 5,
-  },
-  signupOptionButtonText: {
-    fontSize: 18,
+
+  // Form screen (step 2)
+  formContainer: {
+    flex: 1,
+    padding: Spacing.xl,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
+    color: AppColors.text,
     textAlign: 'center',
-    color: '#ffffff',
+    marginBottom: Spacing.xs,
   },
+  subheading: {
+    fontSize: 15,
+    color: AppColors.textSecondary,
+    textAlign: 'center',
+    marginBottom: Spacing.xl,
+  },
+  formContent: {
+    gap: Spacing.lg,
+  },
+  inputWrapper: {
+    gap: Spacing.xs,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: AppColors.text,
+    marginBottom: 4,
+  },
+  input: {
+    backgroundColor: AppColors.background,
+  },
+
+  // Buttons
+  buttonContainer: {
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.lg,
+    gap: Spacing.md,
+  },
+  signupButton: {
+    backgroundColor: AppColors.primary,
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    ...Shadows.md,
+  },
+  signupButtonText: {
+    color: AppColors.textOnPrimary,
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  loginLink: {
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  loginLinkText: {
+    color: AppColors.primary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  // User type selection buttons
   button: {
-    borderRadius: 20,
-    backgroundColor: '#feffff',
-    width: '100%',
-    padding: 10,
-    marginBottom: 5,
+    borderRadius: 12,
+    backgroundColor: AppColors.primary,
+    paddingVertical: 14,
+    alignItems: 'center',
+    ...Shadows.sm,
   },
   buttonText: {
-    color: '#fa4616',
-    fontSize: 18,
+    color: AppColors.textOnPrimary,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+
+  // Terms
+  termsContainer: {
+    paddingHorizontal: Spacing.xl,
+    paddingBottom: Spacing.xl,
+  },
+  terms: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  termsText: {
+    color: AppColors.textSecondary,
+    fontSize: 12,
     textAlign: 'center',
+  },
+  termsLink: {
+    color: AppColors.primary,
+    fontSize: 12,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+
+  // Deprecated/unused (keeping for compatibility)
+  vcenter: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: Spacing.lg,
   },
   button2: {
     width: '100%',
-    padding: 10,
+    padding: Spacing.md,
   },
   buttonText2: {
-    color: '#ffffff',
-    fontSize: 16,
+    color: AppColors.primary,
+    fontSize: 14,
     textAlign: 'center',
   },
   formFields: {
-    marginTop: 20,
+    marginTop: Spacing.lg,
   },
   formInputFields: {
-    color: '#ffffff',
-    fontSize: 18,
-    letterSpacing: 0.5,
-  },
-  terms: {
-    textAlign: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  termsText: {
-    color: '#ffffff',
-    fontSize: 14,
-    letterSpacing: 0.5,
-  },
-  termsButton: {
-    color: '#ffffff',
-    fontSize: 14,
-    textDecorationLine: 'underline',
+    color: AppColors.text,
+    fontSize: 16,
     letterSpacing: 0.5,
   },
   heading2: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
     textAlign: 'center',
-    color: '#ffffff',
+    color: AppColors.text,
     letterSpacing: 0.5,
   },
   socialIconsWrapper: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginVertical: 10,
-    gap: 10,
+    marginVertical: Spacing.md,
+    gap: Spacing.sm,
   },
   socialIconContainer: {
-    padding: 8,
-    backgroundColor: '#ffffff',
-    borderRadius: 6,
+    padding: Spacing.sm,
+    backgroundColor: AppColors.surface,
+    borderRadius: 8,
   },
   socialIcon: {
     width: 24,

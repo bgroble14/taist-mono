@@ -1,4 +1,4 @@
-import { TextInput } from '@react-native-material/core';
+import { TextInput } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -249,15 +249,12 @@ const Home = () => {
           {isInArea && (
             <View style={{ width: '100%', gap: 10 }}>
               <TextInput
-                style={styles.formFields}
-                inputContainerStyle={styles.formFieldsContainer}
-                inputStyle={styles.formInputFields}
-                placeholder="Search..."
-                placeholderTextColor={'#ffffff'}
-                variant="outlined"
+                placeholder="Search chefs..."
+                placeholderTextColor={'#999999'}
+                mode="outlined"
                 onChangeText={onChangeSearchTerm}
                 value={searchTerm}
-                color="#ffffff"
+                style={styles.searchInput}
               />
               <CustomCalendar
                 selectedDate={DAY}

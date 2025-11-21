@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
 	main: {
 		flex: 1, 
 		justifyContent: 'space-around', 
 		alignItems: 'center',
-		backgroundColor: '#fa4616',
+		backgroundColor: AppColors.background,
 	},
 	pageView: {
 		padding: 10,
@@ -15,22 +17,22 @@ export const styles = StyleSheet.create({
 	formFields: {
 		width: '100%',
 		marginTop: 15,
-        color: '#ffffff',
+        color: AppColors.text,
 	},
     formFieldsContainer: {
         backgroundColor: 'transparent',
 	},
     formInputFields: {
-		color: '#ffffff',
+		color: AppColors.text,
         fontSize: 16,
 	},
 	title:{
-		color:'#ffffff',
+		color: AppColors.text,
 		fontSize:18,
 		fontWeight:'600'
 	},
 	text:{
-		color:'#ffffff',
+		color: AppColors.text,
 		fontSize:16,
 		fontWeight:'500'
 	},
@@ -62,7 +64,7 @@ export const styles = StyleSheet.create({
 		height:'100%',
 		borderWidth:1,
 		borderRadius:5,
-		borderColor:'#ffffff',
+		borderColor:AppColors.border,
 		justifyContent:'center',
 		alignItems:'center',
 	}

@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
 	main: {
 		flex: 1, 
 		justifyContent: 'space-around', 
 		alignItems: 'center',
-		backgroundColor: '#fa4616',
+		backgroundColor: AppColors.background,
 	},
 	pageView: {
 		width: '100%',
@@ -22,7 +24,7 @@ export const styles = StyleSheet.create({
     agreeText: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#ffffff'
+        color: AppColors.text
     },
     
 	vcenter: {

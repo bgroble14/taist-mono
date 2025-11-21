@@ -1,4 +1,6 @@
 import { StyleSheet } from 'react-native';
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
   main: {
@@ -55,31 +57,31 @@ export const styles = StyleSheet.create({
   nameText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#ffffff',
+    color: AppColors.text,
     letterSpacing: 0.5,
   },
   orderText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#ffffff',
+    color: AppColors.text,
     letterSpacing: 0.5,
   },
   msgText: {
     fontSize: 14,
     fontWeight: '400',
-    color: '#ffffff',
+    color: AppColors.text,
     letterSpacing: 0.5,
   },
   timeText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#ffffff',
+    color: AppColors.text,
     letterSpacing: 0.5,
   },
   bageText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#ffffff',
+    color: AppColors.text,
     letterSpacing: 0.5,
   },
 });

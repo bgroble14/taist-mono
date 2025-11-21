@@ -1,6 +1,7 @@
 import {Dimensions, StyleSheet, Platform} from "react-native";
+import { AppColors } from '../../../constants/theme';
 
-  const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
@@ -9,7 +10,7 @@ import {Dimensions, StyleSheet, Platform} from "react-native";
         justifyContent:'space-between'
     },
     bg:{
-        backgroundColor: '#ffffff',
+        backgroundColor: AppColors.primary, // Changed from white to orange (active state)
         width:60,
         height:30,
         borderRadius:30,
@@ -18,7 +19,7 @@ import {Dimensions, StyleSheet, Platform} from "react-native";
         padding:1,
     },
     bg_disabled:{
-        backgroundColor: '#000000',
+        backgroundColor: AppColors.border, // Changed from black to light gray (inactive state)
         width:60,
         height:30,
         borderRadius:30,
@@ -27,13 +28,13 @@ import {Dimensions, StyleSheet, Platform} from "react-native";
         padding:1,
     },
     thumb:{
-        backgroundColor: '#ff3100',
+        backgroundColor: AppColors.white, // White thumb on orange background
         width:28,
         height:28,
         borderRadius:28,
     },
     thumb_disabled:{
-        backgroundColor: '#ffffff',
+        backgroundColor: AppColors.white, // White thumb on gray background
         width:28,
         height:28,
         borderRadius:28,
@@ -41,7 +42,7 @@ import {Dimensions, StyleSheet, Platform} from "react-native";
     label:{
         fontSize: 16,
         fontWeight: '500',
-        color: 'white'
+        color: AppColors.text // Changed from white to dark text
     }
 })
 

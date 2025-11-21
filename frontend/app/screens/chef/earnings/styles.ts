@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
+import { AppColors, Shadows, Spacing } from '../../../../constants/theme';
+
 
 export const styles = StyleSheet.create({
 	main: {
 		flex: 1, 
 		justifyContent: 'space-around', 
 		alignItems: 'center',
-		backgroundColor: '#fa4616',
+		backgroundColor: AppColors.background,
 	},
 	pageView: {
 		padding: 10,
@@ -22,12 +24,12 @@ export const styles = StyleSheet.create({
 		justifyContent:'center',
 	},
 	title:{
-		color:'#000000',
+		color: AppColors.text,
 		fontSize:18,
 		fontWeight:'500'
 	},
 	text:{
-		color:'#000000',
+		color: AppColors.text,
 		fontSize:16,
 		fontWeight:'400'
 	},
