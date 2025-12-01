@@ -526,11 +526,13 @@ const user: IUser = typeof params?.user === 'string'
             value={
               userInfo.birthday
                 ? moment(userInfo.birthday * 1000).toDate()
-                : moment().toDate()
+                : moment().subtract(18, 'years').toDate()
             }
             mode="date"
             display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             onChange={onDateChange}
+            maximumDate={new Date()}
+            minimumDate={moment().subtract(120, 'years').toDate()}
           />
         )}
       </Container>

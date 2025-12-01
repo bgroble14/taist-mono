@@ -230,7 +230,7 @@ const BackgroundCheck = () => {
             value={
               bgInfo.birthday
                 ? moment(bgInfo.birthday * 1000).toDate()
-                : moment().toDate()
+                : moment().subtract(18, 'years').toDate()
             }
             onChange={(event, date) => {
               setOpenBirthdayPicker(false);
@@ -238,6 +238,8 @@ const BackgroundCheck = () => {
                 setBgInfo({...bgInfo, birthday: date.getTime() / 1000});
               }
             }}
+            maximumDate={new Date()}
+            minimumDate={moment().subtract(120, 'years').toDate()}
           />
         )}
       </Container>

@@ -100,7 +100,7 @@ const StyledTextInput = forwardRef(
           ]}
           placeholderTextColor={placeholderTextColor}
           editable={onPress == undefined}
-          onPressIn={onPress}
+          pointerEvents={onPress ? 'none' : 'auto'}
           {...props}
         />
         {label && (
