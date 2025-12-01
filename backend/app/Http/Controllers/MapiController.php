@@ -338,7 +338,7 @@ class MapiController extends Controller
             $msg .= "<p><b>" . $code . "</b> is a verification code to reset your password.</p>";
             $msg .= "<p>Thank You! <div>- The Taist Team</div></p>";
             $msg .= "<p><i>If you didn’t make this request, or if you’re having trouble signing in, contact us via contact@taist.app</i></p>";
-            $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo.png' /></p>";
+            $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo-2.png' /></p>";
             $email = $user->email;
             $b = $this->_sendEmail($email, "Taist - Password Reset", $msg);
 
@@ -2084,7 +2084,7 @@ class MapiController extends Controller
             $msg .= "<p>Order Total: <b>$" . number_format($order->total_price, 2, '.', ',') . "</b></p>";
             $msg .= "<p>Order Note: <b>" . $order->notes . "</b></p><br>";
             $msg .= "<p>Thank You! <div>- The Taist Team</div></p>";
-            $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo.png' /></p>";
+            $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo-2.png' /></p>";
 
             $emailResponse = $this->_sendEmail($user->email, "Taist - Order Receipt", $msg);
         } else if ($request->status == 4) {
@@ -2288,7 +2288,7 @@ class MapiController extends Controller
             $msg .= "<p>Hi Taist Admin,</p>";
             $msg .= "<p>Please check <a href='https://safescreener.instascreen.net/editor/viewReport.taz?file=" . $response['fileNumber'] . "'>SafeScreener</a> for their status and convert them from Pending to Active from <a href='http://18.216.154.184/admin'>Taist Admin</a>.</p>";
             $msg .= "<p>Thank You! <div>- The Taist Team</div></p>";
-            $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo.png' /></p>";
+            $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo-2.png' /></p>";
 
             $emailResponse = $this->_sendEmail("contact@taist.app", "Taist - Background Check Submitted by Pending Chef", $msg);
 
@@ -2531,7 +2531,7 @@ class MapiController extends Controller
                 $msg .= "<p><b>Your website</b>: <a href='https://www.taist.app'>www.taist.app</a></p>";
                 $msg .= "<p><img alt='Taist Stripe Setup Guide' src='http://18.216.154.184/assets/uploads/images/stripe_guide.jpeg' /></p>";
                 $msg .= "<p>Thank You! <div>- The Taist Team</div></p>";
-                $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo.png' /></p>";
+                $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo-2.png' /></p>";
 
                 $emailResponse = $this->_sendEmail($email, "Taist - Stripe Account Creation", $msg);
 

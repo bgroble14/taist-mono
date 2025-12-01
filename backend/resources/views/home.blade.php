@@ -35,7 +35,7 @@
 
     <div class="wrapper pt40">
         <div class="flex flex_acenter flex_jcenter pt40">
-            <img class="logo" src="/assets/images/logo.png?r=1">
+            <img class="logo" src="/assets/images/logo-2.png?r=1">
         </div>
         <div class="flex flex_acenter flex_jcenter pt20 fsize32 font_bold">
             Taist

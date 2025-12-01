@@ -64,7 +64,7 @@ const Login = () => {
       <View style={styles.logoContainer}>
         <Image
           style={styles.logo}
-          source={require('../../../assets/images/logo.png')}
+          source={require('../../../assets/images/logo-2.png')}
         />
       </View>
 

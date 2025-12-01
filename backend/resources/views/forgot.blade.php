@@ -41,7 +41,7 @@
 
     <div class="wrapper">        
         <div class="flex flex_acenter flex_jspace top_nav login_top_nav">
-            <a href="../"><img class="logo" src="/assets/images/logo.png?r=1"></a>
+            <a href="../"><img class="logo" src="/assets/images/logo-2.png?r=1"></a>
             <div class="flex flex_acenter">
                 <span style="margin-right: 16px;">Already have an account?</span>
                 <a class="bt bt_white" href="../login">SIGN IN</a>

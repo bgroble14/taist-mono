@@ -43,7 +43,7 @@ const Signup = () => {
       <View style={styles.center}>
         <Image
           style={styles.logo}
-          source={require('../../../assets/images/logo.png')}
+          source={require('../../../assets/images/logo-2.png')}
         />
       </View>
       {step == 0 && (
