@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [28.0.4] - 2025-12-01
+
+### ✨ Added
+- **Current Location Display (TMA-013)**: Customer home screen now shows current location (city/state or ZIP) at the top for better context
+- **Calendar "Today" Button (TMA-021)**: Added quick navigation button to jump to current date in all calendar components (customer home, checkout, and chef orders)
+
+### 🔧 Fixed
+- **Order Customizations Display (TMA-019)**: Chef order receipts now clearly show customizations with "+ " prefix for better visual distinction
+- **Terminology Update (TMA-025)**: Changed all "Special Requests" references to "Special Instructions" for clarity
+
+### 📝 Changed
+- Updated customer home screen with location badge featuring icon and formatted address
+- Enhanced calendar components across app with "Today" quick navigation that only appears when viewing different dates
+- Improved chef order detail receipt layout to distinguish base items from customizations
+- Standardized form field labels and display text to use "Special Instructions"
+
+### 📚 Documentation
+- Updated customer screens README with new features and component descriptions
+- Updated chef screens README documenting order detail improvements
+- Created `SPRINT-1-CHANGELOG.md` with detailed implementation notes
+- Updated `FRONTEND-TASKS-PLAN.md` to reflect completed tasks
+- Updated `sprint-tasks.md` tracking document
+
+### 🛠️ Technical
+- Modified 7 files across customer and chef interfaces
+- Added location display component with theming
+- Enhanced 3 calendar component variants with consistent "Today" button
+- No backend changes required - all frontend-only improvements
+- Zero linter errors
+
+---
+
 ## [28.0.3] - 2025-11-21
 
 ### 🎨 Changed - Design System Overhaul

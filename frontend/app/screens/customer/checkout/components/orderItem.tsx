@@ -29,7 +29,7 @@ const OrderItem = (props: Props) => {
         {props.order.notes && props.order.notes.length > 0 && (
           <Text
             style={styles.checkoutSummaryItemAddon}
-            numberOfLines={1}>{`Special Request: ${props.order.notes} `}</Text>
+            numberOfLines={1}>{`Special Instructions: ${props.order.notes} `}</Text>
         )}
       </View>
       <View style={styles.checkoutSummaryItemPriceWrapper}>

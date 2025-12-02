@@ -32,6 +32,22 @@ export const styles = StyleSheet.create({
     lineHeight: 24,
     paddingHorizontal: Spacing.lg,
   },
+  locationDisplay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: AppColors.surface,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    ...Shadows.xs,
+  },
+  locationText: {
+    color: AppColors.text,
+    fontSize: 14,
+    fontWeight: '600',
+  },
   searchInput: {
     backgroundColor: AppColors.background,
     marginBottom: Spacing.sm,

@@ -32,16 +32,16 @@ Customer screens enable users to browse local chefs, view menus, place orders, a
 Main discovery screen showing available chefs based on location.
 
 **Features:**
-- Location-based chef search
+- Location-based chef search with current location display (TMA-013)
 - Filter by cuisine type, rating, availability
-- Search functionality
+- Search functionality (hidden per TMA-000)
 - Chef cards with ratings and distance
-- Calendar view for scheduling
+- Calendar view for scheduling with "Today" quick navigation (TMA-021)
 
 **Components:**
 - `chefCard.tsx` - Chef preview cards
 - `chefMenuItem.tsx` - Menu item previews
-- `customCalendar.tsx` - Date picker for orders
+- `customCalendar.tsx` - Date picker with quick "Today" button for easy navigation
 
 ### chefDetail/
 Detailed view of a chef's profile and menu.
@@ -63,7 +63,7 @@ Customize menu items before adding to cart.
 **Features:**
 - Item customization (add-ons, modifications)
 - Quantity selection
-- Special instructions
+- Special instructions (formerly "Special Requests" - TMA-025)
 - Allergen information
 - Price calculation
 
@@ -71,16 +71,16 @@ Customize menu items before adding to cart.
 Complete the order and payment.
 
 **Features:**
-- Order summary with items and pricing
-- Delivery date/time selection
+- Order summary with items and pricing (shows special instructions - TMA-025)
+- Delivery date/time selection with quick "Today" navigation (TMA-021)
 - Delivery address management
 - Payment method selection
 - Stripe payment integration
 - Order confirmation
 
 **Components:**
-- `customCalendar.tsx` - Delivery date picker
-- `orderItem.tsx` - Cart item display
+- `customCalendar.tsx` - Delivery date picker with "Today" button
+- `orderItem.tsx` - Cart item display showing customizations and special instructions
 - `creditCard.tsx` - Payment form
 
 ### orders/

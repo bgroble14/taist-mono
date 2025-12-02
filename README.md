@@ -1,20 +1,56 @@
 # Taist Monorepo
 
-This monorepo contains both the backend and frontend applications for Taist.
+This monorepo contains both the backend and frontend applications for Taist - a food marketplace connecting local chefs with customers.
+
+## 🚀 Quick Start - Local Development
+
+**New to local development? Start here:**
+
+```bash
+# One command to start everything:
+./start-local-dev.sh
+```
+
+Or see:
+- **[Quick Start Guide](./LOCAL-DEV-QUICKSTART.md)** - Fast setup (5 min read)
+- **[Complete Setup Guide](./LOCAL-DEVELOPMENT-GUIDE.md)** - Detailed instructions with troubleshooting
 
 ## Structure
 
 ```
 taist-mono/
-├── backend/          # Laravel PHP backend
-├── frontend/         # React Native Expo frontend
-└── README.md         # This file
+├── backend/                    # Laravel PHP backend
+│   ├── scripts/setup-local.sh  # Backend setup script
+│   └── README.md
+├── frontend/                   # React Native Expo frontend
+│   └── README.md
+├── start-local-dev.sh          # Start both backend & frontend
+├── LOCAL-DEV-QUICKSTART.md     # Quick reference
+└── LOCAL-DEVELOPMENT-GUIDE.md  # Complete setup guide
 ```
 
 ## Prerequisites
 
-- **Backend**: PHP >= 7.3, Composer, MySQL/MariaDB
+- **Backend**: PHP >= 7.2.5, Composer, MySQL/MariaDB
 - **Frontend**: Node.js >= 18, npm or yarn
+- **Development**: Git, Text Editor (VS Code recommended)
+
+## Environment Management
+
+The frontend supports three environments:
+
+| Environment | Backend URL | Usage |
+|------------|-------------|-------|
+| **Local** | http://localhost:8000 | Development on your machine |
+| **Staging** | https://taist.cloudupscale.com | Testing before production |
+| **Production** | https://taist.codeupscale.com | Live application |
+
+Switch environments with npm scripts:
+```bash
+npm run dev:local     # Local development
+npm run dev:staging   # Staging testing
+npm run dev:prod      # Production (careful!)
+```
 
 ## Getting Started
 

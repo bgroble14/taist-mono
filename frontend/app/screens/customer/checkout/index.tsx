@@ -29,6 +29,7 @@ import { useStripe } from '@stripe/stripe-react-native';
 import moment, { Moment } from 'moment';
 import StyledSwitch from '../../../components/styledSwitch';
 import StyledTabButton from '../../../components/styledTabButton';
+import { AddressCollectionModal } from '../../../components/AddressCollectionModal';
 import Container from '../../../layout/Container';
 import { removeCustomerOrders } from '../../../reducers/customerSlice';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
@@ -37,6 +38,7 @@ import {
   CreateOrderAPI,
   CreatePaymentIntentAPI,
   GetPaymentMethodAPI,
+  UpdateUserAPI,
 } from '../../../services/api';
 import GlobalStyles from '../../../types/styles';
 import { Delay } from '../../../utils/functions';
@@ -65,6 +67,7 @@ const Checkout = () => {
   const [timeId, onChangeTimeId] = useState('1');
   const [appliance, onChangeAppliance] = useState(false);
   const [paymentMethod, onChangePaymentMethod] = useState<IPayment>({});
+  const [showAddressModal, setShowAddressModal] = useState(false);
 
   const startDate = moment();
   if (startDate.weekday() < weekDay) {
@@ -91,7 +94,32 @@ const Checkout = () => {
     addTimes();
     getPaymentMethod();
     onChangeDay(startDate);
+    
+    // Check if user has address, if not show modal
+    if (!self.address || !self.city || !self.state || !self.zip) {
+      setShowAddressModal(true);
+    }
   }, []);
+
+  const handleSaveAddress = async (addressInfo: Partial<IUser>) => {
+    dispatch(showLoading());
+    try {
+      const updatedUser = { ...self, ...addressInfo };
+      const resp = await UpdateUserAPI(updatedUser, dispatch);
+      
+      if (resp.success === 1) {
+        setShowAddressModal(false);
+        ShowSuccessToast('Address saved successfully!');
+      } else {
+        ShowErrorToast(resp.message ?? resp.error ?? 'Failed to save address');
+      }
+    } catch (error) {
+      ShowErrorToast('An error occurred while saving your address');
+      console.error('Save address error:', error);
+    } finally {
+      dispatch(hideLoading());
+    }
+  };
 
   const addTimes = () => {
     let st = 0;
@@ -561,6 +589,18 @@ const Checkout = () => {
           </View>
         </ScrollView>
       </Container>
+
+      {/* Address Collection Modal */}
+      <AddressCollectionModal
+        visible={showAddressModal}
+        userInfo={self}
+        onSave={handleSaveAddress}
+        onCancel={() => {
+          setShowAddressModal(false);
+          // Optionally navigate back if user cancels without providing address
+          // goBack();
+        }}
+      />
     </SafeAreaView>
   );
 };

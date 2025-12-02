@@ -8,7 +8,16 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "dev:local": "APP_ENV=local npm start",
+    "android:local": "APP_ENV=local npm run android",
+    "ios:local": "APP_ENV=local npm run ios",
+    "dev:staging": "APP_ENV=staging npm start",
+    "android:staging": "APP_ENV=staging npm run android",
+    "ios:staging": "APP_ENV=staging npm run ios",
+    "dev:prod": "APP_ENV=production npm start",
+    "android:prod": "APP_ENV=production npm run android",
+    "ios:prod": "APP_ENV=production npm run ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

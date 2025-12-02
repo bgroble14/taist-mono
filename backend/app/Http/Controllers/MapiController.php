@@ -1556,6 +1556,8 @@ class MapiController extends Controller
         $ary = [
             'updated_at' => now(),
         ];
+        
+        $zipChangeInfo = null;
 
         $photo = $request->photo;
         if (isset($_FILES['photo']) && $_FILES['photo']['name']) {
@@ -1576,7 +1578,34 @@ class MapiController extends Controller
         if (isset($request->address)) $ary['address'] = $request->address;
         if (isset($request->city)) $ary['city'] = $request->city;
         if (isset($request->state)) $ary['state'] = $request->state;
-        if (isset($request->zip)) $ary['zip'] = $request->zip;
+        
+        // Check if zip code changed and if user entered service area
+        if (isset($request->zip)) {
+            $oldUser = app(Listener::class)->find($id);
+            $oldZip = $oldUser ? $oldUser->zip : null;
+            $newZip = $request->zip;
+            
+            $ary['zip'] = $newZip;
+            
+            if ($oldZip !== $newZip) {
+                $zipcodes = app(Zipcodes::class)->first();
+                if ($zipcodes) {
+                    $availableZips = array_map('trim', explode(',', $zipcodes->zipcodes));
+                    
+                    $wasInArea = $oldZip ? in_array($oldZip, $availableZips) : false;
+                    $nowInArea = in_array($newZip, $availableZips);
+                    
+                    $zipChangeInfo = [
+                        'zip_changed' => true,
+                        'was_in_area' => $wasInArea,
+                        'now_in_area' => $nowInArea,
+                        'entered_service_area' => !$wasInArea && $nowInArea,
+                        'left_service_area' => $wasInArea && !$nowInArea,
+                    ];
+                }
+            }
+        }
+        
         if (isset($request->user_type)) $ary['user_type'] = $request->user_type;
         if (isset($request->is_pending)) $ary['is_pending'] = $request->is_pending;
         if (isset($request->verified)) $ary['verified'] = $request->verified;
@@ -1591,6 +1620,16 @@ class MapiController extends Controller
         app(Listener::class)->where('id', $id)->update($ary);
 
         $data = app(Listener::class)->where(['id' => $id])->first();
+        
+        // Include zip change info in response if applicable
+        if ($zipChangeInfo) {
+            return response()->json([
+                'success' => 1, 
+                'data' => $data,
+                'zip_change_info' => $zipChangeInfo
+            ]);
+        }
+        
         return response()->json(['success' => 1, 'data' => $data]);
     }
 

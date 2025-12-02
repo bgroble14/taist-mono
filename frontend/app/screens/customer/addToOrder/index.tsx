@@ -159,7 +159,7 @@ const AddToOrder = () => {
               style={styles.formFields}
               inputContainerStyle={styles.formFieldsContainer}
               inputStyle={styles.formInputFields}
-              placeholder="Enter any Special Requests "
+              placeholder="Enter any Special Instructions "
               placeholderTextColor={'#999999'}
               variant="outlined"
               onChangeText={onChangeOrderNotes}

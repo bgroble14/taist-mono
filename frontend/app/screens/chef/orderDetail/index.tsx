@@ -172,6 +172,7 @@ const OrderDetail = () => {
     name: menu.title,
     qty: orderInfo?.amount ?? 0,
     price: (menu.price ?? 0) * (orderInfo?.amount ?? 0),
+    isCustomization: false,
   });
   orderInfo?.addons?.split(',').map((addon, idx) => {
     const customize = menu.customizations?.find(x => x.id == parseInt(addon));
@@ -182,6 +183,7 @@ const OrderDetail = () => {
           name: customize.name,
           qty: 1,
           price: customize.upcharge_price ?? 0,
+          isCustomization: true,
         });
       } else {
         items[sameIndex].qty++;
@@ -335,7 +337,7 @@ const OrderDetail = () => {
                     <Text style={styles.text}>Item</Text>
                     {items.map((item, idx) => (
                       <Text style={styles.text} key={`name_${idx}`}>
-                        {item.name}
+                        {item.isCustomization ? '  + ' : ''}{item.name}
                       </Text>
                     ))}
                   </View>

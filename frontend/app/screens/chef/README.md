@@ -63,22 +63,26 @@ Order management and fulfillment.
 - Accept/decline orders
 - Update order status (preparing, ready, delivered)
 - View order details and customer info
-- Order calendar view
+- Order calendar view with "Today" quick navigation (TMA-021)
 
 **Components:**
 - `chefOrderCard.tsx` - Order cards with actions
-- `customCalendar.tsx` - Order calendar view
+- `customCalendar.tsx` - Order calendar with "Today" button for easy navigation
 
 ### orderDetail/
 Detailed view and management of a specific order.
 
 **Features:**
-- Order items and customizations
+- Order items with clearly displayed customizations (TMA-019)
 - Customer information and contact
-- Special instructions and allergies
+- Special instructions (formerly "Special Requests" - TMA-025)
 - Order timeline and status updates
 - Mark order stages complete
 - Customer communication
+
+**Recent Updates:**
+- Customizations now display with "+ " prefix for clarity (TMA-019)
+- "Special Instructions" terminology throughout (TMA-025)
 
 ### menu/
 Menu item management and organization.

@@ -263,6 +263,13 @@ const user: IUser = typeof params?.user === 'string'
       console.log("User data:",resp.data);
       console.log("Current user info from Redux:",selfInfo);
       
+      // Show alert if user entered service area
+      if (resp.zip_change_info?.entered_service_area) {
+        alert('Welcome to Taist! Taist is now available in your area. Check out local chefs!');
+      } else if (resp.zip_change_info?.left_service_area) {
+        alert('Unfortunately, Taist is not yet available in your new location.');
+      }
+      
       // Navigate based on user type - check both response and current user info
       const userType = resp.data?.user_type || userInfo.user_type || selfInfo?.user_type;
       
@@ -343,27 +350,35 @@ const user: IUser = typeof params?.user === 'string'
     if (userInfo.last_name == undefined || userInfo.last_name.length == 0) {
       return 'Please enter the last name';
     }
-    if (userInfo.birthday == undefined || userInfo.birthday == 0) {
-      return 'Please select the birthday';
-    }
-    if (userInfo.address == undefined || userInfo.address.length == 0) {
-      return 'Please enter the address';
-    }
-    if (userInfo.city == undefined || userInfo.city.length == 0) {
-      return 'Please enter the city';
-    }
-    if (userInfo.state == undefined || userInfo.state.length == 0) {
-      return 'Please select a state';
+    if (userInfo.phone == undefined || userInfo.phone.length == 0) {
+      return 'Please enter the phone number';
     }
     if (userInfo.zip == undefined || userInfo.zip.length == 0) {
       return 'Please enter the zip code';
     }
-    if (
-      userInfo.user_type === 2 &&
-      (userInfo.photo == undefined || userInfo.photo.length == 0)
-    ) {
-      return 'Please add your photo';
+
+    // Chef-specific required fields
+    if (userInfo.user_type === 2) {
+      if (userInfo.birthday == undefined || userInfo.birthday == 0) {
+        return 'Please select the birthday';
+      }
+      if (userInfo.address == undefined || userInfo.address.length == 0) {
+        return 'Please enter the address';
+      }
+      if (userInfo.city == undefined || userInfo.city.length == 0) {
+        return 'Please enter the city';
+      }
+      if (userInfo.state == undefined || userInfo.state.length == 0) {
+        return 'Please select a state';
+      }
+      if (userInfo.photo == undefined || userInfo.photo.length == 0) {
+        return 'Please add your photo';
+      }
     }
+
+    // Birthday, address, city, state are optional for customers (user_type === 1)
+    // They can be collected later at checkout
+    
     return '';
   };
 

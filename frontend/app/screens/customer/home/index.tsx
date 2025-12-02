@@ -9,6 +9,8 @@ import {
   Text,
   View
 } from 'react-native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 
 // NPM
 // import CalendarStrip from 'react-native-calendar-strip';
@@ -22,7 +24,7 @@ import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
 import StyledTabButton from '@/app/components/styledTabButton';
 import moment from 'moment';
 import EmptyListView from '../../../components/emptyListView/emptyListView';
-import { Spacing } from '../../../../constants/theme';
+import { AppColors, Spacing } from '../../../../constants/theme';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import { GetSearchChefAPI } from '../../../services/api';
@@ -264,6 +266,14 @@ const Home = () => {
           )}
           {isInArea && (
             <View style={{ width: '100%', gap: Spacing.sm }}>
+              {/* Current Location Display - TMA-013 */}
+              <View style={styles.locationDisplay}>
+                <FontAwesomeIcon icon={faLocationDot} size={16} color={AppColors.primary} />
+                <Text style={styles.locationText}>
+                  {self.city ? `${self.city}, ${self.state || self.zip}` : `ZIP ${self.zip}`}
+                </Text>
+              </View>
+              
               {/* Hidden per TMA-000 */}
               {/* <TextInput
                 placeholder="Search chefs..."

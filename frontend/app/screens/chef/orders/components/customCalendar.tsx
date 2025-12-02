@@ -58,6 +58,15 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
     return date.isSame(selectedDate, 'day');
   };
 
+  const handleTodayPress = () => {
+    const today = moment();
+    if (today.isBetween(minDate, maxDate, 'day', '[]')) {
+      onDateSelect(today);
+    }
+  };
+
+  const isToday = moment().isSame(selectedDate, 'day');
+
   return (
     <View style={styles.container}>
       {/* Month/Year Header */}
@@ -69,7 +78,17 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
           <Text style={styles.navButtonText}>{'<'}</Text>
         </TouchableOpacity>
         
-        <Text style={styles.monthYearText}>{monthYearText}</Text>
+        <View style={styles.centerContent}>
+          <Text style={styles.monthYearText}>{monthYearText}</Text>
+          {!isToday && (
+            <TouchableOpacity 
+              style={styles.todayButton}
+              onPress={handleTodayPress}
+            >
+              <Text style={styles.todayButtonText}>Today</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         
         <TouchableOpacity 
           style={styles.navButton}
@@ -136,11 +155,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 15,
   },
+  centerContent: {
+    alignItems: 'center',
+    gap: 6,
+  },
   monthYearText: {
     color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  todayButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  todayButtonText: {
+    color: '#ffffff',
+    fontSize: 11,
+    fontWeight: '600',
   },
   navButton: {
     padding: 10,

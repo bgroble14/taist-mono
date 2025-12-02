@@ -38,20 +38,32 @@ const APP_ENV = Constants.expoConfig?.extra?.APP_ENV || 'production';
 
 // Determine URLs based on environment
 const getEnvironmentUrls = () => {
-  if (APP_ENV === 'staging' || APP_ENV === 'development') {
-    // Staging environment
-    return {
-      BASE_URL: 'https://taist.cloudupscale.com/mapi/',
-      Photo_URL: 'https://taist.cloudupscale.com/assets/uploads/images/',
-      HTML_URL: 'https://taist.cloudupscale.com/assets/uploads/html/',
-    };
-  } else {
-    // Production environment
-    return {
-      BASE_URL: 'https://taist.codeupscale.com/mapi/',
-      Photo_URL: 'https://taist.codeupscale.com/assets/uploads/images/',
-      HTML_URL: 'https://taist.codeupscale.com/assets/uploads/html/',
-    };
+  switch (APP_ENV) {
+    case 'local':
+      // Local development - your machine
+      return {
+        BASE_URL: 'http://localhost:8000/mapi/',
+        Photo_URL: 'http://localhost:8000/assets/uploads/images/',
+        HTML_URL: 'http://localhost:8000/assets/uploads/html/',
+      };
+    
+    case 'staging':
+    case 'development':
+      // Staging environment
+      return {
+        BASE_URL: 'https://taist.cloudupscale.com/mapi/',
+        Photo_URL: 'https://taist.cloudupscale.com/assets/uploads/images/',
+        HTML_URL: 'https://taist.cloudupscale.com/assets/uploads/html/',
+      };
+    
+    case 'production':
+    default:
+      // Production environment
+      return {
+        BASE_URL: 'https://taist.codeupscale.com/mapi/',
+        Photo_URL: 'https://taist.codeupscale.com/assets/uploads/images/',
+        HTML_URL: 'https://taist.codeupscale.com/assets/uploads/html/',
+      };
   }
 };
 
@@ -608,6 +620,12 @@ export const UpdateUserAPI = async (params: IUser, dispatch?: any) => {
   );
   if (response.success == 1 && dispatch) {
     dispatch(setUser(response.data));
+    
+    // Check if zip code changed and user entered service area
+    if (response.zip_change_info?.entered_service_area) {
+      // Refresh zip codes to get latest list
+      await GetZipCodes({}, dispatch);
+    }
   }
   return response;
 };
