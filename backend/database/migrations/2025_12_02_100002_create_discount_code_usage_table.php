@@ -54,3 +54,4 @@ class CreateDiscountCodeUsageTable extends Migration
 
 
 
+
