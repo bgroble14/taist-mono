@@ -15,6 +15,7 @@
         "ext-mbstring": "*",
         "ext-xml": "*",
         "ext-curl": "*",
+        "ext-zip": "*",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
