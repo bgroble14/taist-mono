@@ -40,7 +40,7 @@ Route::group([ 'middleware' => [ 'auth:admin', ], ], function () {
     Route::get('transactions', 'AdminController@transactions')->name('transactions');
 
     Route::get('zipcodes', 'AdminController@zipcodes')->name('zipcodes');
-    Route::post('zipcodes', 'AdminController@updateZipcodes')->name('zipcodes');
+    Route::post('zipcodes', 'AdminController@updateZipcodes')->name('zipcodes.update');
     
     // Discount Codes
     Route::get('discount-codes', 'AdminController@discountCodes')->name('discount_codes');
