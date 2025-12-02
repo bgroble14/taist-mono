@@ -13,6 +13,33 @@ class CreateDiscountCodeUsageTable extends Migration
      */
     public function up()
     {
+        // Skip if table already exists (handles Railway's persistent database)
+        if (Schema::hasTable('tbl_discount_code_usage')) {
+            // Table exists - just try to add missing foreign key to tbl_orders if needed
+            if (Schema::hasTable('tbl_orders')) {
+                // Check if the foreign key already exists before adding
+                $foreignKeyExists = \DB::select(
+                    "SELECT CONSTRAINT_NAME
+                     FROM information_schema.TABLE_CONSTRAINTS
+                     WHERE TABLE_SCHEMA = DATABASE()
+                     AND TABLE_NAME = 'tbl_discount_code_usage'
+                     AND CONSTRAINT_NAME = 'fk_usage_order'
+                     AND CONSTRAINT_TYPE = 'FOREIGN KEY'"
+                );
+
+                if (empty($foreignKeyExists)) {
+                    Schema::table('tbl_discount_code_usage', function (Blueprint $table) {
+                        $table->foreign('order_id', 'fk_usage_order')
+                            ->references('id')
+                            ->on('tbl_orders')
+                            ->onDelete('cascade');
+                    });
+                }
+            }
+            return;
+        }
+
+        // Table doesn't exist - create it
         Schema::create('tbl_discount_code_usage', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('discount_code_id')->comment('FK to tbl_discount_codes');
