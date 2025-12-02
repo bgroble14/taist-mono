@@ -229,3 +229,4 @@ Controllers should have corresponding feature tests in `/tests/Feature/`.
 - Protect against CSRF (handled by middleware)
 
 
+

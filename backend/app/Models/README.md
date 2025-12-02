@@ -306,3 +306,4 @@ Models correspond to database tables created via migrations in `/database/migrat
 6. **Scopes**: Use scopes for reusable queries
 
 
+

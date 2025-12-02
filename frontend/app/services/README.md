@@ -59,3 +59,4 @@ The API service connects to the backend Laravel application. Base URL configurat
 All services implement consistent error handling with user-friendly error messages. Network errors, authentication failures, and validation errors are properly managed and surfaced to the UI.
 
 
+

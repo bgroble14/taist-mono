@@ -1,658 +1,531 @@
-# Local Development Setup Guide
+# Local Development Guide
 
-Complete guide to run Taist backend and frontend on your local machine.
+Complete guide for setting up and running Taist locally with test data.
 
-## 🎯 Quick Start (TL;DR)
+## 📋 Table of Contents
 
-```bash
-# 1. Backend setup (run once)
-cd backend
-./scripts/setup-local-backend.sh
-
-# 2. Start backend server
-php artisan serve
-# Backend running at: http://localhost:8000
-
-# 3. Frontend setup (in new terminal)
-cd ../frontend
-npm run dev:local
-# Follow Expo instructions to run on device/simulator
-```
+- [Quick Start](#-quick-start)
+- [Prerequisites](#-prerequisites)
+- [Database Setup](#-database-setup)
+- [Test Accounts](#-test-accounts)
+- [Environment Switching](#-environment-switching)
+- [Troubleshooting](#-troubleshooting)
+- [Database Information](#-database-information)
 
 ---
 
-## 📋 Prerequisites
+## ⚡ Quick Start
 
-### Required Software
+**Already set up?** Just run these:
 
-1. **PHP 7.2.5+** with extensions:
-   ```bash
-   # Check PHP version
-   php -v
-   
-   # Required extensions: mbstring, openssl, PDO, Tokenizer, XML, ctype, JSON
-   # On macOS (using Homebrew):
-   brew install php@7.4
-   
-   # On Ubuntu/Debian:
-   sudo apt install php php-mysql php-mbstring php-xml php-curl
-   ```
+```bash
+# Terminal 1: Backend
+cd backend
+php artisan serve --port=8000
 
-2. **Composer** (PHP package manager):
-   ```bash
-   # Check if installed
-   composer --version
-   
-   # Install if needed (macOS):
-   brew install composer
-   
-   # Or download from: https://getcomposer.org/
-   ```
+# Terminal 2: Frontend
+cd frontend
+npm run dev:local
+```
 
-3. **MySQL 5.7+** or **MariaDB**:
-   ```bash
-   # macOS (Homebrew):
-   brew install mysql
-   brew services start mysql
-   
-   # Ubuntu/Debian:
-   sudo apt install mysql-server
-   sudo systemctl start mysql
-   
-   # Check if running:
-   mysql --version
-   ```
+**First time?** Continue reading below.
 
-4. **Node.js & npm** (for frontend):
-   ```bash
-   # Check versions
-   node -v  # Should be 16+
-   npm -v   # Should be 8+
-   ```
+---
+
+## 📦 Prerequisites
+
+### Backend
+- **PHP 7.4** (installed via Homebrew: `php@7.4`)
+- **Composer** (PHP package manager)
+- **MySQL 8.0** (running via `brew services start mysql`)
+
+### Frontend
+- **Node.js 18+**
+- **npm** or **yarn**
+- **Expo CLI** (installed globally or via npx)
+
+### Mobile Testing
+- **iOS**: Xcode with iOS Simulator
+- **Android**: Android Studio with emulator
+- **Physical Device**: Expo Go app installed
 
 ---
 
 ## 🗄️ Database Setup
 
-### Step 1: Create Local Database
+The local database is **already configured** with:
+- ✅ Exact schema from staging (24 tables)
+- ✅ Laravel Passport for API auth
+- ✅ Comprehensive test data
 
+### Database Details
+- **Host**: 127.0.0.1
+- **Database**: taist_local
+- **User**: root
+- **Password**: (none)
+
+### Access Database
 ```bash
-# Connect to MySQL
-mysql -u root -p
-# Enter your MySQL root password (or press Enter if no password)
-
-# Inside MySQL prompt:
-CREATE DATABASE taist_local CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# Create a dedicated user (optional but recommended):
-CREATE USER 'taist_dev'@'localhost' IDENTIFIED BY 'taist_local_pass';
-GRANT ALL PRIVILEGES ON taist_local.* TO 'taist_dev'@'localhost';
-FLUSH PRIVILEGES;
-
-# Verify database was created:
-SHOW DATABASES;
-
-# Exit MySQL:
-EXIT;
+mysql -u root taist_local
 ```
 
-### Step 2: (Optional) Import Data from Staging/Production
-
-If you want to test with real data, you can import a database dump:
-
+### Reset Database (if needed)
 ```bash
-# Get dump from staging (ask team for credentials)
-# Then import:
-mysql -u root -p taist_local < staging_dump.sql
-```
+cd backend
 
-For now, let's proceed with a fresh database and seed it with test data.
+# Drop and recreate all tables
+mysql -u root taist_local < database/taist-schema.sql
 
----
-
-## 🔧 Backend Setup
-
-### Step 1: Navigate to Backend Directory
-
-```bash
-cd /Users/williamgroble/taist-mono/backend
-```
-
-### Step 2: Install Dependencies
-
-```bash
-composer install
-
-# This will download all Laravel and PHP dependencies
-# May take 2-3 minutes
-```
-
-### Step 3: Create Environment File
-
-```bash
-# Copy the example environment file
-cp .env.example .env
-
-# Or if .env.example doesn't exist, create .env manually
-touch .env
-```
-
-### Step 4: Edit .env File
-
-Open `backend/.env` in your editor and configure:
-
-```env
-# Basic App Settings
-APP_NAME=Taist
-APP_ENV=local
-APP_KEY=  # Will generate in next step
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-# Database (use the database you created)
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=taist_local
-DB_USERNAME=root
-DB_PASSWORD=  # Your MySQL password (leave blank if no password)
-
-# Or if you created dedicated user:
-# DB_USERNAME=taist_dev
-# DB_PASSWORD=taist_local_pass
-
-# Email (log to file instead of sending)
-MAIL_MAILER=log
-
-# Session & Cache
-CACHE_DRIVER=file
-SESSION_DRIVER=file
-QUEUE_CONNECTION=sync
-
-# External Services (Optional - can add later)
-# For now, you can skip these or use test credentials:
-
-# Stripe (Test Mode Keys)
-STRIPE_KEY=pk_test_YOUR_KEY
-STRIPE_SECRET=sk_test_YOUR_SECRET
-
-# Twilio (Optional - skip SMS for now)
-TWILIO_SID=
-TWILIO_TOKEN=
-TWILIO_FROM=
-
-# Google Maps (Optional - get free key)
-GOOGLE_MAPS_API_KEY=
-
-# Firebase (Optional - for push notifications)
-FIREBASE_CREDENTIALS=firebase_credentials.json
-```
-
-**Note**: You can start without external service credentials. Add them later as needed.
-
-### Step 5: Generate Application Key
-
-```bash
-php artisan key:generate
-
-# This will add APP_KEY to your .env file
-```
-
-### Step 6: Run Database Migrations
-
-```bash
-# Create all tables in the database
-php artisan migrate
-
-# If you get errors, verify your database connection in .env
-```
-
-**Expected Output**:
-```
-Migration table created successfully.
-Migrating: 2014_10_12_000000_create_users_table
-Migrated:  2014_10_12_000000_create_users_table (0.50 seconds)
-Migrating: 2014_10_12_100000_create_password_resets_table
-Migrated:  2014_10_12_100000_create_password_resets_table (0.25 seconds)
-...
-```
-
-### Step 7: Seed Database with Test Data (Optional)
-
-```bash
-# Add sample data for testing
-php artisan db:seed
-
-# This creates test users, chefs, menus, etc.
-```
-
-### Step 8: Install Laravel Passport (API Authentication)
-
-```bash
-php artisan passport:install
-
-# This generates encryption keys for API tokens
-# Save the Client ID and Secret shown (not critical for dev)
-```
-
-### Step 9: Create Storage Symlink
-
-```bash
-php artisan storage:link
-
-# This links storage/app/public to public/storage
-# Needed for uploaded images
-```
-
-### Step 10: Set Permissions (if needed)
-
-```bash
-# macOS/Linux - make sure Laravel can write to storage and cache
-chmod -R 775 storage bootstrap/cache
+# Repopulate with test data
+php artisan db:seed --class=LocalTestDataSeeder
 ```
 
 ---
 
-## 🚀 Running the Backend Server
+## 🚀 Starting the Application
 
-### Start the Development Server
+### Backend Server
 
 ```bash
-# From backend directory
-php artisan serve
-
-# Or specify host and port:
-php artisan serve --host=0.0.0.0 --port=8000
+cd backend
+php artisan serve --port=8000
 ```
 
-**Expected Output**:
+**Expected output**:
 ```
 Laravel development server started: http://127.0.0.1:8000
 ```
 
-### Test the Backend
-
-Open another terminal and test:
-
+**Test it works**:
 ```bash
-# Test basic endpoint
-curl http://localhost:8000/api/get-version
-
-# Expected response:
-# {"success":1,"data":{"version":"1.0.0"}}
+curl http://127.0.0.1:8000/mapi/get-version
+# Should return: {"success":1,"data":[{"version":"1.0.0",...}]}
 ```
 
-**Keep this terminal running** - your backend is now live!
+### Frontend Application
+
+```bash
+cd frontend
+npm run dev:local
+```
+
+This will:
+- Start the Expo dev server
+- Configure API to point to `http://127.0.0.1:8000`
+- Show a QR code to scan with Expo Go app
+
+**Platform-specific commands**:
+```bash
+npm run ios:local      # Open in iOS Simulator
+npm run android:local  # Open in Android Emulator
+```
 
 ---
 
-## 📱 Frontend Setup
+## 👤 Test Accounts
 
-### Step 1: Navigate to Frontend Directory
+All passwords are: **`password`**
 
-Open a **new terminal** (keep backend running):
+### Chefs (user_type = 2)
+
+**Maria Rodriguez** - Mexican Cuisine
+- Email: `maria.chef@test.com`
+- Phone: `+13125551001`
+- Location: 123 W Madison St, Chicago, IL 60602
+- Menu Items: 3 (Tacos, Enchiladas, Quesadilla)
+
+**James Chen** - Asian Fusion
+- Email: `james.chef@test.com`
+- Phone: `+13125551002`
+- Location: 456 N State St, Chicago, IL 60610
+- Menu Items: 3 (Kung Pao, Pad Thai, Salmon Bowl)
+
+**Sarah Williams** - Vegan
+- Email: `sarah.chef@test.com`
+- Phone: `+13125551003`
+- Location: 789 S Michigan Ave, Chicago, IL 60605
+- Menu Items: 3 (Buddha Bowl, Risotto, Jackfruit Tacos)
+
+### Customers (user_type = 1)
+
+**John Smith**
+- Email: `john.customer@test.com`
+- Phone: `+13125552001`
+- Location: 321 E Ohio St, Chicago, IL 60611
+
+**Emily Johnson**
+- Email: `emily.customer@test.com`
+- Phone: `+13125552002`
+- Location: 654 W Randolph St, Chicago, IL 60661
+
+---
+
+## 🌍 Environment Switching
+
+The frontend supports three environments:
+
+| Environment | Backend URL | Usage |
+|------------|-------------|-------|
+| **local** | http://localhost:8000 | Development on your machine |
+| **staging** | https://taist.cloudupscale.com | Testing before production |
+| **production** | https://taist.codeupscale.com | Live application |
+
+### Switch Environments
 
 ```bash
-cd /Users/williamgroble/taist-mono/frontend
+# Local (development)
+npm run dev:local
+npm run ios:local
+npm run android:local
+
+# Staging (testing)
+npm run dev:staging
+npm run ios:staging
+npm run android:staging
+
+# Production (careful!)
+npm run dev:prod
+npm run ios:prod
+npm run android:prod
 ```
 
-### Step 2: Install Dependencies (if not already done)
+### How It Works
 
-```bash
-npm install
-```
+The environment is set via the `APP_ENV` environment variable:
 
-### Step 3: Create Environment Scripts
+```javascript
+// frontend/app/services/api.ts
+const APP_ENV = process.env.APP_ENV || 'local';
 
-I've already updated the code to support local development. You just need to set the environment variable.
-
-### Step 4: Create npm Scripts for Easy Environment Switching
-
-Open `frontend/package.json` and add these scripts:
-
-```json
-"scripts": {
-  "start": "expo start",
-  "android": "expo start --android",
-  "ios": "expo start --ios",
-  "web": "expo start --web",
-  
-  "dev:local": "APP_ENV=local npm start",
-  "android:local": "APP_ENV=local npm run android",
-  "ios:local": "APP_ENV=local npm run ios",
-  
-  "dev:staging": "APP_ENV=staging npm start",
-  "android:staging": "APP_ENV=staging npm run android",
-  "ios:staging": "APP_ENV=staging npm run ios",
-  
-  "dev:prod": "APP_ENV=production npm start",
-  "android:prod": "APP_ENV=production npm run android",
-  "ios:prod": "APP_ENV=production npm run ios"
+if (APP_ENV === 'local') {
+  BASE_URL = 'http://localhost:8000/mapi/';
+} else if (APP_ENV === 'staging') {
+  BASE_URL = 'https://taist.cloudupscale.com/mapi/';
+} else {
+  BASE_URL = 'https://taist.codeupscale.com/mapi/';
 }
 ```
 
-### Step 5: Start Frontend in Local Mode
+---
 
-```bash
-# Start Expo with local backend
-npm run dev:local
+## 📊 Test Data Summary
 
-# Or for specific platform:
-npm run ios:local     # iOS simulator
-npm run android:local # Android emulator
-```
+### Users
+- **3 Chefs**: All verified, active, with complete profiles and availability
+- **2 Customers**: Ready to place orders
 
-**Expected Output**:
-```
-🌍 Environment: local
-🔗 API URL: http://localhost:8000/mapi/
+### Menu System
+- **9 Menu Items**: $12-$25 price range
+- **8 Categories**: Mexican, Asian, Vegan, Italian, American, Indian, Mediterranean, BBQ
+- **7 Customizations**: Add-ons for select menu items
+- **8 Allergens**: Gluten, Dairy, Eggs, Peanuts, Tree Nuts, Soy, Fish, Shellfish
+- **6 Appliances**: Oven, Microwave, Stovetop, Air Fryer, Instant Pot, Grill
 
-› Metro waiting on exp://192.168.1.100:19000
-› Scan the QR code above with Expo Go (Android) or Camera app (iOS)
-```
+### Service Areas
+- **58 Activated ZIP Codes**: Chicago area (60601-60714)
 
-### Step 6: Run on Device or Simulator
+### Menu Items by Chef
 
-**Option A: Physical Device**
-1. Install Expo Go app from App Store (iOS) or Play Store (Android)
-2. Scan the QR code shown in terminal
-3. App will load with local backend connection
+**Maria Rodriguez (Mexican)**
+- Authentic Chicken Tacos (3 pack) - $15
+- Beef Enchiladas with Red Sauce - $22
+- Veggie Quesadilla - $12
 
-**Option B: iOS Simulator (macOS only)**
-```bash
-npm run ios:local
-```
+**James Chen (Asian)**
+- Kung Pao Chicken - $18
+- Pad Thai - $20
+- Teriyaki Salmon Bowl - $25
 
-**Option C: Android Emulator**
-```bash
-npm run android:local
-```
+**Sarah Williams (Vegan)**
+- Buddha Bowl - $16
+- Vegan Mushroom Risotto - $19
+- Jackfruit Tacos (3 pack) - $14
 
 ---
 
-## 🔄 Environment Switching
+## 🗂️ Database Schema
 
-You now have three environments configured:
+The database contains 24 tables matching staging exactly:
 
-### Local Development (Your Machine)
-```bash
-npm run dev:local
-# Backend: http://localhost:8000
+### Core Tables
+- `tbl_users` - Customers and chefs
+- `tbl_menus` - Menu items
+- `tbl_orders` - Customer orders
+- `tbl_categories` - Food categories
+- `tbl_customizations` - Menu add-ons
+
+### Support Tables
+- `tbl_allergens` - Allergen information
+- `tbl_appliances` - Kitchen equipment
+- `tbl_zipcodes` - Service areas
+- `tbl_availabilities` - Chef schedules
+- `tbl_reviews` - Ratings and reviews
+- `tbl_conversations` - Chat messages
+- `tbl_transactions` - Payment records
+- `tbl_payment_method_listener` - Stripe payment methods
+
+### Auth Tables
+- `oauth_*` - Laravel Passport tables
+- `notifications` - Push notifications
+
+### Inspect Tables
+```sql
+-- View all tables
+SHOW TABLES;
+
+-- Check users
+SELECT id, first_name, last_name, email, user_type, verified FROM tbl_users;
+
+-- Check menus
+SELECT id, user_id, title, price, is_live FROM tbl_menus;
+
+-- Check activated zipcodes
+SELECT * FROM tbl_zipcodes;
 ```
-
-### Staging (Testing Server)
-```bash
-npm run dev:staging
-# Backend: https://taist.cloudupscale.com
-```
-
-### Production (Live)
-```bash
-npm run dev:prod
-# Backend: https://taist.codeupscale.com
-```
-
-**Important**: Always use local mode when testing new features!
-
----
-
-## ✅ Testing Your Setup
-
-### Test Backend API
-
-1. **Check version endpoint**:
-   ```bash
-   curl http://localhost:8000/api/get-version
-   ```
-
-2. **Check database connection**:
-   ```bash
-   php artisan tinker
-   >>> DB::connection()->getPdo();
-   >>> exit
-   ```
-
-3. **View logs**:
-   ```bash
-   tail -f storage/logs/laravel.log
-   ```
-
-### Test Frontend Connection
-
-1. Start app in local mode
-2. Try to sign up with new customer account
-3. Check backend terminal for API requests
-4. Check database for new user:
-   ```bash
-   mysql -u root -p taist_local
-   SELECT * FROM tbl_users ORDER BY id DESC LIMIT 5;
-   ```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Backend Issues
+### Backend won't start
 
-#### "Connection refused" when starting server
+**"Port 8000 already in use"**
 ```bash
-# Check if port 8000 is in use
 lsof -i :8000
-
-# Kill process if needed
 kill -9 <PID>
-
-# Or use different port
-php artisan serve --port=8001
-# Update frontend API URL to :8001
+php artisan serve --port=8000
 ```
 
-#### "SQLSTATE[HY000] [2002] Connection refused"
-- MySQL not running: `brew services start mysql` (macOS) or `sudo systemctl start mysql` (Linux)
-- Wrong credentials in .env
-- Wrong database name
-
-#### "Class 'Illuminate\Foundation\Application' not found"
+**"Can't connect to MySQL"**
 ```bash
-composer install
+# Check MySQL is running
+brew services list
+
+# Start MySQL
+brew services start mysql
+
+# Test connection
+mysql -u root -p
+```
+
+**PHP version issues**
+```bash
+# Check PHP version (should be 7.4.x)
+php -v
+
+# If wrong version, switch to PHP 7.4
+brew link php@7.4 --force
+```
+
+### Frontend can't reach backend
+
+**"Network request failed"**
+1. Verify backend is running: `curl http://127.0.0.1:8000/mapi/get-version`
+2. Ensure you ran `npm run dev:local` (not just `npm start`)
+3. Check Metro bundler shows "Environment: local"
+
+**Physical device can't connect**
+
+Your device needs to use your computer's IP address, not "localhost":
+
+```bash
+# Find your computer's IP
+ifconfig | grep "inet " | grep -v 127.0.0.1
+
+# Example output: inet 192.168.1.100
+```
+
+Then temporarily update the API URL:
+```typescript
+// frontend/app/services/api.ts
+// Change localhost to your IP:
+BASE_URL: 'http://192.168.1.100:8000/mapi/',
+```
+
+Or set `LOCAL_IP` in `frontend/app.json`:
+```json
+{
+  "expo": {
+    "extra": {
+      "LOCAL_IP": "192.168.1.100"
+    }
+  }
+}
+```
+
+### Database issues
+
+**"Table doesn't exist"**
+```bash
+cd backend
+mysql -u root taist_local < database/taist-schema.sql
+php artisan db:seed --class=LocalTestDataSeeder
+```
+
+**Need fresh start**
+```bash
+# Drop database
+mysql -u root -e "DROP DATABASE IF EXISTS taist_local; CREATE DATABASE taist_local;"
+
+# Reimport schema
+mysql -u root taist_local < backend/database/taist-schema.sql
+
+# Seed data
+cd backend
+php artisan passport:install
+php artisan db:seed --class=LocalTestDataSeeder
+```
+
+### App crashes or weird behavior
+
+**Clear all caches**
+```bash
+# Backend
+cd backend
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
 composer dump-autoload
-```
 
-#### "The only supported ciphers are AES-128-CBC and AES-256-CBC"
-```bash
-php artisan key:generate
-```
-
-### Frontend Issues
-
-#### "Network request failed" in app
-1. Check backend is running: `curl http://localhost:8000/api/get-version`
-2. Check environment: Should show "🌍 Environment: local" in Metro bundler
-3. If on physical device, use your computer's IP instead of localhost:
-   ```typescript
-   // In frontend/app/services/api.ts, update local URL:
-   BASE_URL: 'http://192.168.1.100:8000/mapi/',  // Use your machine's IP
-   ```
-   Find your IP: `ifconfig | grep inet` (macOS/Linux) or `ipconfig` (Windows)
-
-#### Environment not switching
-```bash
-# Clear Metro cache
+# Frontend
+cd frontend
 npm start -- --clear
-
-# Or
 rm -rf node_modules/.cache
-npm run dev:local
-```
-
-#### "Unable to resolve module"
-```bash
-npm install
-npx expo start --clear
 ```
 
 ---
 
-## 📊 Database Management
-
-### View Tables
-
-```bash
-mysql -u root -p taist_local
-
-SHOW TABLES;
-```
-
-### Common Tables
-- `tbl_users` - All users (customers and chefs)
-- `tbl_menus` - Menu items
-- `tbl_orders` - Orders
-- `tbl_chef_profiles` - Chef profile data
-- `tbl_reviews` - Reviews
-- `tbl_zipcodes` - Supported ZIP codes
-
-### Reset Database
-
-```bash
-# Drop all tables and recreate
-php artisan migrate:fresh
-
-# With seeding
-php artisan migrate:fresh --seed
-```
+## 🔧 Common Tasks
 
 ### View Logs
 
 ```bash
-# Laravel logs
+# Backend logs (real-time)
 tail -f backend/storage/logs/laravel.log
 
-# MySQL query logs (if enabled)
-tail -f /usr/local/var/mysql/$(hostname).log
+# Frontend logs (Metro bundler shows in terminal)
 ```
 
----
-
-## 🎨 Admin Panel (Optional)
-
-The backend includes a web admin panel:
-
-1. **Compile assets**:
-   ```bash
-   cd backend
-   npm install
-   npm run dev
-   ```
-
-2. **Access admin**:
-   - URL: http://localhost:8000/admin
-   - Create admin user in database or via tinker
-
----
-
-## 🔐 External Services Setup (Optional)
-
-You can run the app without these, but here's how to add them:
-
-### Stripe (Payment Processing)
-
-1. Go to https://dashboard.stripe.com/register
-2. Get test keys from https://dashboard.stripe.com/test/apikeys
-3. Add to `.env`:
-   ```env
-   STRIPE_KEY=pk_test_...
-   STRIPE_SECRET=sk_test_...
-   ```
-
-### Google Maps API (Geocoding)
-
-1. Go to https://console.cloud.google.com/
-2. Enable "Geocoding API" and "Maps SDK"
-3. Create API key
-4. Add to `.env`:
-   ```env
-   GOOGLE_MAPS_API_KEY=AIza...
-   ```
-
-### Twilio (SMS Verification)
-
-1. Go to https://www.twilio.com/try-twilio
-2. Get free trial account
-3. Add to `.env`:
-   ```env
-   TWILIO_SID=AC...
-   TWILIO_TOKEN=...
-   TWILIO_FROM=+15551234567
-   ```
-
----
-
-## 📝 Daily Workflow
-
-### Starting Work
+### Database Management
 
 ```bash
-# Terminal 1: Backend
-cd backend
-php artisan serve
+# Access database
+mysql -u root taist_local
 
-# Terminal 2: Frontend
-cd frontend
-npm run dev:local
+# Export database
+mysqldump -u root taist_local > backup.sql
 
-# Terminal 3: Logs (optional)
-cd backend
-tail -f storage/logs/laravel.log
+# Import database
+mysql -u root taist_local < backup.sql
+
+# Reset with fresh data
+php artisan migrate:fresh
+php artisan db:seed --class=LocalTestDataSeeder
 ```
 
-### Stopping Work
+### Testing API Endpoints
 
 ```bash
-# Press Ctrl+C in each terminal to stop servers
-```
+# Get version
+curl http://127.0.0.1:8000/mapi/get-version
 
-### Updating Code
+# Login (get auth token)
+curl -X POST http://127.0.0.1:8000/mapi/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john.customer@test.com","password":"password"}'
 
-```bash
-# Backend: If database schema changed
-php artisan migrate
-
-# Frontend: If dependencies changed
-npm install
+# Get allergens (requires auth)
+curl http://127.0.0.1:8000/mapi/get_allergens \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
 ---
 
-## 🎉 Success Checklist
+## 📝 Important Notes
 
-- ✅ Backend running at http://localhost:8000
-- ✅ Database `taist_local` created and migrated
-- ✅ Frontend starts with "Environment: local"
-- ✅ Can sign up new customer account
-- ✅ New user appears in database
-- ✅ No "Network request failed" errors
+### PHP Version
+- Local backend uses **PHP 7.4** for Laravel 7 compatibility
+- Deprecation warnings are suppressed in the error handler
+- Staging/production may use different PHP versions
+
+### Database Schema
+- Schema exported directly from staging
+- All timestamps stored as `varchar(50)` in "Y-m-d H:i:s" format
+- No foreign key constraints (legacy design)
+
+### API Authentication
+- Most endpoints require authentication via `auth:mapi` middleware
+- Public endpoints: `register`, `login`, `forgot`, `reset_password`, `verify_phone`, `get-version`
+- Auth uses Laravel Passport (OAuth2)
+
+### File Storage
+- User photos: `backend/public/assets/uploads/images/`
+- Menu images: Same directory
+- Logs: `backend/storage/logs/`
+
+---
+
+## 🎯 Testing New Features
+
+### Test the New Signup Flow (TMA-002)
+
+1. Start both backend and frontend locally
+2. Open app in Expo
+3. Navigate to signup
+4. Complete the multi-step flow:
+   - Basic Profile (name, email, phone)
+   - Location (ZIP code with GPS)
+   - Preferences (dietary, notifications)
+   - Permissions (location, notifications)
+5. Verify user created in database:
+   ```sql
+   SELECT * FROM tbl_users ORDER BY id DESC LIMIT 1;
+   ```
+
+### Test Address Collection
+
+1. Login as customer without address
+2. Add items to cart
+3. Go to checkout
+4. Address collection modal should appear
+5. Fill in address with GPS assistance
+6. Verify saved in database:
+   ```sql
+   SELECT id, email, address, city, state, zip FROM tbl_users WHERE id = YOUR_ID;
+   ```
+
+---
+
+## 🆘 Getting Help
+
+1. **Check the quick guide**: `LOCAL-DEV-QUICKSTART.md`
+2. **Review backend logs**: `tail -f backend/storage/logs/laravel.log`
+3. **Test API manually**: Use `curl` commands above
+4. **Inspect database**: Use MySQL queries above
+5. **Check environment**: Verify "Environment: local" in Metro bundler
+
+Common issues are usually:
+- MySQL not running
+- Wrong database credentials
+- Backend not started
+- Wrong environment selected
+- Port conflicts
 
 ---
 
 ## 📚 Additional Resources
 
-- **Laravel Docs**: https://laravel.com/docs/7.x
-- **Expo Docs**: https://docs.expo.dev/
-- **MySQL Docs**: https://dev.mysql.com/doc/
+- [Quick Reference](./LOCAL-DEV-QUICKSTART.md)
+- [Backend README](./backend/README.md)
+- [Frontend README](./frontend/README.md)
+- [Sprint Tasks](./sprint-tasks.md)
 
 ---
 
-## 🆘 Need Help?
+**Happy coding! 🚀**
 
-1. Check logs: `backend/storage/logs/laravel.log`
-2. Test API manually: `curl http://localhost:8000/api/get-version`
-3. Verify database: `mysql -u root -p taist_local`
-4. Check this guide's troubleshooting section
-
-**Common Issue**: If frontend can't connect from physical device, update the local URL in `frontend/app/services/api.ts` to use your computer's IP address instead of `localhost`.
+Your local environment is fully configured and ready for development!
 
 ---
 
-**Last Updated**: December 2, 2025  
-**Tested On**: macOS Sonoma, PHP 7.4, MySQL 8.0, Node 18
-
+*Last updated: December 2, 2025*

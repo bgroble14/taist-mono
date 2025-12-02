@@ -65,3 +65,4 @@ Critical state (auth, user profile, cart) is persisted to device storage using R
 5. Keep business logic in actions/thunks, not components
 
 
+

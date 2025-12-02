@@ -62,3 +62,4 @@ import { HeaderWithBack } from '@/components/headerWithBack';
 All styled components follow the app's theme defined in `/constants/theme.ts`. They automatically adapt to light/dark mode and use consistent spacing, colors, and typography.
 
 
+

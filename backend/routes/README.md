@@ -208,3 +208,4 @@ php artisan route:list --method=POST
 - Authorization checks before data access
 
 
+

@@ -1,253 +1,143 @@
 # Local Development Quick Start 🚀
 
-**TL;DR** - Three ways to start local development:
+Your local environment is **fully configured** with database and test data ready to use!
 
-## Option 1: Automated (Recommended)
+## ⚡ Start Development
 
-```bash
-./start-local-dev.sh
-```
-
-This single command:
-- ✅ Sets up backend (if first time)
-- ✅ Installs frontend dependencies (if needed)
-- ✅ Starts both backend and frontend
-- ✅ Configures frontend to use local backend
-
----
-
-## Option 2: Manual (Separate Terminals)
-
-### Terminal 1 - Backend
+### Terminal 1: Backend
 ```bash
 cd backend
-./scripts/setup-local.sh  # Only run once for initial setup
-php artisan serve         # Run every time
+php artisan serve --port=8000
 ```
 
-### Terminal 2 - Frontend
+### Terminal 2: Frontend
 ```bash
 cd frontend
-npm run dev:local         # Uses local backend
+npm run dev:local        # Points to local backend
+```
+
+That's it! Backend runs at `http://127.0.0.1:8000`, frontend opens in Expo.
+
+---
+
+## 👤 Test Accounts
+
+All passwords are: `password`
+
+### Chefs
+- `maria.chef@test.com` - Mexican cuisine (Chicago)
+- `james.chef@test.com` - Asian fusion (Chicago)
+- `sarah.chef@test.com` - Vegan (Chicago)
+
+### Customers
+- `john.customer@test.com` - Chicago customer
+- `emily.customer@test.com` - Chicago customer
+
+---
+
+## 🌍 Environment Switching
+
+```bash
+npm run dev:local      # Local backend (development)
+npm run dev:staging    # Staging backend (testing)
+npm run dev:prod       # Production backend (careful!)
 ```
 
 ---
 
-## Option 3: First Time Setup
+## 📊 What's in the Database
 
-### Step 1: Database
+- ✅ 58 activated Chicago zip codes
+- ✅ 3 verified chefs with full profiles
+- ✅ 9 live menu items ($12-$25 each)
+- ✅ 8 food categories
+- ✅ 8 allergens
+- ✅ 6 appliances
+- ✅ 7 menu customizations
+
+---
+
+## 🗄️ Database Access
+
 ```bash
-mysql -u root -p
+# Access database
+mysql -u root taist_local
 
-CREATE DATABASE taist_local;
-EXIT;
+# View users
+SELECT id, email, user_type FROM tbl_users;
+
+# View menus
+SELECT id, title, price FROM tbl_menus;
 ```
 
-### Step 2: Backend
-```bash
-cd backend
-./scripts/setup-local.sh
-# Follow prompts for database credentials
-```
+**Connection**: `root@localhost/taist_local` (no password)
 
-### Step 3: Frontend
+---
+
+## ✅ Health Check
+
 ```bash
-cd frontend
-npm install
-npm run dev:local
+# Backend responding?
+curl http://127.0.0.1:8000/mapi/get-version
+
+# Should return: {"success":1,"data":[{"version":"1.0.0",...}]}
 ```
 
 ---
 
-## 📍 URLs & Endpoints
-
-| Service | URL |
-|---------|-----|
-| **Backend API** | http://localhost:8000 |
-| **Test Endpoint** | http://localhost:8000/api/get-version |
-| **Frontend** | Opens in Expo (scan QR code) |
-
----
-
-## 🔄 Environment Switching
-
-```bash
-# Local (your machine)
-npm run dev:local
-npm run ios:local
-npm run android:local
-
-# Staging (test server)
-npm run dev:staging
-npm run ios:staging
-npm run android:staging
-
-# Production (live)
-npm run dev:prod
-npm run ios:prod
-npm run android:prod
-```
-
----
-
-## ✅ Quick Health Check
-
-```bash
-# Test backend is running
-curl http://localhost:8000/api/get-version
-
-# Expected response:
-# {"success":1,"data":{"version":"..."}}
-```
-
----
-
-## 🐛 Troubleshooting
-
-### "Connection refused" errors
-
-**Backend not running?**
-```bash
-# Start backend
-cd backend
-php artisan serve
-```
-
-**Physical device can't connect?**
-
-Your device needs to use your computer's IP, not "localhost".
-
-1. Find your computer's IP:
-   ```bash
-   # macOS/Linux
-   ifconfig | grep inet
-   
-   # Look for something like: 192.168.1.100
-   ```
-
-2. Update frontend API URL temporarily:
-   ```typescript
-   // frontend/app/services/api.ts
-   // Change localhost to your IP:
-   BASE_URL: 'http://192.168.1.100:8000/mapi/',
-   ```
-
-### Database connection errors
-
-```bash
-# Verify MySQL is running
-mysql -u root -p
-
-# Verify database exists
-SHOW DATABASES;
-
-# Re-check .env file
-cat backend/.env | grep DB_
-```
+## 🐛 Quick Fixes
 
 ### "Port 8000 already in use"
-
 ```bash
-# Find what's using port 8000
-lsof -i :8000
-
-# Kill it
-kill -9 <PID>
-
-# Or use different port
-php artisan serve --port=8001
-# Update frontend URL accordingly
+lsof -i :8000          # Find what's using it
+kill -9 <PID>          # Kill it
+php artisan serve      # Restart
 ```
 
----
-
-## 📂 Key Files
-
-| File | Purpose |
-|------|---------|
-| `backend/.env` | Backend configuration (DB, API keys) |
-| `backend/storage/logs/laravel.log` | Backend error logs |
-| `frontend/app/services/api.ts` | API URL configuration |
-| `frontend/package.json` | npm scripts for environments |
-
----
-
-## 🔑 Database Credentials (Default)
-
-```env
-Host: 127.0.0.1
-Port: 3306
-Database: taist_local
-Username: root
-Password: (your MySQL root password)
+### "Can't connect to MySQL"
+```bash
+brew services start mysql     # macOS
+sudo systemctl start mysql    # Linux
 ```
 
----
-
-## 💡 Pro Tips
-
-1. **Keep terminals organized**
-   - Terminal 1: Backend server
-   - Terminal 2: Frontend/Expo
-   - Terminal 3: Logs (`tail -f backend/storage/logs/laravel.log`)
-
-2. **Test new features locally first**
-   - Always use `npm run dev:local` when developing
-   - Only test on staging after local testing passes
-
-3. **Database changes**
-   ```bash
-   cd backend
-   php artisan migrate        # Run new migrations
-   php artisan migrate:fresh  # Reset entire DB
-   php artisan db:seed        # Add test data
-   ```
-
-4. **Clear caches when things break**
-   ```bash
-   # Backend
-   php artisan cache:clear
-   php artisan config:clear
-   php artisan route:clear
-   
-   # Frontend
-   npm start -- --clear
-   ```
+### "Network request failed" in app
+- Ensure backend is running
+- Check you ran `npm run dev:local` (not just `npm start`)
 
 ---
 
 ## 📚 Full Documentation
 
-For complete setup instructions and troubleshooting:
-- **Comprehensive Guide**: [LOCAL-DEVELOPMENT-GUIDE.md](./LOCAL-DEVELOPMENT-GUIDE.md)
-- **Backend README**: [backend/README.md](./backend/README.md)
-- **Frontend README**: [frontend/README.md](./frontend/README.md)
+- **Complete Guide**: [LOCAL-DEVELOPMENT-GUIDE.md](./LOCAL-DEVELOPMENT-GUIDE.md)
+- **Backend Details**: [backend/README.md](./backend/README.md)
+- **Frontend Details**: [frontend/README.md](./frontend/README.md)
 
 ---
 
-## 🆘 Still Stuck?
+## 🎯 Common Tasks
 
-1. Check the detailed guide: `LOCAL-DEVELOPMENT-GUIDE.md`
-2. Check backend logs: `tail -f backend/storage/logs/laravel.log`
-3. Verify environment: Should see "🌍 Environment: local" in Expo
+### Reset Database
+```bash
+cd backend
+php artisan migrate:fresh
+php artisan db:seed --class=LocalTestDataSeeder
+```
 
----
-
-**Need to reset everything?**
-
+### Clear Caches
 ```bash
 # Backend
-cd backend
-php artisan migrate:fresh --seed
+php artisan cache:clear
+php artisan config:clear
 
 # Frontend
-cd frontend
-rm -rf node_modules
-npm install
 npm start -- --clear
+```
+
+### View Logs
+```bash
+tail -f backend/storage/logs/laravel.log
 ```
 
 ---
 
-Last Updated: December 2, 2025
-
+Last updated: December 2, 2025

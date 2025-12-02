@@ -359,21 +359,21 @@ const user: IUser = typeof params?.user === 'string'
 
     // Chef-specific required fields
     if (userInfo.user_type === 2) {
-      if (userInfo.birthday == undefined || userInfo.birthday == 0) {
-        return 'Please select the birthday';
-      }
-      if (userInfo.address == undefined || userInfo.address.length == 0) {
-        return 'Please enter the address';
-      }
-      if (userInfo.city == undefined || userInfo.city.length == 0) {
-        return 'Please enter the city';
-      }
-      if (userInfo.state == undefined || userInfo.state.length == 0) {
-        return 'Please select a state';
-      }
+    if (userInfo.birthday == undefined || userInfo.birthday == 0) {
+      return 'Please select the birthday';
+    }
+    if (userInfo.address == undefined || userInfo.address.length == 0) {
+      return 'Please enter the address';
+    }
+    if (userInfo.city == undefined || userInfo.city.length == 0) {
+      return 'Please enter the city';
+    }
+    if (userInfo.state == undefined || userInfo.state.length == 0) {
+      return 'Please select a state';
+    }
       if (userInfo.photo == undefined || userInfo.photo.length == 0) {
         return 'Please add your photo';
-      }
+    }
     }
 
     // Birthday, address, city, state are optional for customers (user_type === 1)

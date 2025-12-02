@@ -1,5 +1,8 @@
 <?php
 
+// Suppress PHP 8.x deprecation warnings for Laravel 7 compatibility
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+
 /**
  * Laravel - A PHP Framework For Web Artisans
  *

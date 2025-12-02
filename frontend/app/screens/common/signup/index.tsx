@@ -53,7 +53,7 @@ const Signup = () => {
     } else {
       // For chefs, use old flow - go to Account screen with all fields
       const user: IUser = { email, password, user_type: userType };
-      navigate.toCommon.account(user, 'Signup');
+    navigate.toCommon.account(user, 'Signup');
     }
   };
 
@@ -179,60 +179,60 @@ const Signup = () => {
       {/* Step 2: Email & Password */}
       {step === 2 && (
         <>
-          <View style={styles.formContainer}>
-            <View>
-              <Text style={styles.heading}>Sign Up</Text>
-              <Text style={styles.subheading}>Create your account to get started</Text>
+        <View style={styles.formContainer}>
+          <View>
+            <Text style={styles.heading}>Sign Up</Text>
+            <Text style={styles.subheading}>Create your account to get started</Text>
+          </View>
+          <View style={styles.formContent}>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <TextInput
+                placeholder="Enter your email"
+                placeholderTextColor={'#999999'}
+                mode="outlined"
+                onChangeText={txt => onChangeEmail(txt.toLowerCase())}
+                value={email}
+                keyboardType="email-address"
+                autoCapitalize={'none'}
+                style={styles.input}
+              />
             </View>
-            <View style={styles.formContent}>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputLabel}>Email</Text>
-                <TextInput
-                  placeholder="Enter your email"
-                  placeholderTextColor={'#999999'}
-                  mode="outlined"
-                  onChangeText={txt => onChangeEmail(txt.toLowerCase())}
-                  value={email}
-                  keyboardType="email-address"
-                  autoCapitalize={'none'}
-                  style={styles.input}
-                />
-              </View>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputLabel}>Password</Text>
-                <TextInput
-                  placeholder="Enter your password"
-                  placeholderTextColor={'#999999'}
-                  mode="outlined"
-                  onChangeText={onChangePassword}
-                  value={password}
-                  textContentType="password"
-                  secureTextEntry={true}
-                  style={styles.input}
-                />
-              </View>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Password</Text>
+              <TextInput
+                placeholder="Enter your password"
+                placeholderTextColor={'#999999'}
+                mode="outlined"
+                onChangeText={onChangePassword}
+                value={password}
+                textContentType="password"
+                secureTextEntry={true}
+                style={styles.input}
+              />
             </View>
           </View>
-          <View style={styles.buttonContainer}>
+        </View>
+        <View style={styles.buttonContainer}>
             <Pressable style={styles.signupButton} onPress={handleEmailPasswordSubmit}>
               <Text style={styles.signupButtonText}>Continue</Text>
-            </Pressable>
-            <Pressable
-              style={styles.loginLink}
-              onPress={() => navigate.toCommon.login()}>
-              <Text style={styles.loginLinkText}>Already have an account? Log in</Text>
-            </Pressable>
+          </Pressable>
+          <Pressable
+            style={styles.loginLink}
+            onPress={() => navigate.toCommon.login()}>
+            <Text style={styles.loginLinkText}>Already have an account? Log in</Text>
+          </Pressable>
+        </View>
+        <View style={styles.termsContainer}>
+          <View style={styles.terms}>
+            <Text style={styles.termsText}>By signing up, you agree to Taist's </Text>
+            <Text
+              style={styles.termsLink}
+              onPress={() => navigate.toCommon.terms()}>
+              Terms and Conditions
+            </Text>
           </View>
-          <View style={styles.termsContainer}>
-            <View style={styles.terms}>
-              <Text style={styles.termsText}>By signing up, you agree to Taist's </Text>
-              <Text
-                style={styles.termsLink}
-                onPress={() => navigate.toCommon.terms()}>
-                Terms and Conditions
-              </Text>
-            </View>
-          </View>
+        </View>
         </>
       )}
 

@@ -49,21 +49,21 @@ const getEnvironmentUrls = () => {
     
     case 'staging':
     case 'development':
-      // Staging environment
-      return {
-        BASE_URL: 'https://taist.cloudupscale.com/mapi/',
-        Photo_URL: 'https://taist.cloudupscale.com/assets/uploads/images/',
-        HTML_URL: 'https://taist.cloudupscale.com/assets/uploads/html/',
-      };
+    // Staging environment
+    return {
+      BASE_URL: 'https://taist.cloudupscale.com/mapi/',
+      Photo_URL: 'https://taist.cloudupscale.com/assets/uploads/images/',
+      HTML_URL: 'https://taist.cloudupscale.com/assets/uploads/html/',
+    };
     
     case 'production':
     default:
-      // Production environment
-      return {
-        BASE_URL: 'https://taist.codeupscale.com/mapi/',
-        Photo_URL: 'https://taist.codeupscale.com/assets/uploads/images/',
-        HTML_URL: 'https://taist.codeupscale.com/assets/uploads/html/',
-      };
+    // Production environment
+    return {
+      BASE_URL: 'https://taist.codeupscale.com/mapi/',
+      Photo_URL: 'https://taist.codeupscale.com/assets/uploads/images/',
+      HTML_URL: 'https://taist.codeupscale.com/assets/uploads/html/',
+    };
   }
 };
 
