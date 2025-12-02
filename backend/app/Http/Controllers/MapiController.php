@@ -1164,6 +1164,11 @@ class MapiController extends Controller
             $data->chef = app(Listener::class)->where(['id' => $data->chef_user_id])->first();
             $data->customer = app(Listener::class)->where(['id' => $data->customer_user_id])->first();
             $data->menu = app(Menus::class)->where(['id' => $data->menu_id])->first();
+
+            // Add acceptance deadline info if order is in requested status
+            if ($data->status == 1 && $data->acceptance_deadline) {
+                $data->deadline_info = $data->getDeadlineInfo();
+            }
         }
 
         return response()->json(['success' => 1, 'data' => $data]);
@@ -1230,6 +1235,8 @@ class MapiController extends Controller
             $finalTotalPrice = $discountResult['final_amount'];
         }
 
+        $currentTimestamp = time();
+
         $ary = [
             'chef_user_id' => $request->chef_user_id,
             'menu_id' => $request->menu_id,
@@ -1246,7 +1253,9 @@ class MapiController extends Controller
             'discount_code' => $discountCode,
             'discount_amount' => $discountAmount,
             'subtotal_before_discount' => $subtotalBeforeDiscount,
-            'created_at' => time(),
+            // Chef acceptance deadline - 1 hour (3600 seconds) from order creation
+            'acceptance_deadline' => (string)($currentTimestamp + 3600),
+            'created_at' => $currentTimestamp,
             'updated_at' => now(),
         ];
 

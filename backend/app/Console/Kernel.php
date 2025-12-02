@@ -24,7 +24,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Process expired orders every 5 minutes
+        // Checks for orders that exceeded 1-hour acceptance deadline and issues automatic refunds
+        $schedule->command('orders:process-expired')
+                 ->everyFiveMinutes()
+                 ->withoutOverlapping()
+                 ->runInBackground();
     }
 
     /**

@@ -310,3 +310,5 @@ if (userInfo.user_type === 2) {
 *Update completed: December 2, 2025*  
 *Profile photo now mandatory for all new chef signups!* ✅
 
+
+

@@ -20,6 +20,7 @@ class Orders extends Model
         'status',
         'notes',
         'payment_token',
+        'acceptance_deadline',
         // Discount tracking fields
         'discount_code_id',
         'discount_code',
@@ -100,7 +101,7 @@ class Orders extends Model
     
     /**
      * Get discount summary for display
-     * 
+     *
      * @return array|null
      */
     public function getDiscountSummary()
@@ -108,13 +109,63 @@ class Orders extends Model
         if (!$this->hasDiscount()) {
             return null;
         }
-        
+
         return [
             'code' => $this->discount_code,
             'amount' => $this->discount_amount,
             'original_total' => $this->subtotal_before_discount,
             'final_total' => $this->total_price,
             'savings' => '$' . number_format($this->discount_amount, 2),
+        ];
+    }
+
+    /**
+     * Check if order has exceeded acceptance deadline
+     *
+     * @return bool
+     */
+    public function isExpired()
+    {
+        if (!$this->acceptance_deadline || $this->status != 1) {
+            return false;
+        }
+
+        return time() > (int)$this->acceptance_deadline;
+    }
+
+    /**
+     * Get time remaining until acceptance deadline in seconds
+     *
+     * @return int|null Returns seconds remaining, 0 if expired, null if no deadline
+     */
+    public function getTimeRemaining()
+    {
+        if (!$this->acceptance_deadline) {
+            return null;
+        }
+
+        $remaining = (int)$this->acceptance_deadline - time();
+        return max(0, $remaining);
+    }
+
+    /**
+     * Get acceptance deadline info for API response
+     *
+     * @return array|null
+     */
+    public function getDeadlineInfo()
+    {
+        if (!$this->acceptance_deadline || $this->status != 1) {
+            return null;
+        }
+
+        $remaining = $this->getTimeRemaining();
+
+        return [
+            'deadline_timestamp' => (int)$this->acceptance_deadline,
+            'seconds_remaining' => $remaining,
+            'minutes_remaining' => floor($remaining / 60),
+            'is_expired' => $this->isExpired(),
         ];
     }
 }

@@ -142,3 +142,5 @@ AppColors.surface = '#f5f5f5'           // Light gray - for surfaces
 AppColors.background = '#ffffff'        // White - main background
 ```
 
+
+

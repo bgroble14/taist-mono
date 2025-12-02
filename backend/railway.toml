@@ -1,0 +1,12 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacksPlan.phases.setup]
+nixPkgs = ["php81", "php81Extensions.pdo", "php81Extensions.pdo_mysql", "php81Extensions.mbstring", "php81Extensions.tokenizer", "php81Extensions.xml", "php81Extensions.ctype", "php81Extensions.json"]
+
+[deploy]
+startCommand = "vendor/bin/heroku-php-apache2 public/"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+healthcheckPath = "/mapi/get-version"
+healthcheckTimeout = 100

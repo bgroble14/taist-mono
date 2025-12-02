@@ -59,3 +59,5 @@ class CreateDiscountCodesTable extends Migration
     }
 }
 
+
+

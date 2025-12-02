@@ -19,3 +19,5 @@ else
     echo "❌ Failed to set location. Make sure the emulator is running."
 fi
 
+
+

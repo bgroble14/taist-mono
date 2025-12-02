@@ -22,7 +22,7 @@
 | TMA-013 | Show Current Location on Home tab | Completed |
 | TMA-014 | Automatic reload when new zip code is added by Admin | Not Started |
 | TMA-015 | Dialog box on "cancel order" button in case user accidentally taps it | Completed |
-| TMA-016 | Time window for chef accepting order and Stripe logic for full refund if Chef does NOT accept order | Not Started |
+| TMA-016 | Time window for chef accepting order and Stripe logic for full refund if Chef does NOT accept order | Completed |
 | TMA-017 | Backend logic to generate AI-generated reviews for a chef everytime a review is submitted for that chef | Not Started |
 | TMA-018 | Categories (including time of day filters) not functioning | Not Started |
 | TMA-019 | Order receipt for chef doesn't show added customizations written out | Completed |
@@ -36,9 +36,9 @@
 ---
 
 ### Summary
-- **Completed**: 13 tasks
+- **Completed**: 14 tasks
 - **In Progress**: 4 tasks
-- **Not Started**: 7 tasks
+- **Not Started**: 6 tasks
 - **Deferred/TBD**: 2 tasks (TMA-023, TMA-024)
 - **Total**: 26 tasks
 

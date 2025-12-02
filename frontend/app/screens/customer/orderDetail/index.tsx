@@ -60,6 +60,7 @@ const OrderDetail = () => {
   const [rating, onChangeRating] = useState(5);
   const [tipAmount, onChangeTipAmount] = useState(0);
   const [paymentMethod, onChangePaymentMethod] = useState<IPayment>();
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
   useEffect(() => {
     console.log(params);
@@ -82,6 +83,25 @@ console.log("order detail useeffect....");
     }
   }, [orderInfo]);
 
+  // Countdown timer for acceptance deadline
+  useEffect(() => {
+    if (timeRemaining === null || timeRemaining <= 0) {
+      return;
+    }
+
+    const countdownInterval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev === null || prev <= 0) {
+          clearInterval(countdownInterval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(countdownInterval);
+  }, [timeRemaining]);
+
   const loadData = async (orderId: number) => {
     const resp = await GetOrderDataAPI({ order_id: orderId }, dispatch);
     console.log('load data ======>>>');
@@ -90,6 +110,13 @@ console.log("order detail useeffect....");
       setOrderInfo(resp.data);
       setChefInfo(resp.data.chef);
       setMenu(resp.data.menu);
+
+      // Update time remaining if order is in requested status
+      if (resp.data.status === 1 && resp.data.deadline_info) {
+        setTimeRemaining(resp.data.deadline_info.seconds_remaining);
+      } else {
+        setTimeRemaining(null);
+      }
     }
   };
 
@@ -169,6 +196,15 @@ console.log("order detail useeffect....");
   };
 
   const handleMap = () => { };
+
+  const formatTimeRemaining = (seconds: number): string => {
+    if (seconds <= 0) {
+      return 'Expired';
+    }
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleSubmitReview = async (e: any) => {
     dispatch(showLoading());
@@ -264,6 +300,30 @@ console.log("order detail useeffect....");
                 </Text> */}
               </View>
             </View>
+            {orderInfo?.status === 1 && timeRemaining !== null && (
+              <>
+                <View style={styles.line} />
+                <View style={styles.cardMain}>
+                  <View style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }}>
+                    <Text style={[styles.text, { fontWeight: '600', marginBottom: 5 }]}>
+                      Chef Acceptance Deadline
+                    </Text>
+                    <Text style={[styles.text, {
+                      fontSize: 18,
+                      fontWeight: 'bold',
+                      color: timeRemaining <= 300 ? '#ff4444' : '#4CAF50'
+                    }]}>
+                      {formatTimeRemaining(timeRemaining)}
+                    </Text>
+                    <Text style={[styles.text, { fontSize: 12, color: '#666', marginTop: 5 }]}>
+                      {timeRemaining > 0
+                        ? 'You will receive a full refund if not accepted within this time'
+                        : 'Processing automatic refund...'}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
             <View style={styles.line} />
             {items.length > 0 && (
               <View style={styles.cardMain}>

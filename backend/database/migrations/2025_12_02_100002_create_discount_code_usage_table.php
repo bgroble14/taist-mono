@@ -52,3 +52,5 @@ class CreateDiscountCodeUsageTable extends Migration
     }
 }
 
+
+
