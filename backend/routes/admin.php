@@ -42,6 +42,14 @@ Route::group([ 'middleware' => [ 'auth:admin', ], ], function () {
     Route::get('zipcodes', 'AdminController@zipcodes')->name('zipcodes');
     Route::post('zipcodes', 'AdminController@updateZipcodes')->name('zipcodes');
     
+    // Discount Codes
+    Route::get('discount-codes', 'AdminController@discountCodes')->name('discount_codes');
+    Route::post('discount-codes', 'AdminController@createDiscountCode')->name('discount_codes_create');
+    Route::put('discount-codes/{id}', 'AdminController@updateDiscountCode')->name('discount_codes_update');
+    Route::post('discount-codes/{id}/deactivate', 'AdminController@deactivateDiscountCode')->name('discount_codes_deactivate');
+    Route::post('discount-codes/{id}/activate', 'AdminController@activateDiscountCode')->name('discount_codes_activate');
+    Route::get('discount-codes/{id}/usage', 'AdminController@viewDiscountCodeUsage')->name('discount_codes_usage');
+    
     Route::get('export_chefs', 'AdminController@exportChefs')->name('export_chefs');
     Route::get('export_pendings', 'AdminController@exportPendings')->name('export_pendings');
     Route::get('export_customers', 'AdminController@exportCustomers')->name('export_customers');

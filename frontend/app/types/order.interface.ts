@@ -16,4 +16,17 @@ export default interface OrderInterface {
   tip_amount?: number;
   created_at?: number;
   updated_at?: number;
+  
+  // TMA-020: Cancellation tracking fields
+  cancelled_by_user_id?: number;
+  cancelled_by_role?: 'customer' | 'chef' | 'admin' | 'system';
+  cancellation_reason?: string;
+  cancellation_type?: string;
+  cancelled_at?: string;
+  refund_amount?: number;
+  refund_percentage?: number;
+  refund_processed_at?: string;
+  refund_stripe_id?: string;
+  is_auto_closed?: boolean;
+  closed_at?: string;
 }

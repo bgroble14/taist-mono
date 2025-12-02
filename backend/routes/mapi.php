@@ -66,6 +66,9 @@ Route::group(['middleware' => ['auth:mapi']], function () {
 	Route::post('create_order', 'MapiController@createOrder');
 	Route::post('update_order/{id}', 'MapiController@updateOrder');
 	Route::post('remove_order/{id}', 'MapiController@removeOrder');
+	
+	// Discount Codes
+	Route::post('discount-codes/validate', 'MapiController@validateDiscountCode');
 
 	Route::get('get_reviews', 'MapiController@getReviews');
 	Route::get('get_review/{id}', 'MapiController@getReview');

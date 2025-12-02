@@ -72,6 +72,19 @@ export const styles = StyleSheet.create({
     color: AppColors.text,
     letterSpacing: 0.5,
   },
+  locationIconButton: {
+    padding: Spacing.sm,
+    borderRadius: 8,
+    backgroundColor: AppColors.primary + '15',
+  },
+  helperText: {
+    width: '100%',
+    fontSize: 14,
+    color: AppColors.textSecondary || '#666',
+    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.xs,
+    fontStyle: 'italic',
+  },
   
   // Switch/Toggle section
   switchWrapper: {

@@ -33,18 +33,16 @@ const AddOnCustomization = () => {
   const [upcharge, setUpcharge] = useState('');
 
   const handleSave = () => {
-    if (params?.onAddCustomization) {
-      // Since params.onAddCustomization is a string from URL params, we need to get the callback from global storage
-      const callback = (global as any).onAddCustomizationCallback;
-      if (callback) {
-        callback({
-          name,
-          description,
-          upcharge_price: convertStringToNumber(upcharge),
-        });
-        // Clear the callback after use
-        (global as any).onAddCustomizationCallback = null;
-      }
+    // Get the callback from global storage
+    const callback = (global as any).onAddCustomizationCallback;
+    if (callback) {
+      callback({
+        name,
+        description,
+        upcharge_price: convertStringToNumber(upcharge),
+      });
+      // Clear the callback after use
+      (global as any).onAddCustomizationCallback = null;
     }
     goBack();
   };

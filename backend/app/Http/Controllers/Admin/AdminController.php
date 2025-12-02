@@ -22,6 +22,8 @@ use App\Models\Reviews;
 use App\Models\Tickets;
 use App\Models\Transactions;
 use App\Models\Zipcodes;
+use App\Models\DiscountCodes;
+use App\Models\DiscountCodeUsage;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Exception\FirebaseException;
@@ -243,11 +245,36 @@ class AdminController extends Controller
         $data['title'] = "Taist - Admin Panel";
         $user = $this->guard()->user();
         $data['user'] = $user;
-        $data['orders'] = DB::table('tbl_orders as o')->leftJoin('tbl_users as f', 'o.customer_user_id', '=', 'f.id')->leftJoin('tbl_users as t', 'o.chef_user_id', '=', 't.id')->leftJoin('tbl_menus as m', 'm.id', '=', 'o.menu_id')->leftJoin('tbl_reviews as r', 'r.order_id', '=', 'o.id')
-            ->select(['o.*', 'f.email as customer_user_email', 'f.first_name as customer_first_name', 'f.last_name as customer_last_name', 't.email as chef_user_email', 't.first_name as chef_first_name', 't.last_name as chef_last_name', 'm.title as menu_title', 'r.rating as rating', 'r.review as review', 'r.tip_amount as tip_amount'])->get();
+        
+        // Fetch orders with all related data including cancellation details
+        $data['orders'] = DB::table('tbl_orders as o')
+            ->leftJoin('tbl_users as f', 'o.customer_user_id', '=', 'f.id')
+            ->leftJoin('tbl_users as t', 'o.chef_user_id', '=', 't.id')
+            ->leftJoin('tbl_menus as m', 'm.id', '=', 'o.menu_id')
+            ->leftJoin('tbl_reviews as r', 'r.order_id', '=', 'o.id')
+            ->leftJoin('tbl_users as c', 'o.cancelled_by_user_id', '=', 'c.id')
+            ->select([
+                'o.*', 
+                'f.email as customer_user_email', 
+                'f.first_name as customer_first_name', 
+                'f.last_name as customer_last_name', 
+                't.email as chef_user_email', 
+                't.first_name as chef_first_name', 
+                't.last_name as chef_last_name', 
+                'm.title as menu_title', 
+                'r.rating as rating', 
+                'r.review as review', 
+                'r.tip_amount as tip_amount',
+                // Cancellation details
+                'c.first_name as cancelled_by_first_name',
+                'c.last_name as cancelled_by_last_name',
+                'c.email as cancelled_by_email'
+            ])
+            ->orderBy('o.id', 'DESC')
+            ->get();
 
         foreach ($data['orders'] as &$a) {
-            $a->status_str = $this->getOrderStatus($a->status);;
+            $a->status_str = $this->getOrderStatus($a->status);
         }
 
         return view("admin.orders", $data);
@@ -488,6 +515,94 @@ class AdminController extends Controller
 
         $xlsx = SimpleXLSXGen::fromArray( $data );
         $xlsx->downloadAs('Taist - Customers.xlsx');
+    }
+
+    // Discount Codes Management
+
+    public function discountCodes(Request $request) {
+        $data['title'] = "Taist - Discount Codes";
+        $user = $this->guard()->user();
+        $data['user'] = $user;
+        $data['codes'] = app(DiscountCodes::class)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view("admin.discount_codes", $data);
+    }
+
+    public function createDiscountCode(Request $request) {
+        $request->validate([
+            'code' => 'required|string|max:50|unique:tbl_discount_codes,code',
+            'discount_type' => 'required|in:fixed,percentage',
+            'discount_value' => 'required|numeric|min:0',
+        ]);
+
+        $code = app(DiscountCodes::class)->create([
+            'code' => strtoupper($request->code),
+            'description' => $request->description,
+            'discount_type' => $request->discount_type,
+            'discount_value' => $request->discount_value,
+            'max_uses' => $request->max_uses,
+            'max_uses_per_customer' => $request->max_uses_per_customer ?? 1,
+            'valid_from' => $request->valid_from,
+            'valid_until' => $request->valid_until,
+            'minimum_order_amount' => $request->minimum_order_amount,
+            'maximum_discount_amount' => $request->maximum_discount_amount,
+            'is_active' => 1,
+            'created_by_admin_id' => $this->guard()->user()->id,
+        ]);
+
+        return response()->json(['success' => 1, 'data' => $code]);
+    }
+
+    public function updateDiscountCode(Request $request, $id) {
+        $code = app(DiscountCodes::class)->findOrFail($id);
+        
+        $updateData = [];
+        if ($request->has('description')) $updateData['description'] = $request->description;
+        if ($request->has('max_uses')) $updateData['max_uses'] = $request->max_uses;
+        if ($request->has('max_uses_per_customer')) $updateData['max_uses_per_customer'] = $request->max_uses_per_customer;
+        if ($request->has('valid_from')) $updateData['valid_from'] = $request->valid_from;
+        if ($request->has('valid_until')) $updateData['valid_until'] = $request->valid_until;
+        if ($request->has('minimum_order_amount')) $updateData['minimum_order_amount'] = $request->minimum_order_amount;
+        if ($request->has('maximum_discount_amount')) $updateData['maximum_discount_amount'] = $request->maximum_discount_amount;
+
+        $code->update($updateData);
+
+        return response()->json(['success' => 1, 'data' => $code]);
+    }
+
+    public function deactivateDiscountCode(Request $request, $id) {
+        $code = app(DiscountCodes::class)->findOrFail($id);
+        $code->update(['is_active' => 0]);
+
+        return response()->json(['success' => 1, 'message' => 'Code deactivated successfully']);
+    }
+
+    public function activateDiscountCode(Request $request, $id) {
+        $code = app(DiscountCodes::class)->findOrFail($id);
+        $code->update(['is_active' => 1]);
+
+        return response()->json(['success' => 1, 'message' => 'Code activated successfully']);
+    }
+
+    public function viewDiscountCodeUsage(Request $request, $id) {
+        $code = app(DiscountCodes::class)->findOrFail($id);
+        $usages = app(DiscountCodeUsage::class)
+            ->where('discount_code_id', $id)
+            ->join('tbl_users', 'tbl_discount_code_usage.customer_user_id', '=', 'tbl_users.id')
+            ->join('tbl_orders', 'tbl_discount_code_usage.order_id', '=', 'tbl_orders.id')
+            ->select([
+                'tbl_discount_code_usage.*',
+                'tbl_users.first_name as customer_first_name',
+                'tbl_users.last_name as customer_last_name',
+                'tbl_users.email as customer_email',
+                'tbl_orders.status as order_status'
+            ])
+            ->orderBy('tbl_discount_code_usage.used_at', 'desc')
+            ->get();
+
+        return response()->json(['success' => 1, 'data' => ['code' => $code, 'usages' => $usages]]);
     }
 
 }

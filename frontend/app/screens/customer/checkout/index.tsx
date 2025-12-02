@@ -30,6 +30,7 @@ import moment, { Moment } from 'moment';
 import StyledSwitch from '../../../components/styledSwitch';
 import StyledTabButton from '../../../components/styledTabButton';
 import { AddressCollectionModal } from '../../../components/AddressCollectionModal';
+import DiscountCodeInput from '../../../components/DiscountCodeInput';
 import Container from '../../../layout/Container';
 import { removeCustomerOrders } from '../../../reducers/customerSlice';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
@@ -39,6 +40,7 @@ import {
   CreatePaymentIntentAPI,
   GetPaymentMethodAPI,
   UpdateUserAPI,
+  ValidateDiscountCodeAPI,
 } from '../../../services/api';
 import GlobalStyles from '../../../types/styles';
 import { Delay } from '../../../utils/functions';
@@ -68,6 +70,16 @@ const Checkout = () => {
   const [appliance, onChangeAppliance] = useState(false);
   const [paymentMethod, onChangePaymentMethod] = useState<IPayment>({});
   const [showAddressModal, setShowAddressModal] = useState(false);
+  
+  // Discount code state
+  const [discountCode, setDiscountCode] = useState<string>('');
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    discount_amount: number;
+    final_amount: number;
+  } | null>(null);
+  const [discountError, setDiscountError] = useState<string>('');
+  const [isValidatingCode, setIsValidatingCode] = useState(false);
 
   const startDate = moment();
   if (startDate.weekday() < weekDay) {
@@ -89,6 +101,14 @@ const Checkout = () => {
   orders.map((o, idx) => {
     price_total += o.total_price ?? 0;
   });
+  
+  // Calculate final total with discount
+  const calculateFinalTotal = () => {
+    if (appliedDiscount) {
+      return appliedDiscount.final_amount;
+    }
+    return price_total;
+  };
 
   useEffect(() => {
     addTimes();
@@ -258,6 +278,44 @@ const Checkout = () => {
     }
   };
 
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) {
+      setDiscountError('Please enter a discount code');
+      return;
+    }
+
+    setIsValidatingCode(true);
+    setDiscountError('');
+
+    try {
+      const response = await ValidateDiscountCodeAPI({
+        code: discountCode.toUpperCase(),
+        order_amount: price_total,
+      });
+
+      if (response.success === 1) {
+        setAppliedDiscount(response.data);
+        ShowSuccessToast(
+          `${response.data.code} applied! You saved $${response.data.discount_amount.toFixed(2)}`
+        );
+      } else {
+        setDiscountError(response.error || 'Invalid code');
+        setAppliedDiscount(null);
+      }
+    } catch (error) {
+      setDiscountError('Failed to validate code');
+      setAppliedDiscount(null);
+    } finally {
+      setIsValidatingCode(false);
+    }
+  };
+
+  const handleRemoveDiscount = () => {
+    setDiscountCode('');
+    setAppliedDiscount(null);
+    setDiscountError('');
+  };
+
   const handleCheckout = () => {
     if (paymentMethod == undefined) {
       ShowErrorToast('Please add a payment method');
@@ -327,8 +385,15 @@ const Checkout = () => {
     for (let i = 0; i < newOrders.length; i++) {
       const o = newOrders[i];
       const idx = i;
-      const newOrder: IOrder = {...o, order_date: order_datetime};
-      const resp = await CreateOrderAPI(newOrder, dispatch);
+      
+      // Apply discount code to first order only
+      const orderData: IOrder = {
+        ...o, 
+        order_date: order_datetime,
+        discount_code: (i === 0 && appliedDiscount) ? appliedDiscount.code : undefined,
+      };
+      
+      const resp = await CreateOrderAPI(orderData, dispatch);
       if (resp.success == 1) {
         const resp_intent = await CreatePaymentIntentAPI({
           order_id: resp.data.id,
@@ -480,7 +545,7 @@ const Checkout = () => {
             <View style={styles.checkoutSummaryItemWrapper}>
               <View>
                 <Text style={styles.checkoutSummaryItemTitle}>
-                  Order Total:
+                  Subtotal:
                 </Text>
               </View>
               <View style={styles.checkoutSummaryItemPriceWrapper}>
@@ -490,7 +555,47 @@ const Checkout = () => {
                   }>{`$${price_total.toFixed(2)}`}</Text>
               </View>
             </View>
+            {appliedDiscount && (
+              <View style={styles.checkoutSummaryItemWrapper}>
+                <View>
+                  <Text style={[styles.checkoutSummaryItemTitle, {color: '#10B981'}]}>
+                    Discount ({appliedDiscount.code}):
+                  </Text>
+                </View>
+                <View style={styles.checkoutSummaryItemPriceWrapper}>
+                  <Text
+                    style={[styles.checkoutSummaryItemTitle, {color: '#10B981'}]}>
+                    {`-$${appliedDiscount.discount_amount.toFixed(2)}`}
+                  </Text>
+                </View>
+              </View>
+            )}
+            <View style={[styles.checkoutSummaryItemWrapper, {borderTopWidth: 1, borderTopColor: '#E5E7EB', paddingTop: 12, marginTop: 8}]}>
+              <View>
+                <Text style={[styles.checkoutSummaryItemTitle, {fontWeight: '700', fontSize: 18}]}>
+                  Total:
+                </Text>
+              </View>
+              <View style={styles.checkoutSummaryItemPriceWrapper}>
+                <Text
+                  style={[styles.checkoutSummaryItemTitle, {fontWeight: '700', fontSize: 18}]}>
+                  {`$${calculateFinalTotal().toFixed(2)}`}
+                </Text>
+              </View>
+            </View>
           </View>
+          
+          {/* Discount Code Section */}
+          <DiscountCodeInput
+            code={discountCode}
+            onCodeChange={setDiscountCode}
+            onApply={handleApplyDiscount}
+            onRemove={handleRemoveDiscount}
+            appliedDiscount={appliedDiscount}
+            error={discountError}
+            isLoading={isValidatingCode}
+          />
+          
           <View style={styles.checkoutBlock}>
             <Text style={styles.checkoutSubheading}>Order Address</Text>
             <View style={styles.checkoutSummaryItemWrapper}>

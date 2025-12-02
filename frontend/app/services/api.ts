@@ -650,6 +650,14 @@ export const CreateOrderAPI = async (params: IOrder, dispatch?: any) => {
   return response;
 };
 
+export const ValidateDiscountCodeAPI = async (
+  params: { code: string; order_amount: number },
+  dispatch?: any
+) => {
+  var response = await POSTAPICALL("discount-codes/validate", params);
+  return response;
+};
+
 export const UpdateOrderStatusAPI = async (params: IOrder, dispatch?: any) => {
   var response = await POSTAPICALL(`update_order_status/${params.id}`, params);
   if (response.success == 1 && dispatch) {

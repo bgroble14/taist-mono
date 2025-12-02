@@ -12,6 +12,11 @@ import { ProgressIndicator } from './components/ProgressIndicator';
 import { StepBasicProfile } from './steps/StepBasicProfile';
 import { StepLocation } from './steps/StepLocation';
 import { StepPreferences } from './steps/StepPreferences';
+import { StepChefPhone } from './steps/StepChefPhone';
+import { StepChefBasicInfo } from './steps/StepChefBasicInfo';
+import { StepChefBirthday } from './steps/StepChefBirthday';
+import { StepChefLocation } from './steps/StepChefLocation';
+import { StepChefPhoto } from './steps/StepChefPhoto';
 import { useAppDispatch } from '../../../hooks/useRedux';
 import { showLoading, hideLoading } from '../../../reducers/loadingSlice';
 import { RegisterAPI, LoginAPI } from '../../../services/api';
@@ -47,13 +52,11 @@ const Signup = () => {
     // Update userInfo with email and password
     setUserInfo({ ...userInfo, email, password, user_type: userType });
 
-    // For customers, proceed to multi-step flow
+    // Both customers and chefs now use multi-step flow
     if (userType === 1) {
-      setStep(3); // Go to basic profile step
+      setStep(3); // Go to customer basic profile step
     } else {
-      // For chefs, use old flow - go to Account screen with all fields
-      const user: IUser = { email, password, user_type: userType };
-    navigate.toCommon.account(user, 'Signup');
+      setStep(3); // Go to chef phone step
     }
   };
 
@@ -104,19 +107,89 @@ const Signup = () => {
     }
   };
 
+  const handleChefCompleteSignup = async () => {
+    // Register chef with all collected info
+    const registrationData: IUser = {
+      ...userInfo,
+      email,
+      password,
+      user_type: userType,
+      is_pending: 1, // Chef needs admin approval
+      verified: 0, // Will be verified after approval
+    };
+
+    // Format photo for upload if it's a local path
+    const photoPath = userInfo.photo;
+    if (photoPath && photoPath.length > 0) {
+      const isLocalPath = photoPath.indexOf('http://') !== 0 && photoPath.indexOf('https://') !== 0 && photoPath.length > 50;
+      if (isLocalPath) {
+        registrationData.photo = {
+          uri: photoPath,
+          type: 'image/jpeg',
+          name: 'photo.jpg',
+        } as any;
+      }
+    }
+
+    dispatch(showLoading());
+    try {
+      const resp_register = await RegisterAPI(registrationData, dispatch);
+      if (resp_register.success === 0) {
+        dispatch(hideLoading());
+        ShowErrorToast(resp_register.message ?? resp_register.error);
+        return;
+      }
+
+      // Auto-login after registration
+      const resp_login = await LoginAPI(
+        { email, password, remember: true },
+        dispatch
+      );
+
+      if (resp_login.success === 0) {
+        dispatch(hideLoading());
+        ShowErrorToast(resp_login.message ?? resp_login.error);
+        return;
+      }
+
+      dispatch(hideLoading());
+
+      // Navigate to chef home (they'll see pending approval message)
+      router.replace('/screens/chef/(tabs)/home');
+    } catch (error) {
+      dispatch(hideLoading());
+      ShowErrorToast('An error occurred during signup. Please try again.');
+      console.error('Chef signup error:', error);
+    }
+  };
+
   const getTotalSteps = () => {
-    // Customer: 5 steps (Onboarding, UserType, Email/Pass, Profile, Location, Preferences)
-    // Chef: 3 steps (Onboarding, UserType, Email/Pass) then Account screen
-    return userType === 1 ? 5 : 3;
+    // Customer: 5 steps (Onboarding, UserType, Email/Pass, Phone, Location, Preferences)
+    // Chef: 7 steps (Onboarding, UserType, Email/Pass, Phone, BasicInfo, Birthday, Location, Photo)
+    return userType === 1 ? 5 : 7;
   };
 
   const getCurrentStepNumber = () => {
     if (step === 0) return 1; // Onboarding
     if (step === 1) return 2; // User Type
     if (step === 2) return 3; // Email/Password
-    if (step === 3) return 4; // Basic Profile (customer only)
-    if (step === 4) return 5; // Location (customer only)
-    if (step === 5) return 6; // Preferences (customer only)
+    
+    // Customer flow (steps 3-5)
+    if (userType === 1) {
+      if (step === 3) return 4; // Phone
+      if (step === 4) return 5; // Location
+      if (step === 5) return 6; // Preferences
+    }
+    
+    // Chef flow (steps 3-7)
+    if (userType === 2) {
+      if (step === 3) return 4; // Phone
+      if (step === 4) return 5; // Basic Info
+      if (step === 5) return 6; // Birthday
+      if (step === 6) return 7; // Location
+      if (step === 7) return 8; // Photo
+    }
+    
     return 1;
   };
 
@@ -262,6 +335,58 @@ const Signup = () => {
           userInfo={userInfo}
           onComplete={handleCompleteSignup}
           onBack={() => setStep(4)}
+        />
+      )}
+
+      {/* Chef Multi-Step Flow */}
+      
+      {/* Step 3: Phone (Chef only) */}
+      {step === 3 && userType === 2 && (
+        <StepChefPhone
+          userInfo={userInfo}
+          onUpdateUserInfo={handleUpdateUserInfo}
+          onNext={() => setStep(4)}
+          onBack={() => setStep(2)}
+        />
+      )}
+
+      {/* Step 4: Basic Info (Chef only) */}
+      {step === 4 && userType === 2 && (
+        <StepChefBasicInfo
+          userInfo={userInfo}
+          onUpdateUserInfo={handleUpdateUserInfo}
+          onNext={() => setStep(5)}
+          onBack={() => setStep(3)}
+        />
+      )}
+
+      {/* Step 5: Birthday (Chef only) */}
+      {step === 5 && userType === 2 && (
+        <StepChefBirthday
+          userInfo={userInfo}
+          onUpdateUserInfo={handleUpdateUserInfo}
+          onNext={() => setStep(6)}
+          onBack={() => setStep(4)}
+        />
+      )}
+
+      {/* Step 6: Location (Chef only) */}
+      {step === 6 && userType === 2 && (
+        <StepChefLocation
+          userInfo={userInfo}
+          onUpdateUserInfo={handleUpdateUserInfo}
+          onNext={() => setStep(7)}
+          onBack={() => setStep(5)}
+        />
+      )}
+
+      {/* Step 7: Photo (Chef only) - REQUIRED */}
+      {step === 7 && userType === 2 && (
+        <StepChefPhoto
+          userInfo={userInfo}
+          onUpdateUserInfo={handleUpdateUserInfo}
+          onNext={handleChefCompleteSignup}
+          onBack={() => setStep(6)}
         />
       )}
     </ScrollView>

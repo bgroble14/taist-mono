@@ -25,6 +25,7 @@ import {
   PERMISSIONS,
   RESULTS,
 } from 'react-native-permissions';
+import * as Location from 'expo-location';
 
 // Replace react-native-date-picker with community datetimepicker
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -86,6 +87,7 @@ const user: IUser = typeof params?.user === 'string'
   const [visibleVerifyCode, onChangeVisibleVerifyCode] = useState(false);
   const [verificationCode, onChangeVerificationCode] = useState('');
   const [verificationCode1, onChangeVerificationCode1] = useState(''); //server
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const statesData = [
     {key: '1', value: 'Alabama '},
@@ -141,6 +143,8 @@ const user: IUser = typeof params?.user === 'string'
   ];
 
   useEffect(() => {
+    // NOTE: 'Signup' flow is DEPRECATED for chefs (they now use multi-step signup)
+    // This screen is now primarily for EDITING existing accounts
     if (from === 'Signup') {
       setUserInfo(user);
     } else {
@@ -195,6 +199,75 @@ const user: IUser = typeof params?.user === 'string'
       if (status === RESULTS.GRANTED) onChangePushNotifications(true);
       else onChangePushNotifications(false);
     });
+  };
+
+  const handleUseCurrentLocation = async () => {
+    setIsGettingLocation(true);
+    try {
+      // Check if location services are enabled
+      const isEnabled = await Location.hasServicesEnabledAsync();
+      if (!isEnabled) {
+        ShowErrorToast('Please enable location services in your device settings');
+        setIsGettingLocation(false);
+        return;
+      }
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      
+      if (status !== 'granted') {
+        ShowErrorToast('Location permission is required');
+        setIsGettingLocation(false);
+        return;
+      }
+
+      // Get current location
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+        timeInterval: 5000,
+        distanceInterval: 0,
+      });
+
+      console.log('✅ Got location:', location.coords);
+
+      // Reverse geocode to get address
+      const [addressData] = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      console.log('✅ Reverse geocoded address:', addressData);
+
+      if (addressData) {
+        const streetAddress = [
+          addressData.streetNumber,
+          addressData.street,
+        ].filter(Boolean).join(' ');
+        
+        setUserInfo({
+          ...userInfo,
+          address: streetAddress || userInfo.address,
+          city: addressData.city || userInfo.city,
+          state: addressData.region || userInfo.state,
+          zip: addressData.postalCode || userInfo.zip,
+        });
+        ShowErrorToast('Address filled from your location!');
+      } else {
+        ShowErrorToast('Could not determine address from location');
+      }
+    } catch (error: any) {
+      console.error('❌ Location error:', error);
+      const errorMessage = error?.message || 'Unknown error';
+      
+      if (errorMessage.includes('unavailable') || errorMessage.includes('location services')) {
+        ShowErrorToast('Location unavailable. Please enter address manually');
+      } else if (errorMessage.includes('timed out')) {
+        ShowErrorToast('Location request timed out. Please enter manually');
+      } else {
+        ShowErrorToast('Could not get location. Please enter manually');
+      }
+    } finally {
+      setIsGettingLocation(false);
+    }
   };
 
   const handleCheckFieldsAndVerifyPhone = async () => {
@@ -412,42 +485,51 @@ const user: IUser = typeof params?.user === 'string'
         }
         title={from == 'Signup' ? 'Sign Up' : 'ACCOUNT'}>
         <ScrollView contentContainerStyle={styles.pageView}>
-          {userInfo.user_type === 2 && (
-            <View>
-              <StyledPhotoPicker
-                content={
+          <View style={styles.profileImageSection}>
+            <StyledPhotoPicker
+              content={
+                <View style={{alignItems: 'center'}}>
                   <StyledProfileImage
                     url={getImageURL(userInfo.photo)}
                     size={160}
                   />
-                }
-                onPhoto={path => {
-                  setUserInfo({
-                    ...userInfo,
-                    photo: path,
-                  });
-                }}
-                onHide={() => {}}
-              />
-            </View>
-          )}
+                  <Text style={{
+                    marginTop: 12,
+                    fontSize: 14,
+                    color: AppColors.primary,
+                    fontWeight: '600',
+                    letterSpacing: 0.3
+                  }}>
+                    {userInfo.user_type === 1 ? '(Optional) ' : ''}Tap to {userInfo.photo ? 'change' : 'add'} photo
+                  </Text>
+                </View>
+              }
+              onPhoto={path => {
+                setUserInfo({
+                  ...userInfo,
+                  photo: path,
+                });
+              }}
+              onHide={() => {}}
+            />
+          </View>
           <StyledTextInput
-            label="First Name "
-            placeholder="First Name "
+            label={userInfo.user_type === 1 ? "First Name (Optional)" : "First Name"}
+            placeholder="First Name"
             onChangeText={val => {
               setUserInfo({...userInfo, first_name: val});
             }}
             value={userInfo.first_name ?? ''}
           />
           <StyledTextInput
-            label="Last Name "
-            placeholder="Last Name "
+            label={userInfo.user_type === 1 ? "Last Name (Optional)" : "Last Name"}
+            placeholder="Last Name"
             onChangeText={val => setUserInfo({...userInfo, last_name: val})}
             value={userInfo.last_name ?? ''}
           />
           <StyledTextInput
-            label="Birthday "
-            placeholder="Birthday "
+            label={userInfo.user_type === 1 ? "Birthday (Optional)" : "Birthday"}
+            placeholder="Birthday"
             onPress={() => setOpenBirthdayPicker(true)}
             value={
               userInfo.birthday && typeof userInfo.birthday == 'number'
@@ -456,25 +538,42 @@ const user: IUser = typeof params?.user === 'string'
             }
           />
           <StyledTextInput
-            label="Phone Number "
-            placeholder="Phone Number "
+            label="Phone Number"
+            placeholder="Phone Number"
             keyboardType={'phone-pad'}
             onChangeText={val => setUserInfo({...userInfo, phone: val})}
             value={userInfo.phone ?? ''}
           />
           <View style={styles.addressTextWrapper}>
-            <Text style={styles.addressText}>ADDRESS </Text>
-            <FontAwesomeIcon icon={faLocationArrow} size={20} color="#fa4616" />
+            <Text style={styles.addressText}>
+              {userInfo.user_type === 1 ? "ADDRESS (Optional for now)" : "ADDRESS"}
+            </Text>
+            <Pressable 
+              onPress={handleUseCurrentLocation} 
+              disabled={isGettingLocation}
+              style={styles.locationIconButton}
+            >
+              <FontAwesomeIcon 
+                icon={faLocationArrow} 
+                size={20} 
+                color={isGettingLocation ? "#999" : "#fa4616"} 
+              />
+            </Pressable>
           </View>
+          <Text style={styles.helperText}>
+            {userInfo.user_type === 1 
+              ? "We'll ask for your full address when you place your first order. Tap the 📍 icon to auto-fill from your location."
+              : "Tap the 📍 icon above to auto-fill your address from your current location."}
+          </Text>
           <StyledTextInput
-            label="Address "
-            placeholder="Address "
+            label={userInfo.user_type === 1 ? "Address (Optional)" : "Address"}
+            placeholder="123 Main St"
             onChangeText={val => setUserInfo({...userInfo, address: val})}
             value={userInfo.address ?? ''}
           />
           <StyledTextInput
-            label="City "
-            placeholder="City "
+            label={userInfo.user_type === 1 ? "City (Optional)" : "City"}
+            placeholder="City"
             onChangeText={val => setUserInfo({...userInfo, city: val})}
             value={userInfo.city ?? ''}
           />
@@ -485,8 +584,8 @@ const user: IUser = typeof params?.user === 'string'
             }}
             data={statesData}
             save={'key'}
-            placeholder={userInfo.state ? `${userInfo.state} ` : 'State '}
-            searchPlaceholder="Search "
+            placeholder={userInfo.state ? `${userInfo.state}` : (userInfo.user_type === 1 ? 'State (Optional)' : 'State')}
+            searchPlaceholder="Search"
             boxStyles={styles.dropdownBox}
             inputStyles={styles.dropdownInput}
             dropdownStyles={styles.dropdown}
@@ -502,22 +601,22 @@ const user: IUser = typeof params?.user === 'string'
             }
           />
           <StyledTextInput
-            label="ZIP "
-            placeholder="ZIP "
+            label="ZIP"
+            placeholder="ZIP"
             onChangeText={val => setUserInfo({...userInfo, zip: val})}
             value={userInfo.zip ?? ''}
           />
 
           <View style={styles.switchWrapper}>
             <StyledSwitch
-              label="Push notifications "
+              label="Push Notifications"
               value={pushNotifications}
               onPress={() => openSettings()}
             />
           </View>
           <View style={styles.switchWrapper}>
             <StyledSwitch
-              label="Location Services "
+              label="Location Services"
               value={locationServices}
               onPress={() => {
                 openSettings();
@@ -526,7 +625,7 @@ const user: IUser = typeof params?.user === 'string'
           </View>
           <View style={styles.vcenter}>
             <StyledButton
-              title={from == 'Signup' ? 'Sign Up' : 'SAVE '}
+              title={from == 'Signup' ? 'Sign Up' : 'SAVE'}
               onPress={() => {
                 from == 'Signup'
                   ? handleCheckFieldsAndVerifyPhone()
@@ -557,13 +656,13 @@ const user: IUser = typeof params?.user === 'string'
           onPress={() => onChangeVisibleVerifyCode(false)}
           style={styles.modalBG}>
           <View style={styles.modal}>
-            <Text style={styles.modalText}>{`Please check your phone`} </Text>
+            <Text style={styles.modalText}>Please check your phone</Text>
             <StyledTextInput
-              label="Verification Code "
+              label="Verification Code"
               value={verificationCode}
               onChangeText={onChangeVerificationCode}
             />
-            <StyledButton title={'Verify '} onPress={handleVerify} />
+            <StyledButton title="Verify" onPress={handleVerify} />
           </View>
         </Pressable>
       </Modal>

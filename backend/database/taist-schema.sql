@@ -362,9 +362,23 @@ CREATE TABLE `tbl_orders` (
   `status` tinyint NOT NULL DEFAULT '1' COMMENT '1: Requested, 2: Accepted, 3: Completed, 4: Cancelled, 5: Rejected, 6: Expired, 7: On my way',
   `notes` text,
   `payment_token` varchar(50) DEFAULT NULL,
+  `cancelled_by_user_id` int DEFAULT NULL COMMENT 'User ID who initiated cancellation',
+  `cancelled_by_role` enum('customer','chef','admin','system') DEFAULT NULL COMMENT 'Role of the person who cancelled',
+  `cancellation_reason` text DEFAULT NULL COMMENT 'Reason provided for cancellation',
+  `cancelled_at` timestamp NULL DEFAULT NULL COMMENT 'Exact timestamp when cancellation occurred',
+  `cancellation_type` enum('customer_request','chef_request','chef_rejection','admin_action','system_timeout','system_expired','payment_failed','other') DEFAULT NULL COMMENT 'Type of cancellation',
+  `refund_amount` decimal(10,2) DEFAULT NULL COMMENT 'Amount refunded to customer',
+  `refund_percentage` tinyint DEFAULT NULL COMMENT 'Percentage of refund (80%, 100%)',
+  `refund_processed_at` timestamp NULL DEFAULT NULL COMMENT 'When refund was processed',
+  `refund_stripe_id` varchar(100) DEFAULT NULL COMMENT 'Stripe refund transaction ID',
+  `is_auto_closed` tinyint(1) DEFAULT '0' COMMENT 'Whether order was auto-closed by system',
+  `closed_at` timestamp NULL DEFAULT NULL COMMENT 'When order was marked as closed/finalized',
   `created_at` varchar(50) NOT NULL,
   `updated_at` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_orders_cancelled_by` (`cancelled_by_user_id`),
+  KEY `idx_orders_cancellation_type` (`cancellation_type`),
+  KEY `idx_orders_status_cancelled` (`status`,`cancelled_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=456 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

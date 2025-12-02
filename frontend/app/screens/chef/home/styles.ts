@@ -28,6 +28,24 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: AppColors.text,
   },
+  onboardingHeader: {
+    width: '100%',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.sm,
+  },
+  onboardingTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: AppColors.text,
+    marginBottom: Spacing.xs,
+  },
+  onboardingSubtitle: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: AppColors.textSecondary,
+    lineHeight: 20,
+  },
   text: {
     fontSize: 16,
     fontWeight: '600',
@@ -35,7 +53,7 @@ export const styles = StyleSheet.create({
   },
   itemContainer: {
     width: '100%',
-    gap: Spacing.lg,
+    gap: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xl,
   },
@@ -44,6 +62,48 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.lg,
+  },
+  settingItemCard: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    backgroundColor: AppColors.surface,
+    borderRadius: 12,
+    padding: Spacing.lg,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    ...Shadows.sm,
+  },
+  settingItemCompleted: {
+    backgroundColor: '#F1F8F4', // Light green background for completed
+    borderColor: '#4CAF50', // Green border
+  },
+  settingItemNext: {
+    backgroundColor: '#FFF5F2', // Light orange background for next step
+    borderColor: '#fa4616', // Orange border
+    borderWidth: 2,
+  },
+  settingItemIcon: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingItemText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: AppColors.text,
+    lineHeight: 22,
+  },
+  settingItemTextCompleted: {
+    color: '#2E7D32', // Darker green for completed text
+    fontWeight: '500',
+  },
+  settingItemTextNext: {
+    color: '#fa4616', // Orange for next step
+    fontWeight: '700',
   },
   tabContainer: {
     flex: 1,

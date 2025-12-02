@@ -256,10 +256,15 @@ useFocusEffect(
           </View>
           {self.is_pending == 1 && (
             <>
+              <View style={styles.onboardingHeader}>
+                <Text style={styles.onboardingTitle}>Getting Started</Text>
+                <Text style={styles.onboardingSubtitle}>Complete these steps to activate your chef account</Text>
+              </View>
               <View style={styles.itemContainer}>
                 <SettingItem
-                  title={'1. Setup Your Account '}
+                  title={'1. Setup Your Account'}
                   completed={checkEmptyFieldInUserInfo() == ''}
+                  isNext={checkEmptyFieldInUserInfo() !== ''}
                   onPress={() => {
                     navigate.toCommon.account(self, 'ChefHome');
                   }}
@@ -267,6 +272,7 @@ useFocusEffect(
                 <SettingItem
                   title={'2. Create Your Menu'}
                   completed={menus.length > 0}
+                  isNext={checkEmptyFieldInUserInfo() == '' && menus.length == 0}
                   onPress={() => {
                     if (checkEmptyFieldInUserInfo() !== '') {
                       ShowErrorToast('Setup Your Account!');
@@ -278,6 +284,7 @@ useFocusEffect(
                 <SettingItem
                   title={'3. Complete Your Profile'}
                   completed={checkEmptyFieldInProfile() == ''}
+                  isNext={checkEmptyFieldInUserInfo() == '' && menus.length > 0 && checkEmptyFieldInProfile() !== ''}
                   onPress={() => {
                     if (menus.length == 0) {
                       ShowErrorToast('Create Your Menu!');
@@ -289,6 +296,7 @@ useFocusEffect(
                 <SettingItem
                   title={'4. Submit Payment Info'}
                   completed={payment?.stripe_account_id !== undefined}
+                  isNext={checkEmptyFieldInProfile() == '' && payment?.stripe_account_id == undefined}
                   onPress={() => {
                     if (checkEmptyFieldInProfile() !== '') {
                       ShowErrorToast('Complete Your Profile');
@@ -300,6 +308,7 @@ useFocusEffect(
                 <SettingItem
                   title={'5. Background Check'}
                   completed={self.applicant_guid ? true : false}
+                  isNext={payment?.stripe_account_id !== undefined && !self.applicant_guid}
                   onPress={() => {
                     if (payment?.stripe_account_id == undefined) {
                       ShowErrorToast('Submit Payment Info');

@@ -13,8 +13,8 @@
 | TMA-004 | *Simple tutorial overhaul (pictures, make it look nicer, make sure chef's don't skip it) | Not Started |
 | TMA-005 | *Overall styling overhaul | In Progress |
 | TMA-006 | *Simplify chef stripe signup without moving to app | Not Started |
-| TMA-007 | Coupon code functionality | Not Started |
-| TMA-008 | **Overall entire chef signup flow (not 1 long form, prepopulate stuff if available, address auto finish) | Not Started |
+| TMA-007 | Coupon code functionality | Completed |
+| TMA-008 | **Overall entire chef signup flow (not 1 long form, prepopulate stuff if available, address auto finish) | Completed |
 | TMA-009 | *AI for menu page | In Progress |
 | TMA-010 | Move from AWS to Railway | In Progress - Planning Complete ✅ |
 | TMA-011 | **Calendar overhaul | Not Started |
@@ -26,9 +26,9 @@
 | TMA-017 | Backend logic to generate AI-generated reviews for a chef everytime a review is submitted for that chef | Not Started |
 | TMA-018 | Categories (including time of day filters) not functioning | Not Started |
 | TMA-019 | Order receipt for chef doesn't show added customizations written out | Completed |
-| TMA-020 | Closed order status needs to update based on certain user actions | Not Started |
+| TMA-020 | Closed order status needs to update based on certain user actions | Completed |
 | TMA-021 | From Order Date selection, ONLY able to tap back button to return to the current day | Completed |
-| TMA-022 | Profile (bio and hours) not visible from Admin Panel | - |
+| TMA-022 | Profile (bio and hours) not visible from Admin Panel | Completed |
 | TMA-023 | Remove Serving Size and replace with MOQ | - |
 | TMA-024 | Automatic app updates for users | - |
 | TMA-025 | Change "Special Requests" to "Special Instructions" | Completed |
@@ -36,8 +36,9 @@
 ---
 
 ### Summary
-- **Completed**: 8 tasks
+- **Completed**: 13 tasks
 - **In Progress**: 4 tasks
-- **Not Started**: 10 tasks
+- **Not Started**: 7 tasks
+- **Deferred/TBD**: 2 tasks (TMA-023, TMA-024)
 - **Total**: 26 tasks
 

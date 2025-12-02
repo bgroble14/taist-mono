@@ -25,6 +25,8 @@ use App\Models\Zipcodes as Zipcodes;
 use App\Models\PaymentMethodListener;
 use App\Models\NotificationTemplates;
 use App\Models\Version;
+use App\Models\DiscountCodes;
+use App\Models\DiscountCodeUsage;
 use App\Notification;
 use Illuminate\Support\Str;
 use Exception;
@@ -1187,22 +1189,83 @@ class MapiController extends Controller
             return response()->json(['success' => 0, 'error' => "The chef didn't connect the payment method."]);
         }
 
+        // Handle discount code if provided
+        $discountCodeId = null;
+        $discountCode = null;
+        $discountAmount = 0;
+        $subtotalBeforeDiscount = null;
+        $finalTotalPrice = $request->total_price;
+
+        if ($request->has('discount_code') && !empty($request->discount_code)) {
+            $code = app(DiscountCodes::class)
+                ->where('code', strtoupper($request->discount_code))
+                ->first();
+
+            if (!$code) {
+                return response()->json(['success' => 0, 'error' => 'Invalid discount code']);
+            }
+
+            // Validate code
+            $validationResult = $code->isValid();
+            if (!$validationResult['valid']) {
+                return response()->json(['success' => 0, 'error' => $validationResult['reason']]);
+            }
+
+            // Check customer usage
+            $customerCheck = $code->canCustomerUse($request->customer_user_id);
+            if (!$customerCheck['valid']) {
+                return response()->json(['success' => 0, 'error' => $customerCheck['reason']]);
+            }
+
+            // Calculate discount
+            $discountResult = $code->calculateDiscount($request->total_price);
+            if (!$discountResult['valid']) {
+                return response()->json(['success' => 0, 'error' => $discountResult['reason']]);
+            }
+
+            $discountCodeId = $code->id;
+            $discountCode = $code->code;
+            $discountAmount = $discountResult['discount_amount'];
+            $subtotalBeforeDiscount = $request->total_price;
+            $finalTotalPrice = $discountResult['final_amount'];
+        }
+
         $ary = [
             'chef_user_id' => $request->chef_user_id,
             'menu_id' => $request->menu_id,
             'customer_user_id' => $request->customer_user_id,
             'amount' => $request->amount,
-            'total_price' => $request->total_price,
+            'total_price' => $finalTotalPrice, // Use discounted price
             'addons' => isset($request->addons) ? $request->addons : '',
             'address' => $request->address,
             'order_date' => $request->order_date,
             'status' => isset($request->status) ? $request->status : 1,
             'notes' => isset($request->notes) ? $request->notes : '',
+            // Discount fields
+            'discount_code_id' => $discountCodeId,
+            'discount_code' => $discountCode,
+            'discount_amount' => $discountAmount,
+            'subtotal_before_discount' => $subtotalBeforeDiscount,
             'created_at' => time(),
             'updated_at' => now(),
         ];
 
         $id = app(Orders::class)->insertGetId($ary);
+
+        // Record discount usage if code was applied
+        if ($discountCodeId) {
+            app(DiscountCodeUsage::class)->create([
+                'discount_code_id' => $discountCodeId,
+                'order_id' => $id,
+                'customer_user_id' => $request->customer_user_id,
+                'discount_amount' => $discountAmount,
+                'order_total_before_discount' => $subtotalBeforeDiscount,
+                'order_total_after_discount' => $finalTotalPrice,
+            ]);
+
+            // Increment usage counter
+            app(DiscountCodes::class)->where('id', $discountCodeId)->increment('current_uses');
+        }
 
         $data = app(Orders::class)->where(['id' => $id])->first();
 
@@ -1263,6 +1326,71 @@ class MapiController extends Controller
         return response()->json(['success' => 1, 'data' => '']);
     }
 
+    // Discount Codes
+
+    public function validateDiscountCode(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
+
+        // Validate required fields
+        $validator = Validator::make($request->all(), [
+            'code' => 'required|string',
+            'order_amount' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'error' => $validator->errors()->first()
+            ]);
+        }
+
+        // Get authenticated user
+        $user = $this->_authUser();
+        if (!$user) {
+            return response()->json(['success' => 0, 'error' => 'User not authenticated']);
+        }
+
+        // Find discount code
+        $discountCode = app(DiscountCodes::class)
+            ->where('code', strtoupper($request->code))
+            ->first();
+
+        if (!$discountCode) {
+            return response()->json(['success' => 0, 'error' => 'Invalid discount code']);
+        }
+
+        // Check if code is valid
+        $validationResult = $discountCode->isValid();
+        if (!$validationResult['valid']) {
+            return response()->json(['success' => 0, 'error' => $validationResult['reason']]);
+        }
+
+        // Check if customer can use this code
+        $customerCheck = $discountCode->canCustomerUse($user->id);
+        if (!$customerCheck['valid']) {
+            return response()->json(['success' => 0, 'error' => $customerCheck['reason']]);
+        }
+
+        // Calculate discount
+        $discountResult = $discountCode->calculateDiscount($request->order_amount);
+        if (!$discountResult['valid']) {
+            return response()->json(['success' => 0, 'error' => $discountResult['reason']]);
+        }
+
+        // Return success with discount details
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'code' => $discountCode->code,
+                'discount_type' => $discountCode->discount_type,
+                'discount_amount' => $discountResult['discount_amount'],
+                'final_amount' => $discountResult['final_amount'],
+                'description' => $discountCode->description ?? $discountCode->getFormattedDiscount(),
+            ]
+        ]);
+    }
 
     // Reviews
 
@@ -2078,10 +2206,38 @@ class MapiController extends Controller
         if ($this->_checktaistApiKey($request->header('apiKey')) === false)
             return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
 
+        $user = $this->_authUser();
+        
         $ary = [
             'updated_at' => now(),
         ];
 
+        // If status is being changed to cancelled (4) or rejected (5), track metadata
+        if ($request->status && in_array($request->status, [4, 5])) {
+            // Determine cancellation metadata
+            $cancelledByRole = null;
+            $cancellationType = null;
+            
+            if ($user->user_type == 1) {
+                $cancelledByRole = 'customer';
+                $cancellationType = 'customer_request';
+            } else if ($user->user_type == 2) {
+                $cancelledByRole = 'chef';
+                $cancellationType = $request->status == 5 ? 'chef_rejection' : 'chef_request';
+            } else {
+                $cancelledByRole = 'admin';
+                $cancellationType = 'admin_action';
+            }
+            
+            $ary['cancelled_by_user_id'] = $user->id;
+            $ary['cancelled_by_role'] = $cancelledByRole;
+            $ary['cancellation_type'] = $cancellationType;
+            $ary['cancelled_at'] = now();
+            $ary['cancellation_reason'] = $request->input('cancellation_reason', 
+                $request->status == 5 ? 'Chef rejected order' : 'Order cancelled'
+            );
+        }
+        
         if ($request->status) $ary['status'] = $request->status;
         app(Orders::class)->where('id', $id)->update($ary);
 
@@ -2768,14 +2924,26 @@ class MapiController extends Controller
 
         $data = request()->input();
         $user = $this->_authUser();
+        
+        // Get cancellation reason if provided
+        $cancellationReason = $request->input('cancellation_reason', 'No reason provided');
 
         $errorMsg = "";
+        $refundAmount = 0;
+        $refundPercentage = 0;
+        $refundStripeId = null;
+        
         try {
             include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
             $stripe = new \Stripe\StripeClient($stripe_key);
 
             $order = app(Orders::class)->where('id', $request->order_id)->first();
+            
+            if (!$order) {
+                return response()->json(['success' => 0, 'error' => 'Order not found']);
+            }
+            
             $now = now();
             $orderTime = date('Y-m-d H:i:s', $order->order_date);
             $diff = $now->diff($orderTime);
@@ -2783,12 +2951,51 @@ class MapiController extends Controller
             if ($diff->days > 1) {
                 // With automatic capture, payment is already captured
                 // For orders older than 1 day, customer gets 100% refund
-                $stripe->refunds->create(['payment_intent' => $order->payment_token, 'amount' => $order->total_price * 100]);
+                $refund = $stripe->refunds->create(['payment_intent' => $order->payment_token, 'amount' => $order->total_price * 100]);
+                $refundAmount = $order->total_price;
+                $refundPercentage = 100;
+                $refundStripeId = $refund->id;
             } else {
                 // With automatic capture, payment is already captured
                 // Create a partial refund, keeping 20% (cancellation fee)
-                $stripe->refunds->create(['payment_intent' => $order->payment_token, 'amount' => $order->total_price * 80]);
+                $refund = $stripe->refunds->create(['payment_intent' => $order->payment_token, 'amount' => $order->total_price * 80]);
+                $refundAmount = $order->total_price * 0.8;
+                $refundPercentage = 80;
+                $refundStripeId = $refund->id;
             }
+            
+            // Determine who is cancelling and why
+            $cancelledByRole = null;
+            $cancellationType = null;
+            
+            if ($user->user_type == 1) {
+                // Customer cancelling
+                $cancelledByRole = 'customer';
+                $cancellationType = 'customer_request';
+            } else if ($user->user_type == 2) {
+                // Chef cancelling
+                $cancelledByRole = 'chef';
+                $cancellationType = 'chef_request';
+            } else {
+                // Admin or other
+                $cancelledByRole = 'admin';
+                $cancellationType = 'admin_action';
+            }
+            
+            // Update order with cancellation metadata
+            $order->update([
+                'cancelled_by_user_id' => $user->id,
+                'cancelled_by_role' => $cancelledByRole,
+                'cancellation_reason' => $cancellationReason,
+                'cancellation_type' => $cancellationType,
+                'cancelled_at' => now(),
+                'refund_amount' => $refundAmount,
+                'refund_percentage' => $refundPercentage,
+                'refund_processed_at' => now(),
+                'refund_stripe_id' => $refundStripeId,
+                'updated_at' => now(),
+            ]);
+            
         } catch (\Stripe\Exception\CardException $e) {
             $errorMsg = $e->getError()->message;
         } catch (\Stripe\Exception\RateLimitException $e) {
@@ -2808,7 +3015,14 @@ class MapiController extends Controller
             return response()->json(['success' => 0, 'error' => $errorMsg]);
         }
 
-        return response()->json(['success' => 1]);
+        return response()->json([
+            'success' => 1,
+            'refund_info' => [
+                'amount' => $refundAmount,
+                'percentage' => $refundPercentage,
+                'stripe_id' => $refundStripeId
+            ]
+        ]);
     }
 
     public function rejectOrderPayment(Request $request)
@@ -2821,17 +3035,43 @@ class MapiController extends Controller
 
         $data = request()->input();
         $user = $this->_authUser();
+        
+        // Get rejection reason if provided
+        $cancellationReason = $request->input('cancellation_reason', 'Chef rejected the order');
 
         $errorMsg = "";
+        $refundStripeId = null;
+        
         try {
             include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
             $stripe = new \Stripe\StripeClient($stripe_key);
 
             $order = app(Orders::class)->where('id', $request->order_id)->first();
+            
+            if (!$order) {
+                return response()->json(['success' => 0, 'error' => 'Order not found']);
+            }
+            
             // With automatic capture, payment is already captured
             // Chef rejection requires full refund to customer
-            $stripe->refunds->create(['payment_intent' => $order->payment_token, 'amount' => $order->total_price * 100]);
+            $refund = $stripe->refunds->create(['payment_intent' => $order->payment_token, 'amount' => $order->total_price * 100]);
+            $refundStripeId = $refund->id;
+            
+            // Update order with rejection metadata
+            $order->update([
+                'cancelled_by_user_id' => $user->id,
+                'cancelled_by_role' => 'chef',
+                'cancellation_reason' => $cancellationReason,
+                'cancellation_type' => 'chef_rejection',
+                'cancelled_at' => now(),
+                'refund_amount' => $order->total_price,
+                'refund_percentage' => 100,
+                'refund_processed_at' => now(),
+                'refund_stripe_id' => $refundStripeId,
+                'updated_at' => now(),
+            ]);
+            
         } catch (\Stripe\Exception\CardException $e) {
             $errorMsg = $e->getError()->message;
         } catch (\Stripe\Exception\RateLimitException $e) {
@@ -2851,7 +3091,14 @@ class MapiController extends Controller
             return response()->json(['success' => 0, 'error' => $errorMsg]);
         }
 
-        return response()->json(['success' => 1]);
+        return response()->json([
+            'success' => 1,
+            'refund_info' => [
+                'amount' => $order->total_price,
+                'percentage' => 100,
+                'stripe_id' => $refundStripeId
+            ]
+        ]);
     }
 
     public function completeOrderPayment(Request $request)

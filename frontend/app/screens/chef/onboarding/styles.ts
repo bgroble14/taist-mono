@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
 		marginBottom: 5,
 	},
 	buttonText: {
-		color: AppColors.primary,
+		color: AppColors.textOnPrimary,
 		fontSize: 18,
 		textAlign: 'center'
 	},

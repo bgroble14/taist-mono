@@ -1,0 +1,257 @@
+/* TMA-020: Order Cancellation Tracking Styles */
+
+/* Status badges */
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.status-1 { background: #FFF3CD; color: #856404; } /* Requested */
+.status-2 { background: #CCE5FF; color: #004085; } /* Accepted */
+.status-3 { background: #D4EDDA; color: #155724; } /* Completed */
+.status-4 { background: #F8D7DA; color: #721C24; } /* Cancelled */
+.status-5 { background: #F5C6CB; color: #721C24; } /* Rejected */
+.status-6 { background: #D6D8DB; color: #383D41; } /* Expired */
+.status-7 { background: #D1ECF1; color: #0C5460; } /* On My Way */
+
+/* Cancelled order row highlight */
+.order-cancelled {
+  background-color: #fff5f5 !important;
+}
+
+.order-cancelled:hover {
+  background-color: #ffe9e9 !important;
+}
+
+/* User info styling */
+.user-info {
+  min-width: 120px;
+}
+
+.user-info strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* Cancellation details container */
+.cancellation-details {
+  max-width: 350px;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border-left: 3px solid #dc3545;
+}
+
+.cancel-info-row {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.cancel-info-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cancel-info-row strong {
+  color: #333;
+  display: block;
+  font-size: 11px;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Role badges */
+.role-badge {
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+  letter-spacing: 0.5px;
+}
+
+.role-customer { 
+  background: #E3F2FD; 
+  color: #1565C0;
+  border: 1px solid #90CAF9;
+}
+
+.role-chef { 
+  background: #FFF3E0; 
+  color: #E65100;
+  border: 1px solid #FFB74D;
+}
+
+.role-admin { 
+  background: #F3E5F5; 
+  color: #6A1B9A;
+  border: 1px solid #CE93D8;
+}
+
+.role-system { 
+  background: #E0F2F1; 
+  color: #00695C;
+  border: 1px solid #80CBC4;
+}
+
+/* Cancellation type badges */
+.cancel-type-badge {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+  display: inline-block;
+}
+
+/* Cancellation reason */
+.cancel-reason-text {
+  margin-top: 4px;
+  padding: 8px;
+  background: #ffffff;
+  border-left: 3px solid #dc3545;
+  font-style: italic;
+  color: #666;
+  max-height: 80px;
+  overflow-y: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+/* Refund details */
+.refund-details {
+  font-size: 13px;
+  padding: 8px;
+  background: #f0fdf4;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+  min-width: 140px;
+}
+
+.refund-amount {
+  color: #28a745;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.refund-percentage {
+  font-size: 11px;
+  color: #6c757d;
+  margin-left: 4px;
+  font-weight: normal;
+}
+
+.refund-date {
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.refund-stripe {
+  margin-top: 4px;
+}
+
+.refund-stripe code {
+  font-size: 10px;
+  background: #ffffff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid #dee2e6;
+  display: inline-block;
+}
+
+/* Review info */
+.review-info {
+  min-width: 100px;
+}
+
+/* Badge styles */
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.badge-info i {
+  margin-right: 4px;
+}
+
+/* Utility classes */
+.text-muted { 
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.text-warning { 
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.small { 
+  font-size: 12px;
+}
+
+/* Table cell adjustments for better layout */
+table#table td {
+  vertical-align: top;
+  padding: 12px 8px;
+}
+
+table#table th {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  padding: 12px 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .cancellation-details {
+    max-width: 280px;
+    font-size: 12px;
+  }
+  
+  .refund-details {
+    font-size: 12px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .order-cancelled {
+    background-color: #f5f5f5 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .status-badge,
+  .role-badge,
+  .cancel-type-badge {
+    border: 1px solid #333;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+

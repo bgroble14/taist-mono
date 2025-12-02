@@ -15,6 +15,7 @@ import { useAppDispatch } from '../../../hooks/useRedux';
 
 import { goBack } from '@/app/utils/navigation';
 import Container from '../../../layout/Container';
+import { AppColors } from '../../../../constants/theme';
 import { styles } from './styles';
 
 const HowToDo = () => {
@@ -130,7 +131,10 @@ const HowToDo = () => {
                   style={[
                     styles.imgContainer,
                     {height: page.imgHeight},
+                    // Add white background when displaying actual images
                     page.img && {backgroundColor: '#ffffff'},
+                    // Add orange background when displaying logo for proper contrast
+                    !page.img && {backgroundColor: AppColors.primary},
                   ]}>
                   <Image
                     source={

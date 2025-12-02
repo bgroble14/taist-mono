@@ -1,30 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native';
 
 // Types & Services
-import {
-  IMenu,
-  IMenuCustomization
-} from '../../../types/index';
+import { IMenu } from '../../../types/index';
 
 // Hooks
-import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
+import { useAppDispatch } from '../../../hooks/useRedux';
 
-import { goBack, navigate } from '@/app/utils/navigation';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import Slider from '@react-native-community/slider';
+import { goBack } from '@/app/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
-import { Image } from 'react-native';
-import StyledButton from '../../../components/styledButton';
-import StyledSwitch from '../../../components/styledSwitch';
-import StyledTextInput from '../../../components/styledTextInput';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import {
@@ -32,466 +16,270 @@ import {
   CreateMenuAPI,
   UpdateMenuAPI
 } from '../../../services/api';
-import { convertStringToNumber, getImageURL } from '../../../utils/functions';
 import { ShowErrorToast, ShowSuccessToast } from '../../../utils/toast';
 import { styles } from './styles';
 
- 
+// Step Components
+import { StepMenuItemName } from './steps/StepMenuItemName';
+import { StepMenuItemDescription } from './steps/StepMenuItemDescription';
+import { StepMenuItemCategories } from './steps/StepMenuItemCategories';
+import { StepMenuItemAllergens } from './steps/StepMenuItemAllergens';
+import { StepMenuItemKitchen } from './steps/StepMenuItemKitchen';
+import { StepMenuItemPricing } from './steps/StepMenuItemPricing';
+import { StepMenuItemCustomizations } from './steps/StepMenuItemCustomizations';
+import { StepMenuItemReview } from './steps/StepMenuItemReview';
+
 const AddMenuItem = () => {
-  const params = useLocalSearchParams(); 
-  const self = useAppSelector(x => x.user.user);
-  const categories = useAppSelector(x => x.table.categories);
-  const appliances   = useAppSelector(x => x.table.appliances);
-  const allergen = useAppSelector(x => x.table.allergens);
+  const params = useLocalSearchParams();
   const dispatch = useAppDispatch();
+  
+  // Parse existing menu item info for edit mode
   const info: IMenu | undefined = typeof params?.info === 'string'
     ? JSON.parse(params.info as string)
     : (params?.info as IMenu | undefined);
 
-  const [name, setName] = useState('');
-  const [desc, setDesc] = useState('');
-  const [categoryIds, setCategoryIds] = useState<Array<number>>([]);
-  const [isNewCategory, setEnableNewCategory] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [applianceIds, setApplianceIds] = useState<Array<number>>([1]);
-  const [allergyIds, setAllergyIds] = useState<Array<number>>([]);
-  const [completionTimeId, setCompletionTimeId] = useState('1');
-  const [size, setSize] = useState(1);
-  const [price, setPrice] = useState('');
-  const [customizations, setCustomizations] = useState<
-    Array<IMenuCustomization>
-  >([]);
-  const [displayItem, setDisplayItem] = useState(true);
+  // Multi-step state
+  const [step, setStep] = useState(1);
+  const [menuItemData, setMenuItemData] = useState<Partial<IMenu>>({});
 
-  const completionTimes = useMemo(
-    () => [
-      {id: '1', value: '2 hr + ', m: 120},
-      {id: '2', value: '1.5 hr ', m: 90},
-      {id: '3', value: '1 hr ', m: 60},
-      {id: '4', value: '45 m ', m: 45},
-      {id: '5', value: '30 m ', m: 30},
-      {id: '6', value: '15 m ', m: 15},
-    ],
-    [],
-  );
-
+  // Initialize data from existing menu item (edit mode)
   useEffect(() => {
     if (info) {
-      setName(info.title ?? '');
-      setDesc(info.description ?? '');
-      setCategoryIds(
-        (info.category_ids ?? '').split(',').map(x => {
-          return parseInt(x);
-        }),
-      );
-      setApplianceIds(
-        (info.appliances ?? '').split(',').map(x => {
-          return parseInt(x);
-        }),
-      );
-      setAllergyIds(
-        (info.allergens ?? '').split(',').map(x => {
-          return parseInt(x);
-        }),
-      );
-      setCompletionTimeId(
-        completionTimes.find(x => x.m == info.estimated_time)?.id ?? '',
-      );
-      setSize(info.serving_size ?? 0);
-      setPrice(info.price ? info.price.toFixed(2) : '');
-      setDisplayItem(info.is_live == 1 ? true : false);
-      setCustomizations(info.customizations ?? []);
+      // Parse category IDs
+      const categoryIds = (info.category_ids ?? '')
+        .toString()
+        .split(',')
+        .map(x => parseInt(x))
+        .filter(x => !isNaN(x));
+
+      // Parse appliance IDs
+      const applianceIds = (info.appliances ?? '')
+        .toString()
+        .split(',')
+        .map(x => parseInt(x))
+        .filter(x => !isNaN(x));
+
+      // Parse allergen IDs
+      const allergyIds = (info.allergens ?? '')
+        .toString()
+        .split(',')
+        .map(x => parseInt(x))
+        .filter(x => !isNaN(x));
+
+      // Find completion time ID from minutes
+      const completionTimes = [
+        { id: '1', value: '2 hr +', m: 120 },
+        { id: '2', value: '1.5 hr', m: 90 },
+        { id: '3', value: '1 hr', m: 60 },
+        { id: '4', value: '45 m', m: 45 },
+        { id: '5', value: '30 m', m: 30 },
+        { id: '6', value: '15 m', m: 15 },
+      ];
+      const completionTimeId = completionTimes.find(
+        x => x.m === info.estimated_time
+      )?.id ?? '1';
+
+      setMenuItemData({
+        id: info.id,
+        title: info.title ?? '',
+        description: info.description ?? '',
+        category_ids: categoryIds as any,
+        appliances: applianceIds as any,
+        allergens: allergyIds as any,
+        completion_time_id: completionTimeId,
+        estimated_time: info.estimated_time,
+        serving_size: info.serving_size ?? 1,
+        price: info.price,
+        price_string: info.price ? info.price.toFixed(2) : '',
+        is_live: info.is_live ?? 1,
+        customizations: info.customizations ?? [],
+        is_new_category: false,
+        new_category_name: '',
+      });
     }
   }, []);
 
-  const handleCategoryPress = (id: number) => {
-    var tempIds = [...categoryIds];
-    var index = tempIds.findIndex(x => x === id);
-    if (index >= 0) {
-      tempIds.splice(index, 1);
-    } else {
-      tempIds.push(id);
-    }
-    setCategoryIds(tempIds);
+  // Update menu item data
+  const handleUpdateMenuItemData = (updates: Partial<IMenu>) => {
+    setMenuItemData({ ...menuItemData, ...updates });
   };
 
-  const handleAppliancePress = (id: number) => {
-    var tempIds = [...applianceIds];
-    var index = tempIds.findIndex(x => x === id);
-    if (index >= 0) {
-      tempIds.splice(index, 1);
-    } else {
-      tempIds.push(id);
-    }
-    if (tempIds.length == 0) {
-      tempIds.push(appliances[0].id ?? 0);
-    }
-    setApplianceIds(tempIds);
-  };
-
-  const handleAllergyPress = (id: number) => {
-    var tempIds = [...allergyIds];
-    var index = tempIds.findIndex(x => x === id);
-    if (index >= 0) {
-      tempIds.splice(index, 1);
-    } else {
-      tempIds.push(id);
-    }
-    setAllergyIds(tempIds);
-  };
-
-  const handleCompletionTimePress = (id: string) => {
-    setCompletionTimeId(id);
-  };
-
-  const handleAddCustomization = () => {
-    navigate.toChef.addOnCustomization(handleAddCustomizationInner);
-  };
-
-  const handleAddCustomizationInner = (item: {
-    name: string;
-    upcharge_price: number;
-  }) => {
-    setCustomizations([...customizations, {...item}]);
-  };
-
-  const handleRemoveCustomization = (idx: number) => {
-    var newCustomizations = [...customizations];
-    newCustomizations.splice(idx, 1);
-    setCustomizations(newCustomizations);
-  };
-
-  const handleSubmit = async () => {
-    if (categoryIds.length == 0 && (!isNewCategory || newCategoryName == '')) {
-      ShowErrorToast('Please select one or more categories');
-      return;
-    }
-
-    if (name == '') {
-      ShowErrorToast('Please input the name');
-      return;
-    }
-
-    if (desc == '') {
-      ShowErrorToast('Please input the description');
-      return;
-    }
-
-    if (completionTimeId == '') {
-      ShowErrorToast('Please select the estimated time');
-      return;
-    }
-
-    if (size <= 0) {
-      ShowErrorToast('Please enter the serving size');
-      return;
-    }
-
-    if (price == '') {
-      ShowErrorToast('Please enter the price');
-      return;
-    }
-
-    if (applianceIds.length == 0) {
-      ShowErrorToast('Please select one or more appliances');
-      return;
-    }
-
-    var category_id_list = [...categoryIds];
+  // Complete menu item creation/update
+  const handleCompleteMenuItem = async () => {
     dispatch(showLoading());
-    if (isNewCategory && newCategoryName != '') {
-      const resp_new_category = await CreateCategoryAPI(
-        {name: newCategoryName},
-        dispatch,
-      );
-      if (resp_new_category.success == 1) {
-        category_id_list.push(resp_new_category.data.id);
+
+    try {
+      // Handle new category creation if requested
+      let category_id_list = Array.isArray(menuItemData.category_ids)
+        ? [...menuItemData.category_ids]
+        : typeof menuItemData.category_ids === 'string'
+        ? menuItemData.category_ids.split(',').map(x => parseInt(x)).filter(x => !isNaN(x))
+        : [];
+
+      if (menuItemData.is_new_category && menuItemData.new_category_name) {
+        const resp_new_category = await CreateCategoryAPI(
+          { name: menuItemData.new_category_name },
+          dispatch
+        );
+        if (resp_new_category.success === 1) {
+          category_id_list.push(resp_new_category.data.id);
+        }
       }
+
+      // Convert arrays to comma-separated strings for API
+      const allergyIds = Array.isArray(menuItemData.allergens)
+        ? menuItemData.allergens
+        : typeof menuItemData.allergens === 'string'
+        ? menuItemData.allergens.split(',').map(x => parseInt(x)).filter(x => !isNaN(x))
+        : [];
+
+      const applianceIds = Array.isArray(menuItemData.appliances)
+        ? menuItemData.appliances
+        : typeof menuItemData.appliances === 'string'
+        ? menuItemData.appliances.split(',').map(x => parseInt(x)).filter(x => !isNaN(x))
+        : [];
+
+      // Prepare API params
+      const params: IMenu & any = {
+        title: menuItemData.title,
+        description: menuItemData.description,
+        price: menuItemData.price_string ?? menuItemData.price,
+        serving_size: menuItemData.serving_size,
+        meals: 'breakfast',
+        category_ids: category_id_list.join(','),
+        allergens: allergyIds.join(','),
+        appliances: applianceIds.join(','),
+        estimated_time: menuItemData.estimated_time ?? 0,
+        is_live: menuItemData.is_live ?? 1,
+        customizations: JSON.stringify(menuItemData.customizations ?? []),
+      };
+
+      // Create or update menu item
+      let resp_menu;
+      if (info && info.id !== undefined) {
+        params.id = info.id;
+        resp_menu = await UpdateMenuAPI(params, dispatch);
+      } else {
+        resp_menu = await CreateMenuAPI(params, dispatch);
+      }
+
+      if (resp_menu.success === 1) {
+        ShowSuccessToast(
+          info ? 'Menu item updated successfully!' : 'Menu item added successfully!'
+        );
+        dispatch(hideLoading());
+        goBack();
+      } else {
+        ShowErrorToast(resp_menu.error || resp_menu.message);
+        dispatch(hideLoading());
+      }
+    } catch (error) {
+      ShowErrorToast('An error occurred. Please try again.');
+      dispatch(hideLoading());
     }
+  };
 
-    var params: IMenu & any = {
-      title: name,
-      description: desc,
-      price,
-      serving_size: size,
-      meals: 'breakfast',
-      category_ids: category_id_list.join(','),
-      allergens: allergyIds.join(','),
-      appliances: applianceIds.join(','),
-      estimated_time:
-        completionTimes.find(x => x.id == completionTimeId)?.m ?? 0,
-      is_live: displayItem ? 1 : 0,
-      customizations: JSON.stringify(customizations),
-    };
+  // Render current step
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <StepMenuItemName
+            menuItemData={menuItemData}
+            onUpdateMenuItemData={handleUpdateMenuItemData}
+            onNext={() => setStep(2)}
+            onBack={goBack}
+          />
+        );
+      case 2:
+        return (
+          <StepMenuItemDescription
+            menuItemData={menuItemData}
+            onUpdateMenuItemData={handleUpdateMenuItemData}
+            onNext={() => setStep(3)}
+            onBack={() => setStep(1)}
+          />
+        );
+      case 3:
+        return (
+          <StepMenuItemCategories
+            menuItemData={menuItemData}
+            onUpdateMenuItemData={handleUpdateMenuItemData}
+            onNext={() => setStep(4)}
+            onBack={() => setStep(2)}
+          />
+        );
+      case 4:
+        return (
+          <StepMenuItemAllergens
+            menuItemData={menuItemData}
+            onUpdateMenuItemData={handleUpdateMenuItemData}
+            onNext={() => setStep(5)}
+            onBack={() => setStep(3)}
+          />
+        );
+      case 5:
+        return (
+          <StepMenuItemKitchen
+            menuItemData={menuItemData}
+            onUpdateMenuItemData={handleUpdateMenuItemData}
+            onNext={() => setStep(6)}
+            onBack={() => setStep(4)}
+          />
+        );
+      case 6:
+        return (
+          <StepMenuItemPricing
+            menuItemData={menuItemData}
+            onUpdateMenuItemData={handleUpdateMenuItemData}
+            onNext={() => setStep(7)}
+            onBack={() => setStep(5)}
+          />
+        );
+      case 7:
+        return (
+          <StepMenuItemCustomizations
+            menuItemData={menuItemData}
+            onUpdateMenuItemData={handleUpdateMenuItemData}
+            onNext={() => setStep(8)}
+            onBack={() => setStep(6)}
+            onSkip={() => setStep(8)}
+          />
+        );
+      case 8:
+        return (
+          <StepMenuItemReview
+            menuItemData={menuItemData}
+            onUpdateMenuItemData={handleUpdateMenuItemData}
+            onComplete={handleCompleteMenuItem}
+            onBack={() => setStep(7)}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
-    let resp_menu;
-    if (info && info.id !== undefined) {
-      params.id = info.id;
-      resp_menu = await UpdateMenuAPI(params, dispatch);
+  // Handle back button press from Container header
+  const handleHeaderBack = () => {
+    if (step === 1) {
+      // If on first step, exit the flow
+      goBack();
     } else {
-      resp_menu = await CreateMenuAPI(params, dispatch);
+      // Otherwise, go back one step
+      setStep(step - 1);
     }
-    if (resp_menu.success == 1) {
-      ShowSuccessToast('Added the menu item successfully!');
-    } else {
-      ShowErrorToast(resp_menu.error || resp_menu.message);
-    }
-
-    dispatch(hideLoading());
-    goBack();
   };
 
   return (
     <SafeAreaView style={styles.main}>
       <Container
         backMode
-        title="Add Menu Item"
-        containerStyle={{marginBottom: 0}}>
-        <ScrollView contentContainerStyle={styles.pageView}>
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>Name </Text>
-            <Text style={styles.subTitle}>
-              This is the name that will be displayed to customers.{' '}
-            </Text>
-            <StyledTextInput
-              placeholder="* Menu Item Name "
-              onChangeText={setName}
-              value={name}
-            />
-          </View>
-
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>Description </Text>
-            <Text style={styles.subTitle}>
-              Give customers a short summary of the item.{' '}
-            </Text>
-            <StyledTextInput
-              placeholder="* Description "
-              onChangeText={setDesc}
-              value={desc}
-              multiline
-            />
-          </View>
-
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>Categories * </Text>
-            <Text style={styles.subTitle}>Select one or more catetories </Text>
-            <View style={styles.tabContainer}>
-              {categories.map((category, idx) => {
-                const isSelected = categoryIds.includes(category.id ?? 0);
-                return (
-                  <TouchableOpacity
-                    style={isSelected ? styles.tab : styles.tabDisabled}
-                    key={`category_${idx}`}
-                    onPress={() => handleCategoryPress(category.id ?? 0)}>
-                    <Text
-                      style={
-                        isSelected ? styles.tabText : styles.tabDisabledText
-                      }>
-                      {category.name}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            {/* <Text style={styles.title}>Request a new Category? </Text> */}
-            <StyledSwitch
-              label="Request a new Category?"
-              value={isNewCategory}
-              onPress={() => {
-                setEnableNewCategory(!isNewCategory);
-              }}
-            />
-            {isNewCategory && (
-              <StyledTextInput
-                placeholder="* Category Name "
-                onChangeText={setNewCategoryName}
-                value={newCategoryName}
-              />
-            )}
-          </View>
-
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>Required Appliances </Text>
-            <Text style={styles.subTitle}>
-              Select the customer's kitchen appliances that are required to make
-              the item.{' '}
-            </Text>
-            <View style={styles.applianceContainer}>
-              {appliances.map((appliance, idx) => {
-                const isSelected = applianceIds.includes(appliance.id ?? 0);
-                if (isSelected == false && appliance.name == 'Sink') {
-                  handleAppliancePress(appliance.id ?? 0);
-                }
-                return (
-                  <TouchableOpacity
-                    style={
-                      isSelected
-                        ? styles.applianceSelected
-                        : styles.applianceNormal
-                    }
-                    onPress={() => handleAppliancePress(appliance.id ?? 0)}
-                    disabled={appliance.name == 'Sink'}
-                    key={`appliance_${idx}`}>
-                    <Image
-                      source={{uri: getImageURL(appliance.image)}}
-                      style={styles.applianceImg}
-                    />
-                    <Text
-                      style={
-                        isSelected
-                          ? styles.applianceTextSelected
-                          : styles.applianceText
-                      }>
-                      {appliance.name}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>Allergens </Text>
-            <Text style={styles.subTitle}>
-              For Customers with Allergies, select below if your Menu Item
-              contains any of the following.{' '}
-            </Text>
-            {allergen.map((allergy, idx) => {
-              const isSelected = allergyIds.includes(allergy.id ?? 0);
-              return (
-                <StyledSwitch
-                  key={`allergy_${idx}`}
-                  label={allergy.name ?? ''}
-                  value={isSelected}
-                  onPress={() => {
-                    handleAllergyPress(allergy.id ?? 0);
-                  }}
-                />
-              );
-            })}
-          </View>
-
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>Estimated Completion Time </Text>
-            <Text style={styles.subTitle}>
-              Select the estimated time it takes to complete the item from start
-              to finish. This inlcudes cleanup.{' '}
-            </Text>
-            <View style={styles.completionTimeContainer}>
-              {completionTimes.map((ct, idx) => {
-                const isSelected = ct.id === completionTimeId;
-                return (
-                  <TouchableOpacity
-                    style={isSelected ? styles.tab : styles.tabDisabled}
-                    key={`ct_${idx}`}
-                    onPress={() => handleCompletionTimePress(ct.id)}>
-                    <Text
-                      style={
-                        isSelected ? styles.tabText : styles.tabDisabledText
-                      }>
-                      {ct.value}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>{`Serving (${size}) `} </Text>
-            <Text style={styles.subTitle}>
-              How many people does this menu item serve? *Customers will be able
-              to order any quantity of the menu item.{' '}
-            </Text>
-            {/* <StyledTextInput
-              placeholder="* Serving Size "
-              onChangeText={txt => setSize(convertStringToNumber(txt))}
-              value={size <= 0 ? '' : size.toString()}
-              keyboardType={'number-pad'}
-            /> */}
-            <Slider
-              style={{width: '100%', height: 50}}
-              minimumValue={1}
-              maximumValue={10}
-              minimumTrackTintColor={'#ffffff'}
-              maximumTrackTintColor="#000000"
-              step={1}
-              value={size}
-              onValueChange={setSize}
-            />
-          </View>
-
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>Price </Text>
-            <Text style={styles.subTitle}>
-              {
-                'Choose the price you want to charge for the item.\n*Customers will be charged a multiple of this price, depending on the quantity of this menu item they order. '
-              }
-            </Text>
-            <StyledTextInput
-              placeholder="* Price Per Item ($) "
-              onChangeText={setPrice}
-              onEndEditing={() => {
-                setPrice(convertStringToNumber(price).toFixed(2));
-              }}
-              value={price}
-              keyboardType={'decimal-pad'}
-            />
-          </View>
-
-          <View style={styles.subMainContainer}>
-            <Text style={styles.title}>Customizations </Text>
-            <Text style={styles.subTitle}>
-              Charge for any customizations customers can add to this item{' '}
-            </Text>
-            <View style={{gap: 5}}>
-              {customizations.map((customization, idx) => {
-                return (
-                  <View
-                    style={styles.customizationItem}
-                    key={`customization_${idx}`}>
-                    <Text style={styles.text1}>{customization.name}</Text>
-                    <Text style={styles.text1}>
-                      {`$${(customization.upcharge_price ?? 0).toFixed(2)} `}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => handleRemoveCustomization(idx)}>
-                      <FontAwesomeIcon
-                        icon={faClose}
-                        size={20}
-                        color="#000000"
-                      />
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
-            </View>
-            <StyledButton
-              title={'+ ADD CUSTOMIZATION '}
-              onPress={() => {
-                handleAddCustomization();
-              }}
-            />
-            <Text style={styles.title}>Display this item on Menu? </Text>
-            <StyledSwitch
-              label="Yes"
-              value={displayItem}
-              onPress={() => {
-                setDisplayItem(!displayItem);
-              }}
-            />
-          </View>
-
-          <View style={styles.submitContainer}>
-            <StyledButton
-              title={'SAVE '}
-              onPress={() => {
-                handleSubmit();
-              }}
-            />
-          </View>
-        </ScrollView>
+        title={info ? 'Edit Menu Item' : 'Add Menu Item'}
+        containerStyle={{ marginBottom: 0 }}
+        onBack={handleHeaderBack}
+      >
+        {renderStep()}
       </Container>
     </SafeAreaView>
   );
