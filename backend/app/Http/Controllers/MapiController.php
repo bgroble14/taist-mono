@@ -29,6 +29,7 @@ use App\Models\DiscountCodes;
 use App\Models\DiscountCodeUsage;
 use App\Notification;
 use App\Services\TwilioService;
+use App\Services\OrderSmsService;
 use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -46,10 +47,13 @@ class MapiController extends Controller
 {
     protected $request; // request as an attribute of the controllers
     protected $notification; // Push Notification
+    protected $orderSmsService; // SMS Notification Service
 
-    public function __construct(Request $request)
+    public function __construct(Request $request, OrderSmsService $orderSmsService)
     {
         $this->request = $request;
+        $this->orderSmsService = $orderSmsService;
+
         try {
             $this->notification = Firebase::messaging();
         } catch (\Exception $e) {
@@ -1805,6 +1809,17 @@ Write only the review text:";
             }
         }
 
+        // Send SMS notification to chef about new order
+        try {
+            $this->orderSmsService->sendNewOrderNotification($id);
+        } catch (Exception $e) {
+            // Log error but don't block order creation
+            Log::error('Failed to send new order SMS notification', [
+                'order_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+        }
+
         return response()->json(['success' => 1, 'data' => $data]);
     }
 
@@ -2883,6 +2898,16 @@ Write only the review text:";
                     $errorMsg = $e->getMessage();
                 }
             }
+
+            // Send SMS notification to customer about order acceptance
+            try {
+                $this->orderSmsService->sendOrderAcceptedNotification($id);
+            } catch (Exception $e) {
+                Log::error('Failed to send order accepted SMS notification', [
+                    'order_id' => $id,
+                    'error' => $e->getMessage()
+                ]);
+            }
         } else if ($request->status == 3) {
             $user = app(Listener::class)->where(['id' => $order->customer_user_id])->first();
             if ($user->fcm_token) {
@@ -2923,6 +2948,16 @@ Write only the review text:";
             $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo-2.png' /></p>";
 
             $emailResponse = $this->_sendEmail($user->email, "Taist - Order Receipt", $msg);
+
+            // Send SMS notification to customer about order completion
+            try {
+                $this->orderSmsService->sendOrderCompleteNotification($id);
+            } catch (Exception $e) {
+                Log::error('Failed to send order complete SMS notification', [
+                    'order_id' => $id,
+                    'error' => $e->getMessage()
+                ]);
+            }
         } else if ($request->status == 4) {
             $user = app(Listener::class)->where(['id' => $order->customer_user_id])->first();
             if ($user->fcm_token) {
@@ -2961,6 +2996,16 @@ Write only the review text:";
                     $errorMsg = $e->getMessage();
                 }
             }
+
+            // Send SMS notification to customer about order rejection
+            try {
+                $this->orderSmsService->sendOrderRejectedNotification($id);
+            } catch (Exception $e) {
+                Log::error('Failed to send order rejected SMS notification', [
+                    'order_id' => $id,
+                    'error' => $e->getMessage()
+                ]);
+            }
         } else if ($request->status == 7) {
             $user = app(Listener::class)->where(['id' => $order->customer_user_id])->first();
             if ($user->fcm_token) {
@@ -2979,6 +3024,16 @@ Write only the review text:";
                 } catch (FirebaseException $e) {
                     $errorMsg = $e->getMessage();
                 }
+            }
+
+            // Send SMS notification to customer that chef is on the way
+            try {
+                $this->orderSmsService->sendChefOnTheWayNotification($id);
+            } catch (Exception $e) {
+                Log::error('Failed to send chef on the way SMS notification', [
+                    'order_id' => $id,
+                    'error' => $e->getMessage()
+                ]);
             }
         }
 

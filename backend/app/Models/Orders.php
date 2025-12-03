@@ -21,6 +21,7 @@ class Orders extends Model
         'notes',
         'payment_token',
         'acceptance_deadline',
+        'reminder_sent_at',
         // Discount tracking fields
         'discount_code_id',
         'discount_code',

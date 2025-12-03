@@ -30,6 +30,13 @@ class Kernel extends ConsoleKernel
                  ->everyFiveMinutes()
                  ->withoutOverlapping()
                  ->runInBackground();
+
+        // Send 24-hour order reminders every 30 minutes
+        // Sends SMS reminders to both chef and customer for orders happening tomorrow
+        $schedule->command('orders:send-reminders')
+                 ->everyThirtyMinutes()
+                 ->withoutOverlapping()
+                 ->runInBackground();
     }
 
     /**
