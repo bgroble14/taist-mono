@@ -22,7 +22,7 @@ class ProcessExpiredOrders extends Command
      *
      * @var string
      */
-    protected $description = 'Process orders that have exceeded the 1-hour chef acceptance deadline and issue automatic refunds';
+    protected $description = 'Process orders that have exceeded the 30-minute chef acceptance deadline and issue automatic refunds';
 
     /**
      * Create a new command instance.
@@ -98,7 +98,7 @@ class ProcessExpiredOrders extends Command
             $order->update([
                 'status' => 4, // Cancelled
                 'cancelled_by_role' => 'system',
-                'cancellation_reason' => 'Chef did not accept order within 1 hour',
+                'cancellation_reason' => 'Chef did not accept order within 30 minutes',
                 'cancellation_type' => 'system_timeout',
                 'cancelled_at' => now(),
                 'updated_at' => (string)time(),
@@ -124,7 +124,7 @@ class ProcessExpiredOrders extends Command
         $order->update([
             'status' => 4, // Cancelled
             'cancelled_by_role' => 'system',
-            'cancellation_reason' => 'Chef did not accept order within 1 hour',
+            'cancellation_reason' => 'Chef did not accept order within 30 minutes',
             'cancellation_type' => 'system_timeout',
             'cancelled_at' => now(),
             'refund_amount' => $order->total_price,

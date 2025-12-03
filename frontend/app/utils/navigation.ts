@@ -163,6 +163,8 @@ export const navigate = {
     menu: () => router.push('/screens/chef/(tabs)/menu' as any),
     profile: () => router.push('/screens/chef/(tabs)/profile' as any),
     earnings: () => router.push('/screens/chef/(tabs)/earnings' as any),
+    chefWelcome: () => router.push('/screens/chef/chefWelcome' as any),
+    safetyQuiz: () => router.push('/screens/chef/safetyQuiz' as any),
     orderDetail: (orderInfo: IOrder, customerInfo?: IUser) => router.push({
     pathname: '/screens/chef/orderDetail',
     params: { 

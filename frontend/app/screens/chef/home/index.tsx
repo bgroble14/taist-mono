@@ -94,9 +94,11 @@ useFocusEffect(
   }, []);
 
   useEffect(() => {
-    if (self.is_pending === 1) {
-      navigate.toChef.howToDoIt();
+    // Redirect to welcome screen if chef is pending and hasn't completed quiz
+    if (self.is_pending === 1 && self.quiz_completed === 0) {
+      navigate.toChef.chefWelcome();
     }
+    // If is_pending === 1 and quiz_completed === 1, show onboarding checklist (existing behavior below)
   }, []);
 
   useEffect(() => {

@@ -358,6 +358,8 @@ class MapiController extends Controller
         $api_token = $this->_generateToken();
         $user = Listener::create(['email' => $request->email, 'password' => $request->password, 'api_token' => $api_token]);
 
+        $user_type = isset($request->user_type) ? $request->user_type : 1;
+
         $user->update([
             'first_name' => isset($request->first_name) ? $request->first_name : '',
             'last_name' => isset($request->last_name) ? $request->last_name : '',
@@ -367,8 +369,9 @@ class MapiController extends Controller
             'city' => isset($request->city) ? $request->city : '',
             'state' => isset($request->state) ? $request->state : '',
             'zip' => isset($request->zip) ? $request->zip : '',
-            'user_type' => isset($request->user_type) ? $request->user_type : 1,
+            'user_type' => $user_type,
             'is_pending' => isset($request->is_pending) ? $request->is_pending : 0,
+            'quiz_completed' => ($user_type == 2) ? 0 : 1, // Chefs start with quiz_completed = 0
             'verified' => 1,
             'photo' => isset($photo) && $photo != '' ? $photo : '',
         ]);
@@ -466,6 +469,142 @@ class MapiController extends Controller
         app(Listener::class)->where(['id' => $user->id])->update(['api_token' => '']);
         auth()->guard('listener')->logout();
         return response()->json(['success' => 1]);
+    }
+
+    /**
+     * Toggle chef online/offline status
+     *
+     * POST /mapi/toggle_online
+     * Body: {
+     *   "is_online": true/false,
+     *   "online_start": "2025-12-03 14:00:00" (required when is_online = true),
+     *   "online_until": "2025-12-03 17:00:00" (required when is_online = true)
+     * }
+     */
+    public function toggleOnline(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied."]);
+
+        $user = $this->_authUser();
+
+        // Only chefs can toggle online
+        if (!$user || $user->user_type != 2) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Only chefs can toggle online status'
+            ]);
+        }
+
+        $isOnline = $request->input('is_online', false);
+
+        $updateData = [
+            'updated_at' => now()
+        ];
+
+        // Track toggle timestamps
+        if ($isOnline) {
+            // Validate both start and end times are provided
+            $onlineStart = $request->input('online_start');
+            $onlineUntil = $request->input('online_until');
+
+            if (!$onlineStart || !$onlineUntil) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Both online_start and online_until are required when toggling online'
+                ]);
+            }
+
+            $onlineStartTimestamp = strtotime($onlineStart);
+            $onlineUntilTimestamp = strtotime($onlineUntil);
+            $currentTimestamp = time();
+
+            // Validate online_until is after online_start
+            if ($onlineUntilTimestamp <= $onlineStartTimestamp) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'online_until must be after online_start'
+                ]);
+            }
+
+            // Validate online_until is in the future
+            if ($onlineUntilTimestamp <= $currentTimestamp) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'online_until must be a future time'
+                ]);
+            }
+
+            $updateData['online_start'] = $onlineStart;
+            $updateData['online_until'] = $onlineUntil;
+
+            // If start time is now or in the past, toggle online immediately
+            if ($onlineStartTimestamp <= $currentTimestamp) {
+                $updateData['is_online'] = true;
+                $updateData['last_toggled_online_at'] = now();
+            } else {
+                // Start time is in future - schedule for later, but don't go online yet
+                $updateData['is_online'] = false;
+            }
+        } else {
+            // Toggling offline
+            $updateData['is_online'] = false;
+            $updateData['last_toggled_offline_at'] = now();
+            $updateData['online_start'] = null;
+            $updateData['online_until'] = null;
+        }
+
+        app(Listener::class)->where('id', $user->id)->update($updateData);
+
+        $updatedUser = app(Listener::class)->where('id', $user->id)->first();
+
+        // Log for analytics
+        \Log::info('Chef toggled online status', [
+            'chef_id' => $user->id,
+            'is_online' => $updatedUser->is_online,
+            'online_start' => $updatedUser->online_start,
+            'online_until' => $updatedUser->online_until,
+            'timestamp' => now()
+        ]);
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'is_online' => $updatedUser->is_online,
+                'online_start' => $updatedUser->online_start,
+                'online_until' => $updatedUser->online_until,
+                'last_toggled_online_at' => $updatedUser->last_toggled_online_at,
+                'last_toggled_offline_at' => $updatedUser->last_toggled_offline_at,
+            ]
+        ]);
+    }
+
+    /**
+     * Get chef online status
+     *
+     * GET /mapi/get_online_status
+     */
+    public function getOnlineStatus(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied."]);
+
+        $user = $this->_authUser();
+
+        if (!$user) {
+            return response()->json(['success' => 0, 'error' => 'User not found']);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'is_online' => $user->is_online ?? false,
+                'online_start' => $user->online_start,
+                'online_until' => $user->online_until,
+                'last_toggled_online_at' => $user->last_toggled_online_at,
+                'last_toggled_offline_at' => $user->last_toggled_offline_at,
+            ]
+        ]);
     }
 
     private function resizeImage($file, $png = FALSE, $crop = FALSE)
@@ -1691,6 +1830,42 @@ Write only the review text:";
     {
         if ($this->_checktaistApiKey($request->header('apiKey')) === false)
             return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
+
+        // ===== TMA-011: Validate 3-hour minimum window =====
+        $orderDate = $request->order_date;
+        $orderTimestamp = strtotime($orderDate);
+        $currentTimestamp = time();
+        $minimumOrderTime = $currentTimestamp + (3 * 60 * 60); // 3 hours from now
+
+        if ($orderTimestamp < $minimumOrderTime) {
+            $hoursNeeded = ceil(($minimumOrderTime - $orderTimestamp) / 3600);
+            return response()->json([
+                'success' => 0,
+                'error' => "Orders must be placed at least 3 hours in advance. Please select a delivery time at least {$hoursNeeded} hours from now.",
+                'minimum_order_timestamp' => $minimumOrderTime,
+                'requested_timestamp' => $orderTimestamp,
+            ]);
+        }
+
+        // ===== TMA-011: Validate chef online status for same-day orders =====
+        $isSameDayOrder = date('Y-m-d', $orderTimestamp) === date('Y-m-d', $currentTimestamp);
+
+        if ($isSameDayOrder) {
+            $chef = app(Listener::class)->where('id', $request->chef_user_id)->first();
+
+            if (!$chef) {
+                return response()->json(['success' => 0, 'error' => 'Chef not found']);
+            }
+
+            if (!$chef->is_online) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'This chef is not currently accepting same-day orders. Please select a future delivery date or try again later.',
+                    'chef_offline' => true,
+                ]);
+            }
+        }
+        // ===== END TMA-011 VALIDATION =====
 
         $chef_payment_method = app(PaymentMethodListener::class)->where(['user_id' => $request->chef_user_id, 'active' => 1])->first();
         if ($chef_payment_method) {
@@ -3931,6 +4106,54 @@ Write only the review text:";
         } catch (Exception $e) {
             return response()->json(['success' => 0, 'error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Mark chef safety quiz as completed
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function completeChefQuiz(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
+
+        $user_id = $request->get('user_id');
+
+        if (!$user_id) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'User ID is required'
+            ]);
+        }
+
+        $user = Listener::find($user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'User not found'
+            ]);
+        }
+
+        // Verify user is a chef
+        if ($user->user_type != 2) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Only chefs can complete the safety quiz'
+            ]);
+        }
+
+        // Update quiz completion status
+        $user->quiz_completed = 1;
+        $user->save();
+
+        return response()->json([
+            'success' => 1,
+            'message' => 'Quiz completed successfully',
+            'data' => $user
+        ]);
     }
 
 

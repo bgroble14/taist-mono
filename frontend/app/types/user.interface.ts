@@ -14,6 +14,7 @@ export default interface UserInterface {
   longitude?: number;
   user_type?: number;
   is_pending?: number;
+  quiz_completed?: number;
   verified?: number;
   photo?: string;
   social?: string;

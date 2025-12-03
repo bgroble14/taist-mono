@@ -10,6 +10,7 @@ Route::post('login', 'MapiController@login');
 Route::post('forgot', 'MapiController@forgot');
 Route::post('reset_password', 'MapiController@resetpassword');
 Route::post('verify_phone', 'MapiController@verifyPhone');
+Route::post('complete_chef_quiz', 'MapiController@completeChefQuiz');
 Route::get('background_check_order_status', 'MapiController@backgroundCheckOrderStatus');
 Route::get('get-version', 'MapiController@getVersion');
 
@@ -99,6 +100,10 @@ Route::group(['middleware' => ['auth:mapi']], function () {
 	Route::post('create_user', 'MapiController@createUser');
 	Route::post('update_user/{id}', 'MapiController@updateUser');
 	Route::post('remove_user/{id}', 'MapiController@removeUser');
+
+	// Chef online status management
+	Route::post('toggle_online', 'MapiController@toggleOnline');
+	Route::get('get_online_status', 'MapiController@getOnlineStatus');
 
 	// Special functions
 	Route::get('get_search_chefs/{id}', 'MapiController@getSearchChefs');

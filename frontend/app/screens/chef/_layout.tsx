@@ -8,6 +8,8 @@ export default function ChefLayout() {
       <Stack.Screen name="(tabs)" options={{ title: 'Chef Tabs' }} />
       
       {/* Individual chef screens outside of tabs */}
+      <Stack.Screen name="chefWelcome" options={{ title: 'Welcome', animation: 'slide_from_right' }} />
+      <Stack.Screen name="safetyQuiz" options={{ title: 'Safety Quiz', animation: 'slide_from_right' }} />
       <Stack.Screen name="addMenuItem" options={{ title: 'Add Menu Item', animation: 'slide_from_right' }} />
       <Stack.Screen name="addOnCustomization" options={{ title: 'Add Customization', animation: 'slide_from_right' }} />
       <Stack.Screen name="orderDetail" options={{ title: 'Order Detail', animation: 'slide_from_right' }} />

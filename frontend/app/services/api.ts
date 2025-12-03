@@ -788,6 +788,23 @@ export const VerifyPhoneAPI = async (phone_number: string) => {
   return response;
 };
 
+/**
+ * Complete chef safety quiz
+ */
+export const CompleteChefQuizAPI = async (params: {
+  user_id?: number;
+}): Promise<IResponse<IUser>> => {
+  const data = await fetch(MAPI_URL + '/complete_chef_quiz', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apiKey: API_KEY,
+    },
+    body: JSON.stringify(params),
+  });
+  return await data.json();
+};
+
 ///////////////////////////////////////////////////////
 
 const ConvertObjectToFormdata = (obj: any) => {
