@@ -28,6 +28,7 @@ use App\Models\Version;
 use App\Models\DiscountCodes;
 use App\Models\DiscountCodeUsage;
 use App\Notification;
+use App\Services\TwilioService;
 use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -102,25 +103,32 @@ class MapiController extends Controller
 
     private function _sendSMS($user)
     {
-        include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
         $phone = $user->phone;
         $code = $user->code;
         $phone = preg_replace('/\s+/', '', $user->phone);
         $errorMsg = "";
+
+        // Check if Twilio is configured
+        if (!env('TWILIO_SID') || !env('TWILIO_TOKEN') || !env('TWILIO_FROM')) {
+            Log::warning('Twilio credentials not configured. Skipping SMS send.');
+            return "Twilio credentials not configured";
+        }
+
         try {
-            $AccountSid = $Twilio_AccountSid;
-            $AuthToken = $Twilio_AuthToken;
+            $AccountSid = env('TWILIO_SID');
+            $AuthToken = env('TWILIO_TOKEN');
             $msg = "Taist verification code is " . $code;
             $client = new Client($AccountSid, $AuthToken);
             $sms = $client->account->messages->create(
                 $phone,
                 array(
-                    'from' => $Twilio_phone,
+                    'from' => env('TWILIO_FROM'),
                     'body' => $msg
                 )
             );
         } catch (Exception $e) {
             $errorMsg = "Error : " . $e->getMessage();
+            Log::error('Twilio SMS Error: ' . $errorMsg);
         }
 
         return $errorMsg;
@@ -128,23 +136,30 @@ class MapiController extends Controller
 
     private function _sendSMS2($phoneNumber, $code)
     {
-        include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
         $phone = preg_replace('/\s+/', '', $phoneNumber);
         $errorMsg = "";
+
+        // Check if Twilio is configured
+        if (!env('TWILIO_SID') || !env('TWILIO_TOKEN') || !env('TWILIO_FROM')) {
+            Log::warning('Twilio credentials not configured. Skipping SMS send.');
+            return "Twilio credentials not configured";
+        }
+
         try {
-            $AccountSid = $Twilio_AccountSid;
-            $AuthToken = $Twilio_AuthToken;
+            $AccountSid = env('TWILIO_SID');
+            $AuthToken = env('TWILIO_TOKEN');
             $msg = "Taist verification code is " . $code;
             $client = new Client($AccountSid, $AuthToken);
             $sms = $client->account->messages->create(
                 $phone,
                 array(
-                    'from' => $Twilio_phone,
+                    'from' => env('TWILIO_FROM'),
                     'body' => $msg
                 )
             );
         } catch (Exception $e) {
             $errorMsg = "Error : " . $e->getMessage();
+            Log::error('Twilio SMS Error: ' . $errorMsg);
         }
 
         return $errorMsg;
@@ -217,10 +232,36 @@ class MapiController extends Controller
 
     public function verifyPhone(Request $request)
     {
+        // Validate phone number
+        $validator = Validator::make($request->all(), [
+            'phone_number' => 'required|string|min:10'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Invalid phone number'
+            ]);
+        }
+
+        // Generate verification code
         $code = $this->_generateCode();
-        $b = $this->_sendSMS2($request->phone_number, $code);
-        if ($b) return response()->json(['success' => 0, 'error' => $b]);
-        return response()->json(['success' => 1, 'data' => ['code' => $code]]);
+
+        // Send SMS using Twilio service
+        $twilioService = new TwilioService();
+        $result = $twilioService->sendVerificationCode($request->phone_number, $code);
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => 0,
+                'error' => $result['error']
+            ]);
+        }
+
+        return response()->json([
+            'success' => 1,
+            'data' => ['code' => $code]
+        ]);
     }
 
     /** Push Notification */
@@ -1649,9 +1690,8 @@ Write only the review text:";
 
         $chef_payment_method = app(PaymentMethodListener::class)->where(['user_id' => $request->chef_user_id, 'active' => 1])->first();
         if ($chef_payment_method) {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             $stripe_account_info = $stripe->accounts->retrieve($chef_payment_method->stripe_account_id, []);
             //return response()->json(['success' => 0, 'data' => $stripe_account_info]);          
@@ -1721,8 +1761,8 @@ Write only the review text:";
             'discount_code' => $discountCode,
             'discount_amount' => $discountAmount,
             'subtotal_before_discount' => $subtotalBeforeDiscount,
-            // Chef acceptance deadline - 1 hour (3600 seconds) from order creation
-            'acceptance_deadline' => (string)($currentTimestamp + 3600),
+            // Chef acceptance deadline - 30 minutes (1800 seconds) from order creation
+            'acceptance_deadline' => (string)($currentTimestamp + 1800),
             'created_at' => $currentTimestamp,
             'updated_at' => now(),
         ];
@@ -2949,10 +2989,7 @@ Write only the review text:";
 
     private function sendBackgroundCheckRequest($uri, $postData, $method = 'POST')
     {
-
-        include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
-
-        $password = $SafeScreenerPassword;
+        $password = env('SAFESCREENER_PASSWORD');
         $mode = 'stag';
 
         if ($mode == 'prod') {
@@ -2995,8 +3032,6 @@ Write only the review text:";
 
         Log::info('thisss', $request->toArray());
 
-        include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
-
         if ($this->_checktaistApiKey($request->header('apiKey')) === false)
             return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
         else if ($this->_checktaistApiKey($request->header('apiKey')) === -1)
@@ -3019,7 +3054,7 @@ Write only the review text:";
         $ssn = substr($ssn,  0,  3) . "-" . substr($ssn,  3,  2) . "-" . substr($ssn,  5,  4);
 
 
-        $api_key = $SafeScreenerGUID;
+        $api_key = env('SAFESCREENER_GUID');
         $candidate_id = $user->applicant_guid;
 
         if ($candidate_id) return response()->json(['success' => 0, 'error' => "You have already applied for your background check."]);
@@ -3067,7 +3102,7 @@ Write only the review text:";
 
         if ($candidate_id) {
             $invitation_array = array(
-                'clientProductGuid' => $SafeScreenerPackage,
+                'clientProductGuid' => env('SAFESCREENER_PACKAGE'),
                 'applicantGuid' => $candidate_id,
                 'certifyPermissiblePurpose' => true,
                 'useQuickApp' => true,
@@ -3097,10 +3132,7 @@ Write only the review text:";
 
     public function backgroundCheckOrderStatus(Request $request)
     {
-
-        include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
-
-        $api_key = $SafeScreenerGUID;
+        $api_key = env('SAFESCREENER_GUID');
 
         $pendingChefs = app(Listener::class)->where(['user_type' => 2, 'is_pending' => 1])->where('order_guid', '<>', '')->get();
 
@@ -3126,9 +3158,8 @@ Write only the review text:";
         $user = $this->_authUser();
 
         try {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             $customers = $stripe->customers->all(['email' => $user->email]);
             $customer = null;
@@ -3230,9 +3261,8 @@ Write only the review text:";
         $errorMsg = "";
         $user = $this->_authUser();
         try {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             $customers = $stripe->customers->all(['email' => $user->email]);
             $customer = null;
@@ -3287,9 +3317,8 @@ Write only the review text:";
         $errorMsg = "";
         // $emailResponse;
         try {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             $account = $stripe->accounts->create([
                 'email' => $email,
@@ -3381,10 +3410,9 @@ Write only the review text:";
         $errorMsg = "";
 
         try {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
 
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             // Retrieve customer from Stripe
             $customers = $stripe->customers->all(['email' => $user->email]);
@@ -3495,9 +3523,8 @@ Write only the review text:";
         $refundStripeId = null;
         
         try {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             $order = app(Orders::class)->where('id', $request->order_id)->first();
             
@@ -3604,9 +3631,8 @@ Write only the review text:";
         $refundStripeId = null;
         
         try {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             $order = app(Orders::class)->where('id', $request->order_id)->first();
             
@@ -3684,9 +3710,8 @@ Write only the review text:";
 
         $errorMsg = "";
         try {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             // Check if customer exists in Stripe
             $customers = $stripe->customers->all(['email' => $order->customer_email]);
@@ -3742,9 +3767,8 @@ Write only the review text:";
 
         $errorMsg = "";
         try {
-            include $_SERVER['DOCUMENT_ROOT'] . '/include/config.php';
             require_once('../stripe-php/init.php');
-            $stripe = new \Stripe\StripeClient($stripe_key);
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
             $customers = $stripe->customers->all(['email' => $user->email]);
             $customer = null;
