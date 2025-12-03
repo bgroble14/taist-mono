@@ -1454,7 +1454,7 @@ const AddMenuItem = () => {
           onChangeText={setDescription}
           multiline
           numberOfLines={4}
-          placeholder="Describe your dish..."
+          placeholder="Describe your menu offering..."
         />
         <TouchableOpacity
           style={styles.aiButton}

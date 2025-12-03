@@ -579,6 +579,25 @@ export const GetMenuAPI = async (params: { id: number }, dispatch?: any) => {
   return response;
 };
 
+// AI-powered menu helpers
+export const GenerateMenuDescriptionAPI = async (params: { dish_name: string }) => {
+  const response = await POSTAPICALL("generate-menu-description", params);
+  return response;
+};
+
+export const EnhanceMenuDescriptionAPI = async (params: { description: string }) => {
+  const response = await POSTAPICALL("enhance-menu-description", params);
+  return response;
+};
+
+export const AnalyzeMenuMetadataAPI = async (params: {
+  dish_name: string;
+  description: string;
+}) => {
+  const response = await POSTAPICALL("analyze-menu-metadata", params);
+  return response;
+};
+
 export const CreateCustomizationAPI = async (
   params: IMenuCustomization,
   dispatch?: any

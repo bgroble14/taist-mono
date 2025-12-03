@@ -73,7 +73,7 @@ export const StepMenuItemCategories: React.FC<StepMenuItemCategoriesProps> = ({
     >
       <View>
         <Text style={styles.sectionTitle}>Select Categories *</Text>
-        <Text style={styles.sectionSubtitle}>Choose one or more categories that best describe your dish</Text>
+        <Text style={styles.sectionSubtitle}>Choose one or more categories that best describe your menu offering</Text>
         <View style={styles.tabContainer}>
           {categories.map((category, idx) => {
             const isSelected = categoryIds.includes(category.id ?? 0);

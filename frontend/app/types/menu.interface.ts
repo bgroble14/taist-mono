@@ -16,4 +16,12 @@ export default interface MenuInterface {
   customizations?: Array<IMenuCustomization>;
   created_at?: number;
   updated_at?: number;
+
+  // AI-generated fields (used for UI state, not sent to backend)
+  ai_generated_description?: string;
+  description_edited?: boolean;
+  price_string?: string;
+  completion_time_id?: string;
+  is_new_category?: boolean;
+  new_category_name?: string;
 }

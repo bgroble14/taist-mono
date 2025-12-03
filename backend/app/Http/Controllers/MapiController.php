@@ -1114,6 +1114,464 @@ class MapiController extends Controller
         return response()->json(['success' => 1, 'data' => $data]);
     }
 
+    /**
+     * Generate AI description for menu item
+     */
+    public function generateMenuDescription(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
+
+        $user = $this->_authUser();
+
+        try {
+            $openAI = new \App\Services\OpenAIService();
+
+            $dishName = $request->dish_name ?? '';
+
+            if (empty($dishName)) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Dish name is required'
+                ]);
+            }
+
+            $prompt = "You are a professional food writer for Taist, a personal chef marketplace.
+
+Write a concise, professional menu description for: {$dishName}
+
+REQUIREMENTS:
+- Perfect spelling and grammar
+- 1 sentence, 100-150 characters maximum
+- List main components: protein, base, vegetables, sauce/garnish
+- Specific cooking methods (grilled, roasted, pan-seared, baked)
+- NO flowery language (no \"divine,\" \"heavenly,\" \"succulent,\" \"timeless,\" \"classic reimagined\")
+- Sound like a real chef, not a marketing copywriter
+
+GOOD EXAMPLES:
+✓ \"Grilled lemon-garlic chicken over turmeric quinoa with roasted vegetables, avocado, tahini-lime drizzle, and microgreens.\"
+✓ \"Pan-seared salmon with herb butter over garlic mashed potatoes and charred broccolini.\"
+
+BAD EXAMPLES:
+✗ \"A timeless classic reimagined: tender chicken lightly breaded and sautéed to a crisp, crowned with melted mozzarella\" (too flowery, too long)
+✗ \"Chicken and rice\" (too plain)
+
+Write only the description:";
+
+            $result = $openAI->chat(
+                $prompt,
+                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                ['temperature' => 0.7, 'max_tokens' => 200]
+            );
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => 1,
+                    'description' => trim($result['content'])
+                ]);
+            } else {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Failed to generate description'
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Generate Menu Description Error', [
+                'message' => $e->getMessage(),
+                'dish_name' => $request->dish_name
+            ]);
+
+            return response()->json([
+                'success' => 0,
+                'error' => 'An error occurred while generating description'
+            ]);
+        }
+    }
+
+    /**
+     * Enhance/correct menu description (spell check, grammar)
+     */
+    public function enhanceMenuDescription(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
+
+        $user = $this->_authUser();
+
+        try {
+            $openAI = new \App\Services\OpenAIService();
+
+            $description = $request->description ?? '';
+
+            if (empty($description)) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Description is required'
+                ]);
+            }
+
+            $prompt = "You are a professional editor for Taist, a personal chef marketplace. Your job is to fix any errors while maintaining the chef's voice.
+
+ORIGINAL DESCRIPTION:
+{$description}
+
+YOUR TASK:
+1. Fix ALL spelling errors
+2. Fix ALL grammar mistakes
+3. Fix ALL punctuation errors
+4. Ensure proper capitalization
+5. Make it sound professional but keep the original meaning
+6. If it's too casual or has slang, make it more professional
+7. If it's missing key details, keep what's there but ensure it reads well
+
+DO NOT:
+- Add flowery language that wasn't there
+- Change the core ingredients or dish description
+- Add information the chef didn't provide
+- Make it overly formal or stuffy
+
+Output ONLY the corrected description, nothing else:";
+
+            $result = $openAI->chat(
+                $prompt,
+                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                ['temperature' => 0.3, 'max_tokens' => 200]
+            );
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => 1,
+                    'enhanced_description' => trim($result['content'])
+                ]);
+            } else {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Failed to enhance description'
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Enhance Menu Description Error', [
+                'message' => $e->getMessage(),
+                'description' => $request->description
+            ]);
+
+            return response()->json([
+                'success' => 0,
+                'error' => 'An error occurred while enhancing description'
+            ]);
+        }
+    }
+
+    /**
+     * Analyze menu description and suggest metadata
+     */
+    public function analyzeMenuMetadata(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
+
+        $user = $this->_authUser();
+
+        try {
+            $openAI = new \App\Services\OpenAIService();
+
+            $dishName = $request->dish_name ?? '';
+            $description = $request->description ?? '';
+
+            if (empty($dishName) || empty($description)) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Dish name and description are required'
+                ]);
+            }
+
+            // Get appliances, allergens, and categories from database
+            $appliances = app(Appliances::class)->select('id', 'name')->get();
+            $allergens = app(Allergens::class)->select('id', 'name')->get();
+            $categories = app(Categories::class)->select('id', 'name')->get();
+
+            $appliancesJson = json_encode($appliances);
+            $allergensJson = json_encode($allergens);
+            $categoriesJson = json_encode($categories);
+
+            $prompt = "Based on this menu item, provide estimates in JSON format.
+
+Dish: {$dishName}
+Description: {$description}
+
+Provide:
+1. estimated_time: prep + cook time in minutes (choose from: 15, 30, 45, 60, 90, 120)
+2. appliance_ids: array of appliance IDs needed. Available: {$appliancesJson}
+3. allergen_ids: array of allergen IDs present. Available: {$allergensJson}
+4. category_ids: array of category IDs that fit this dish. Available: {$categoriesJson}
+
+Make safe, reasonable guesses based on the dish name and description. If unsure, make your best educated guess.
+
+Respond ONLY with valid JSON:
+{
+  \"estimated_time\": 60,
+  \"appliance_ids\": [1, 3],
+  \"allergen_ids\": [2, 5],
+  \"category_ids\": [7]
+}";
+
+            $result = $openAI->chat(
+                $prompt,
+                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                ['temperature' => 0.3, 'max_tokens' => 150]
+            );
+
+            if ($result['success']) {
+                // Parse the JSON response
+                $content = trim($result['content']);
+
+                // Remove markdown code blocks if present
+                $content = preg_replace('/```json\s*/', '', $content);
+                $content = preg_replace('/```\s*/', '', $content);
+                $content = trim($content);
+
+                $metadata = json_decode($content, true);
+
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    Log::error('JSON Parse Error in analyzeMenuMetadata', [
+                        'content' => $content,
+                        'error' => json_last_error_msg()
+                    ]);
+                    return response()->json([
+                        'success' => 0,
+                        'error' => 'Failed to parse AI response'
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => 1,
+                    'metadata' => [
+                        'estimated_time' => $metadata['estimated_time'] ?? 60,
+                        'appliance_ids' => $metadata['appliance_ids'] ?? [],
+                        'allergen_ids' => $metadata['allergen_ids'] ?? [],
+                        'category_ids' => $metadata['category_ids'] ?? []
+                    ]
+                ]);
+            } else {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Failed to analyze metadata'
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Analyze Menu Metadata Error', [
+                'message' => $e->getMessage(),
+                'dish_name' => $request->dish_name
+            ]);
+
+            return response()->json([
+                'success' => 0,
+                'error' => 'An error occurred while analyzing metadata'
+            ]);
+        }
+    }
+
+    /**
+     * Generate 3 AI reviews based on an authentic review
+     * Called automatically when a new authentic review is created
+     */
+    public function generateAIReviews(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
+
+        $user = $this->_authUser();
+
+        try {
+            $reviewId = $request->review_id ?? null;
+
+            if (!$reviewId) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Review ID is required'
+                ]);
+            }
+
+            // Get the authentic review
+            $authenticReview = app(Reviews::class)->find($reviewId);
+
+            if (!$authenticReview) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Review not found'
+                ]);
+            }
+
+            if ($authenticReview->source === 'ai_generated') {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Cannot generate AI reviews from an AI review'
+                ]);
+            }
+
+            // Check if AI reviews already exist for this review
+            $existingAI = app(Reviews::class)
+                ->where('parent_review_id', $reviewId)
+                ->count();
+
+            if ($existingAI >= 3) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'AI reviews already generated for this review'
+                ]);
+            }
+
+            $openAI = new \App\Services\OpenAIService();
+
+            // Generate 3 unique AI reviews with different characteristics
+            $generatedReviews = [];
+            $variants = [
+                ['focus' => 'food_quality', 'length' => 'short'],
+                ['focus' => 'presentation_service', 'length' => 'medium'],
+                ['focus' => 'overall_experience', 'length' => 'medium']
+            ];
+
+            foreach ($variants as $index => $variant) {
+                $prompt = $this->buildAIReviewPrompt(
+                    $authenticReview->rating,
+                    $authenticReview->review,
+                    $variant['focus'],
+                    $variant['length']
+                );
+
+                $result = $openAI->chat(
+                    $prompt,
+                    \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                    ['max_tokens' => 150]
+                );
+
+                if ($result['success']) {
+                    $aiReviewText = trim($result['content']);
+
+                    // Create AI review record
+                    $aiReview = app(Reviews::class)->create([
+                        'order_id' => $authenticReview->order_id,
+                        'from_user_id' => $authenticReview->from_user_id,
+                        'to_user_id' => $authenticReview->to_user_id,
+                        'rating' => $this->varyRating($authenticReview->rating),
+                        'review' => $aiReviewText,
+                        'tip_amount' => 0,
+                        'source' => 'ai_generated',
+                        'parent_review_id' => $reviewId,
+                        'ai_generation_params' => json_encode([
+                            'model' => 'gpt-5-nano',
+                            'variant' => $index + 1,
+                            'focus' => $variant['focus'],
+                            'length' => $variant['length'],
+                            'generated_at' => time()
+                        ]),
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ]);
+
+                    $generatedReviews[] = $aiReview;
+                }
+            }
+
+            return response()->json([
+                'success' => 1,
+                'message' => 'Generated ' . count($generatedReviews) . ' AI reviews',
+                'reviews' => $generatedReviews
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Generate AI Reviews Error', [
+                'message' => $e->getMessage(),
+                'review_id' => $request->review_id
+            ]);
+
+            return response()->json([
+                'success' => 0,
+                'error' => 'An error occurred while generating AI reviews'
+            ]);
+        }
+    }
+
+    /**
+     * Build AI review prompt based on authentic review
+     */
+    private function buildAIReviewPrompt($rating, $reviewText, $focus, $length)
+    {
+        $ratingDescription = $this->getRatingDescription($rating);
+        $lengthGuide = $length === 'short' ? '40-70 characters' : '70-100 characters';
+
+        $focusInstructions = [
+            'food_quality' => 'Focus on taste, flavors, ingredients, and cooking technique.',
+            'presentation_service' => 'Focus on plating, presentation, and chef professionalism.',
+            'overall_experience' => 'Focus on overall satisfaction and value for money.'
+        ];
+
+        return "You are writing a {$ratingDescription} customer review for a personal chef on Taist.
+
+AUTHENTIC REVIEW (as reference):
+Rating: {$rating}/5 stars
+Review: \"{$reviewText}\"
+
+YOUR TASK:
+Write a NEW, UNIQUE review that feels natural and authentic. DO NOT copy the original review.
+
+REQUIREMENTS:
+- {$lengthGuide} maximum
+- Match the {$rating}-star rating sentiment ({$ratingDescription})
+- {$focusInstructions[$focus]}
+- Sound like a real customer, not AI
+- Be specific but varied from the original review
+- NO flowery language (no \"divine,\" \"heavenly,\" \"exquisite,\" \"timeless\")
+- NO generic phrases (\"good food,\" \"nice meal,\" \"great experience\")
+
+GOOD EXAMPLES (for 5-star):
+✓ \"The grilled chicken was perfectly seasoned and the sides were fresh. Great meal!\"
+✓ \"Loved the presentation and flavors. Chef really knows what they're doing.\"
+✓ \"Fresh ingredients, excellent cooking. Would definitely order again.\"
+
+BAD EXAMPLES:
+✗ \"Amazing food, would order again!\" (too generic)
+✗ \"A divine culinary masterpiece\" (too flowery)
+✗ Just repeating the original review (must be unique)
+
+Write only the review text:";
+    }
+
+    /**
+     * Get rating description for prompt
+     */
+    private function getRatingDescription($rating)
+    {
+        if ($rating >= 4.5) return 'very positive';
+        if ($rating >= 4.0) return 'positive';
+        if ($rating >= 3.0) return 'neutral to positive';
+        if ($rating >= 2.0) return 'mixed';
+        return 'critical';
+    }
+
+    /**
+     * Slightly vary the rating to add realism
+     * 5-star → 4.5-5.0
+     * 4-star → 3.5-4.5
+     * Variance adds authenticity without changing sentiment
+     */
+    private function varyRating($originalRating)
+    {
+        // Add small random variance (-0.5 to +0.5)
+        $variance = (rand(0, 10) / 20); // 0 to 0.5
+        $direction = rand(0, 1) ? 1 : -1;
+
+        $newRating = $originalRating + ($direction * $variance);
+
+        // Keep within 1-5 range
+        $newRating = max(1, min(5, $newRating));
+
+        // Round to nearest 0.5
+        $newRating = round($newRating * 2) / 2;
+
+        return $newRating;
+    }
+
     public function removeMenu(Request $request, $id = "")
     {
         if ($this->_checktaistApiKey($request->header('apiKey')) === false)
@@ -1439,6 +1897,9 @@ class MapiController extends Controller
             'rating' => $request->rating,
             'review' => $request->review,
             'tip_amount' => $request->tip_amount,
+            'source' => 'authentic',  // Mark as authentic customer review
+            'parent_review_id' => null,
+            'ai_generation_params' => null,
             'created_at' => now(),
             'updated_at' => now(),
         ];
@@ -1446,7 +1907,88 @@ class MapiController extends Controller
         $id = app(Reviews::class)->insertGetId($ary);
 
         $data = app(Reviews::class)->where(['id' => $id])->first();
+
+        // Trigger AI review generation asynchronously (don't block review creation)
+        try {
+            // Call internal method to generate AI reviews
+            $this->generateAIReviewsInternal($id);
+        } catch (\Exception $e) {
+            // Log warning but don't fail the authentic review creation
+            Log::warning('AI review generation failed for review ID: ' . $id, [
+                'error' => $e->getMessage()
+            ]);
+        }
+
         return response()->json(['success' => 1, 'data' => $data]);
+    }
+
+    /**
+     * Internal helper to generate AI reviews (called from createReview)
+     * Reuses the same logic as generateAIReviews endpoint
+     */
+    private function generateAIReviewsInternal($reviewId)
+    {
+        $authenticReview = app(Reviews::class)->find($reviewId);
+
+        if (!$authenticReview || $authenticReview->source === 'ai_generated') {
+            return; // Silently skip if review not found or already AI
+        }
+
+        // Check if AI reviews already exist
+        $existingAI = app(Reviews::class)
+            ->where('parent_review_id', $reviewId)
+            ->count();
+
+        if ($existingAI >= 3) {
+            return; // Already generated
+        }
+
+        $openAI = new \App\Services\OpenAIService();
+
+        $variants = [
+            ['focus' => 'food_quality', 'length' => 'short'],
+            ['focus' => 'presentation_service', 'length' => 'medium'],
+            ['focus' => 'overall_experience', 'length' => 'medium']
+        ];
+
+        foreach ($variants as $index => $variant) {
+            $prompt = $this->buildAIReviewPrompt(
+                $authenticReview->rating,
+                $authenticReview->review,
+                $variant['focus'],
+                $variant['length']
+            );
+
+            $result = $openAI->chat(
+                $prompt,
+                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                ['max_tokens' => 150]
+            );
+
+            if ($result['success']) {
+                $aiReviewText = trim($result['content']);
+
+                app(Reviews::class)->create([
+                    'order_id' => $authenticReview->order_id,
+                    'from_user_id' => $authenticReview->from_user_id,
+                    'to_user_id' => $authenticReview->to_user_id,
+                    'rating' => $this->varyRating($authenticReview->rating),
+                    'review' => $aiReviewText,
+                    'tip_amount' => 0,
+                    'source' => 'ai_generated',
+                    'parent_review_id' => $reviewId,
+                    'ai_generation_params' => json_encode([
+                        'model' => 'gpt-5-nano',
+                        'variant' => $index + 1,
+                        'focus' => $variant['focus'],
+                        'length' => $variant['length'],
+                        'generated_at' => time()
+                    ]),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+        }
     }
 
     public function updateReview(Request $request, $id = "")

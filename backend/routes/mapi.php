@@ -60,6 +60,11 @@ Route::group(['middleware' => ['auth:mapi']], function () {
 	Route::post('update_menu/{id}', 'MapiController@updateMenu');
 	Route::post('remove_menu/{id}', 'MapiController@removeMenu');
 
+	// AI-powered menu helpers
+	Route::post('generate-menu-description', 'MapiController@generateMenuDescription');
+	Route::post('enhance-menu-description', 'MapiController@enhanceMenuDescription');
+	Route::post('analyze-menu-metadata', 'MapiController@analyzeMenuMetadata');
+
 	Route::get('get_orders', 'MapiController@getOrders');
 	Route::get('get_order/{id}', 'MapiController@getOrder');
 	Route::get('get_order_data/{id}', 'MapiController@getOrderData');
@@ -75,6 +80,7 @@ Route::group(['middleware' => ['auth:mapi']], function () {
 	Route::post('create_review', 'MapiController@createReview');
 	Route::post('update_review/{id}', 'MapiController@updateReview');
 	Route::post('remove_review/{id}', 'MapiController@removeReview');
+	Route::post('generate-ai-reviews', 'MapiController@generateAIReviews');
 
 	Route::get('get_tickets', 'MapiController@getTickets');
 	Route::get('get_ticket/{id}', 'MapiController@getTicket');

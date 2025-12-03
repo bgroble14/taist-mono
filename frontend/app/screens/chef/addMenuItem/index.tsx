@@ -14,7 +14,8 @@ import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import {
   CreateCategoryAPI,
   CreateMenuAPI,
-  UpdateMenuAPI
+  UpdateMenuAPI,
+  AnalyzeMenuMetadataAPI
 } from '../../../services/api';
 import { ShowErrorToast, ShowSuccessToast } from '../../../utils/toast';
 import { styles } from './styles';
@@ -102,6 +103,57 @@ const AddMenuItem = () => {
   // Update menu item data
   const handleUpdateMenuItemData = (updates: Partial<IMenu>) => {
     setMenuItemData({ ...menuItemData, ...updates });
+  };
+
+  // Auto-populate metadata using AI analysis
+  const analyzeAndPopulateMetadata = async () => {
+    if (!menuItemData.title || !menuItemData.description) return;
+
+    try {
+      const response = await AnalyzeMenuMetadataAPI({
+        dish_name: menuItemData.title,
+        description: menuItemData.description
+      });
+
+      if (response.success === 1 && response.metadata) {
+        const updates: Partial<IMenu> = {};
+
+        // Only update if user hasn't manually set these
+        if (!menuItemData.estimated_time && response.metadata.estimated_time) {
+          updates.estimated_time = response.metadata.estimated_time;
+
+          // Also set completion_time_id for UI
+          const completionTimes = [
+            { id: '6', m: 15 },
+            { id: '5', m: 30 },
+            { id: '4', m: 45 },
+            { id: '3', m: 60 },
+            { id: '2', m: 90 },
+            { id: '1', m: 120 },
+          ];
+          const match = completionTimes.find(ct => ct.m === response.metadata.estimated_time);
+          if (match) updates.completion_time_id = match.id;
+        }
+
+        if ((!menuItemData.appliances || (Array.isArray(menuItemData.appliances) && menuItemData.appliances.length === 0)) && response.metadata.appliance_ids?.length) {
+          updates.appliances = response.metadata.appliance_ids as any;
+        }
+
+        if ((!menuItemData.allergens || (Array.isArray(menuItemData.allergens) && menuItemData.allergens.length === 0)) && response.metadata.allergen_ids?.length) {
+          updates.allergens = response.metadata.allergen_ids as any;
+        }
+
+        if ((!menuItemData.category_ids || (Array.isArray(menuItemData.category_ids) && menuItemData.category_ids.length === 0)) && response.metadata.category_ids?.length) {
+          updates.category_ids = response.metadata.category_ids as any;
+        }
+
+        if (Object.keys(updates).length > 0) {
+          handleUpdateMenuItemData(updates);
+        }
+      }
+    } catch (error) {
+      console.log('Metadata analysis failed, skipping', error);
+    }
   };
 
   // Complete menu item creation/update
@@ -196,7 +248,10 @@ const AddMenuItem = () => {
           <StepMenuItemDescription
             menuItemData={menuItemData}
             onUpdateMenuItemData={handleUpdateMenuItemData}
-            onNext={() => setStep(3)}
+            onNext={async () => {
+              await analyzeAndPopulateMetadata();
+              setStep(3);
+            }}
             onBack={() => setStep(1)}
           />
         );

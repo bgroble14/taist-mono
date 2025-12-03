@@ -84,6 +84,7 @@ Fully configured with test data:
 |-----|---------|
 | [LOCAL-DEV-QUICKSTART.md](./LOCAL-DEV-QUICKSTART.md) | Quick commands & troubleshooting |
 | [LOCAL-DEVELOPMENT-GUIDE.md](./LOCAL-DEVELOPMENT-GUIDE.md) | Complete setup guide |
+| [AI-FEATURES-README.md](./AI-FEATURES-README.md) | **AI menu descriptions & review generation** |
 | [backend/README.md](./backend/README.md) | Backend API details |
 | [frontend/README.md](./frontend/README.md) | Frontend app details |
 | [sprint-tasks.md](./sprint-tasks.md) | Current sprint tasks |
@@ -138,6 +139,8 @@ See [troubleshooting guide](./LOCAL-DEVELOPMENT-GUIDE.md#-troubleshooting) for m
 See [sprint-tasks.md](./sprint-tasks.md) for active tasks.
 
 **Recent completions**:
+- ✅ AI menu descriptions & grammar enhancement
+- ✅ AI review generation (3 per authentic review)
 - ✅ TMA-002: Multi-step customer signup
 - ✅ Address collection at checkout
 - ✅ Local development environment with test data

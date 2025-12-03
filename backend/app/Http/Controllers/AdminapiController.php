@@ -269,10 +269,154 @@ class AdminapiController extends Controller
         ]);
 
         return response()->json([
-            'success' => 1, 
+            'success' => 1,
             'data' => $order,
             'message' => 'Order cancelled successfully'
         ]);
+    }
+
+    /**
+     * Admin creates an authentic "seed" review for a chef
+     * Used to bootstrap new chefs with initial reviews
+     * Automatically generates 3 AI reviews based on this review
+     */
+    public function createAuthenticReview(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'to_user_id' => 'required|integer|exists:tbl_users,id',
+                'rating' => 'required|numeric|min:1|max:5',
+                'review' => 'required|string|min:20|max:500',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => $validator->errors()->first()
+                ]);
+            }
+
+            // Create authentic review (admin-created)
+            $review = app(Reviews::class)->create([
+                'order_id' => 0, // Admin-created, no associated order
+                'from_user_id' => 0, // Anonymous customer
+                'to_user_id' => $request->to_user_id,
+                'rating' => $request->rating,
+                'review' => $request->review,
+                'tip_amount' => 0,
+                'source' => 'admin_created',
+                'parent_review_id' => null,
+                'ai_generation_params' => null,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Automatically generate 3 AI reviews based on this
+            $generatedReviews = [];
+
+            if ($request->generate_ai !== false) { // Default to true
+                $openAI = new \App\Services\OpenAIService();
+
+                $variants = [
+                    ['focus' => 'food_quality', 'length' => 'short'],
+                    ['focus' => 'presentation_service', 'length' => 'medium'],
+                    ['focus' => 'overall_experience', 'length' => 'medium']
+                ];
+
+                foreach ($variants as $index => $variant) {
+                    // Build prompt
+                    $ratingDescription = $review->rating >= 4.5 ? 'very positive' :
+                                       ($review->rating >= 4.0 ? 'positive' :
+                                       ($review->rating >= 3.0 ? 'neutral to positive' :
+                                       ($review->rating >= 2.0 ? 'mixed' : 'critical')));
+
+                    $lengthGuide = $variant['length'] === 'short' ? '40-70 characters' : '70-100 characters';
+
+                    $focusInstructions = [
+                        'food_quality' => 'Focus on taste, flavors, ingredients, and cooking technique.',
+                        'presentation_service' => 'Focus on plating, presentation, and chef professionalism.',
+                        'overall_experience' => 'Focus on overall satisfaction and value for money.'
+                    ];
+
+                    $prompt = "You are writing a {$ratingDescription} customer review for a personal chef on Taist.
+
+AUTHENTIC REVIEW (as reference):
+Rating: {$review->rating}/5 stars
+Review: \"{$review->review}\"
+
+YOUR TASK:
+Write a NEW, UNIQUE review that feels natural and authentic. DO NOT copy the original review.
+
+REQUIREMENTS:
+- {$lengthGuide} maximum
+- Match the {$review->rating}-star rating sentiment ({$ratingDescription})
+- {$focusInstructions[$variant['focus']]}
+- Sound like a real customer, not AI
+- Be specific but varied from the original review
+- NO flowery language (no \"divine,\" \"heavenly,\" \"exquisite,\" \"timeless\")
+- NO generic phrases (\"good food,\" \"nice meal,\" \"great experience\")
+
+Write only the review text:";
+
+                    $result = $openAI->chat(
+                        $prompt,
+                        \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                        ['max_tokens' => 150]
+                    );
+
+                    if ($result['success']) {
+                        $aiReviewText = trim($result['content']);
+
+                        // Vary rating slightly
+                        $variance = (rand(0, 10) / 20);
+                        $direction = rand(0, 1) ? 1 : -1;
+                        $newRating = $review->rating + ($direction * $variance);
+                        $newRating = max(1, min(5, $newRating));
+                        $newRating = round($newRating * 2) / 2;
+
+                        $aiReview = app(Reviews::class)->create([
+                            'order_id' => 0,
+                            'from_user_id' => 0,
+                            'to_user_id' => $request->to_user_id,
+                            'rating' => $newRating,
+                            'review' => $aiReviewText,
+                            'tip_amount' => 0,
+                            'source' => 'ai_generated',
+                            'parent_review_id' => $review->id,
+                            'ai_generation_params' => json_encode([
+                                'model' => 'gpt-5-nano',
+                                'variant' => $index + 1,
+                                'focus' => $variant['focus'],
+                                'length' => $variant['length'],
+                                'generated_at' => time()
+                            ]),
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'updated_at' => date('Y-m-d H:i:s')
+                        ]);
+
+                        $generatedReviews[] = $aiReview;
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => 1,
+                'message' => 'Authentic review created' . (count($generatedReviews) > 0 ? ' with ' . count($generatedReviews) . ' AI variants' : ''),
+                'review' => $review,
+                'ai_reviews' => $generatedReviews
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Create Authentic Review Error', [
+                'message' => $e->getMessage(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => 0,
+                'error' => 'An error occurred while creating review'
+            ]);
+        }
     }
 
 

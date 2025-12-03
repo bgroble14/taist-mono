@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Image, Linking, LogBox, Platform, Pressable, SafeAreaView, Text, View } from 'react-native';
+import Constants from 'expo-constants';
 
 // Types & Services
 // Note: NavigationStackType is not needed with Expo Router
@@ -94,11 +95,31 @@ const Splash = () => {
     }, 2000);
   }, []);
 
-  const CURRENT_VERSION = '28.0.3';
-  const REQUIRED_VERSION = '28.0.3';
+  // Get version from app.json dynamically
+  const CURRENT_VERSION = Constants.expoConfig?.version || '28.0.3';
+  // Get environment to skip version check in local development
+  const APP_ENV = Constants.expoConfig?.extra?.APP_ENV || 'production';
 
   const autoLogin = async () => {
     try {
+      // Skip version check in local development
+      if (APP_ENV === 'local') {
+        console.log('Local development mode: Skipping version check');
+        const loginData = await ReadLoginData();
+        if (loginData == null) {
+          setSplash(false);
+          return;
+        } else {
+          // Navigate to appropriate home screen based on user role
+          if (loginData?.role == 1) {
+            navigate.toCustomer.home();
+          } else {
+            navigate.toChef.home();
+          }
+        }
+        return;
+      }
+
       const versionResponse = await GETVERSIONAPICALL();
       console.log('Version API Response:', versionResponse);
 

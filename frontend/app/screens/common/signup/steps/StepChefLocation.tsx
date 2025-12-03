@@ -260,12 +260,6 @@ export const StepChefLocation: React.FC<StepChefLocationProps> = ({
         autoComplete="postal-code"
       />
 
-      <View style={styles.infoBox}>
-        <Text style={styles.infoText}>
-          🏠 This address will be used to verify your location for food safety compliance
-        </Text>
-      </View>
-
       <View style={styles.buttonContainer}>
         <StyledButton
           title="Continue"
@@ -346,18 +340,6 @@ const styles = StyleSheet.create({
   dropdownText: {
     fontSize: 16,
     color: AppColors.text,
-  },
-  infoBox: {
-    backgroundColor: AppColors.primary + '10',
-    borderRadius: 12,
-    padding: Spacing.md,
-    borderLeftWidth: 4,
-    borderLeftColor: AppColors.primary,
-  },
-  infoText: {
-    fontSize: 14,
-    color: AppColors.textSecondary,
-    lineHeight: 20,
   },
   buttonContainer: {
     gap: Spacing.md,

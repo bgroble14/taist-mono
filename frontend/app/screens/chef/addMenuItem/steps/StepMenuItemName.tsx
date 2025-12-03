@@ -1,11 +1,12 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { MenuItemStepContainer } from '../components/MenuItemStepContainer';
 import { AppColors, Spacing } from '../../../../../constants/theme';
 import { IMenu } from '../../../../types/index';
 import { ShowErrorToast } from '../../../../utils/toast';
 import StyledTextInput from '../../../../components/styledTextInput';
 import StyledButton from '../../../../components/styledButton';
+import { GenerateMenuDescriptionAPI } from '../../../../services/api';
 
 interface StepMenuItemNameProps {
   menuItemData: Partial<IMenu>;
@@ -20,19 +21,38 @@ export const StepMenuItemName: React.FC<StepMenuItemNameProps> = ({
   onNext,
   onBack,
 }) => {
-  const validateAndProceed = () => {
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+
+  const validateAndProceed = async () => {
     // Validate name
     if (!menuItemData.title || menuItemData.title.trim().length === 0) {
       ShowErrorToast('Please enter a menu item name');
       return;
     }
-    
+
     if (menuItemData.title.trim().length < 3) {
       ShowErrorToast('Menu item name must be at least 3 characters');
       return;
     }
 
-    onNext();
+    // Generate AI description in background
+    setIsGeneratingDescription(true);
+    try {
+      const response = await GenerateMenuDescriptionAPI({
+        dish_name: menuItemData.title
+      });
+
+      if (response.success === 1 && response.description) {
+        onUpdateMenuItemData({
+          ai_generated_description: response.description
+        });
+      }
+    } catch (error) {
+      console.log('AI description generation failed, continuing anyway', error);
+    } finally {
+      setIsGeneratingDescription(false);
+      onNext();
+    }
   };
 
   return (
@@ -64,9 +84,16 @@ export const StepMenuItemName: React.FC<StepMenuItemNameProps> = ({
 
       <View style={styles.buttonContainer}>
         <StyledButton
-          title="Continue"
+          title={isGeneratingDescription ? "Generating..." : "Continue"}
           onPress={validateAndProceed}
+          disabled={isGeneratingDescription}
         />
+        {isGeneratingDescription && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color={AppColors.primary} />
+            <Text style={styles.loadingText}>Creating AI description...</Text>
+          </View>
+        )}
         <Pressable onPress={onBack} style={styles.backButton}>
           <Text style={styles.backButtonText}>Back</Text>
         </Pressable>
@@ -89,10 +116,21 @@ const styles = StyleSheet.create({
     color: AppColors.primary,
     fontWeight: '600',
   },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: AppColors.textSecondary,
+  },
   aiSection: {
     marginTop: Spacing.md,
     padding: Spacing.md,
-    backgroundColor: AppColors.backgroundSecondary,
+    backgroundColor: AppColors.surface,
     borderRadius: 8,
   },
   aiLabel: {

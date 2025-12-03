@@ -59,6 +59,7 @@ import {
 import { checkLocalPath, getImageURL } from '../../../utils/functions';
 import { ShowErrorToast } from '../../../utils/toast';
 import { getFormattedDate } from '../../../utils/validations';
+import { AppColors } from '../../../../constants/theme';
 import { styles } from './styles';
 
 
