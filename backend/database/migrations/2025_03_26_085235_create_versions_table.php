@@ -15,7 +15,7 @@ class CreateVersionsTable extends Migration
     {
         Schema::create('versions', function (Blueprint $table) {
             $table->id();
-            $table->string('version')->default('26.0.0');
+            $table->string('version')->default('29.0.0');
             $table->timestamps();
         });
     }

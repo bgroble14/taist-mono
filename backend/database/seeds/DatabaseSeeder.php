@@ -11,6 +11,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        // Always run version seeder to ensure version is up to date
+        $this->call(VersionSeeder::class);
+
         // $this->call(UsersTableSeeder::class);
     }
 }
