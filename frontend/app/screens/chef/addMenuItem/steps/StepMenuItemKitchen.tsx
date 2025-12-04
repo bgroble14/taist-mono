@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   applianceTextSelected: {
-    color: AppColors.primary,
+    color: AppColors.textOnPrimary,
     fontWeight: '600',
   },
   completionTimeContainer: {
