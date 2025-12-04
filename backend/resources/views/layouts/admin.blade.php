@@ -15,9 +15,7 @@
 
     @yield('content')
 
-    @unless(Request::is('admin/login') || Request::is('admin'))
-        @include('includes.admin_footer')
-    @endunless
+    @include('includes.admin_footer')
 
     @yield('page-scripts')
 </body>
