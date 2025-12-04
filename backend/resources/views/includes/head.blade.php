@@ -5,7 +5,6 @@
 	<meta name="robots" content="NOINDEX, NOFOLLOW">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<title>Taist - Admin Panel</title>
 
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" />
     <link rel="stylesheet" href="{{ url('assets/libs/css/bootstrap.css') }}">
@@ -19,11 +18,8 @@
     <link rel="stylesheet" href="{{ url('assets/css/main.css?r='.time()) }}">
     <link rel="stylesheet" href="{{ url('assets/css/index.css?r='.time()) }}">
 
-    <?php 
-    	$serverURL = "/";
-    ?>
     <script type="text/javascript">
-        var serverURL = "<?php echo $serverURL; ?>";
+        var serverURL = "{{ url('/') }}/";
     </script>
     <script>
         // load Branch
@@ -43,3 +39,5 @@
         });
     </script>
     <script src="{{ url('assets/js/config.js?r='.time()) }}"></script>
+    <script src="{{ url('assets/libs/js/jwt-decode.js') }}"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
