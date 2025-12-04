@@ -38,6 +38,7 @@ import {
   AddPaymentMethodAPI,
   CreateOrderAPI,
   CreatePaymentIntentAPI,
+  GetAvailableTimeslotsAPI,
   GetPaymentMethodAPI,
   UpdateUserAPI,
   ValidateDiscountCodeAPI,
@@ -141,86 +142,51 @@ const Checkout = () => {
     }
   };
 
-  const addTimes = () => {
-    let st = 0;
-    let et = 0;
-    switch (weekDay) {
-      case 0:
-        st = chefProfile.sunday_start ?? 0;
-        et = chefProfile.sunday_end ?? 0;
-        break;
-      case 1:
-        st = chefProfile.monday_start ?? 0;
-        et = chefProfile.monday_end ?? 0;
-        break;
-      case 2:
-        st = chefProfile.tuesday_start ?? 0;
-        et = chefProfile.tuesday_end ?? 0;
-        break;
-      case 3:
-        st = chefProfile.wednesday_start ?? 0;
-        et = chefProfile.wednesday_end ?? 0;
-        break;
-      case 4:
-        st = chefProfile.thursday_start ?? 0;
-        et = chefProfile.thursday_end ?? 0;
-        break;
-      case 5:
-        st = chefProfile.friday_start ?? 0;
-        et = chefProfile.friday_end ?? 0;
-        break;
-      case 6:
-        st = chefProfile.saterday_start ?? 0;
-        et = chefProfile.saterday_end ?? 0;
-        break;
-      default:
-        st = 0;
-        et = 0;
-        break;
+  /**
+   * TMA-011 REVISED: Fetch available timeslots from backend
+   * Backend handles all filtering logic:
+   * - Checks overrides vs weekly schedule
+   * - Applies 3-hour minimum
+   * - Filters cancelled days
+   */
+  const addTimes = async () => {
+    if (!chefInfo?.id) {
+      onChangeTimes([]);
+      return;
     }
 
-    let startTime =
-      moment(st * 1000).hours() + moment(st * 1000).minutes() / 60;
-    let endTime = moment(et * 1000).hours() + moment(et * 1000).minutes() / 60;
+    const selectedDate = DAY.format('YYYY-MM-DD');
 
-    console.log(weekDay, st, et, startTime, endTime);
+    try {
+      // Call backend endpoint - it returns pre-filtered time slots
+      const resp = await GetAvailableTimeslotsAPI(chefInfo.id, selectedDate);
 
-    var tmpArr: Array<any> = [];
-    var id = 1;
-    const baseTime = moment().startOf('date');
-    for (let i = 0; i < 24; i++) {
-      var t_1 = baseTime; //.add(30 * 60 * 1000);
-      const item1 = {
-        id: id.toString(),
-        label: `${t_1.format('hh:mm a')} `,
-        h: t_1.hour(),
-        m: t_1.minute(),
-      };
-      id++;
+      if (resp.success === 1 && resp.data) {
+        // Convert backend time strings (HH:MM) to frontend time objects
+        const timeslots = resp.data.map((timeStr: string, index: number) => {
+          const [hours, minutes] = timeStr.split(':').map(Number);
+          const timeLabel = moment()
+            .hour(hours)
+            .minute(minutes)
+            .format('hh:mm a');
 
-      var t_2 = baseTime.add(30 * 60 * 1000);
-      const item2 = {
-        id: id.toString(),
-        label: `${t_2.format('hh:mm a')} `,
-        h: t_2.hour(),
-        m: t_2.minute(),
-      };
-      id++;
+          return {
+            id: (index + 1).toString(),
+            label: timeLabel + ' ',
+            h: hours,
+            m: minutes,
+          };
+        });
 
-      const hm1 = item1.h + item1.m / 60;
-      const hm2 = item2.h + item2.m / 60;
-      if (startTime < endTime) {
-        if (hm1 >= startTime && hm1 <= endTime) tmpArr.push(item1);
-        if (hm2 >= startTime && hm2 <= endTime) tmpArr.push(item2);
+        onChangeTimes(timeslots);
       } else {
-        //ex startTime~24, & 0~endTime
-        if (hm1 >= startTime || hm1 <= endTime) tmpArr.push(item1);
-        if (hm2 >= startTime || hm2 <= endTime) tmpArr.push(item2);
+        // No timeslots available (chef cancelled or no times within 3 hours)
+        onChangeTimes([]);
       }
-
-      baseTime.add(30 * 60 * 1000);
+    } catch (error) {
+      console.error('[TMA-011] Error fetching timeslots:', error);
+      onChangeTimes([]);
     }
-    onChangeTimes(tmpArr);
   };
 
   const getPaymentMethod = async () => {

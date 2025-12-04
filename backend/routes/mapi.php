@@ -101,9 +101,14 @@ Route::group(['middleware' => ['auth:mapi']], function () {
 	Route::post('update_user/{id}', 'MapiController@updateUser');
 	Route::post('remove_user/{id}', 'MapiController@removeUser');
 
-	// Chef online status management
+	// Chef online status management (OLD - to be deprecated)
 	Route::post('toggle_online', 'MapiController@toggleOnline');
 	Route::get('get_online_status', 'MapiController@getOnlineStatus');
+
+	// Chef availability override management (REVISED TMA-011)
+	Route::post('set_availability_override', 'MapiController@setAvailabilityOverride');
+	Route::get('get_availability_overrides', 'MapiController@getAvailabilityOverrides');
+	Route::get('get_available_timeslots', 'MapiController@getAvailableTimeslots'); // PUBLIC - for customers
 
 	// Special functions
 	Route::get('get_search_chefs/{id}', 'MapiController@getSearchChefs');

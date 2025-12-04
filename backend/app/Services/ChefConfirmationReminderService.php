@@ -4,19 +4,20 @@ namespace App\Services;
 
 use App\Listener;
 use App\Models\Availabilities;
+use App\Models\AvailabilityOverride;
 use App\Notification;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Exception;
 
 /**
- * ChefOnlineReminderService
+ * ChefConfirmationReminderService
  *
  * Sends reminders to chefs 24 hours before their scheduled availability
- * to prompt them to confirm/toggle online for same-day orders
- * TMA-011 Phase 6
+ * to prompt them to confirm/modify/cancel for that specific day
+ * TMA-011 REVISED Phase 6
  */
-class ChefOnlineReminderService
+class ChefConfirmationReminderService
 {
     protected $twilioService;
     protected $firebaseMessaging;
@@ -34,34 +35,44 @@ class ChefOnlineReminderService
     }
 
     /**
-     * Send reminder to chef to toggle online
+     * Send reminder to chef to confirm tomorrow's availability
      *
      * @param int $chefId
-     * @param string $scheduledTime The time they're scheduled (e.g., "2:00 PM")
+     * @param string $tomorrowDate Date in Y-m-d format
+     * @param string $scheduledStart Time in H:i format (e.g., "14:00")
+     * @param string $scheduledEnd Time in H:i format
      * @return bool
      */
-    public function sendOnlineReminder($chefId, $scheduledTime)
+    public function sendConfirmationReminder($chefId, $tomorrowDate, $scheduledStart, $scheduledEnd)
     {
         $chef = app(Listener::class)->where('id', $chefId)->first();
 
         if (!$chef) {
-            Log::warning("Chef not found for online reminder", ['chef_id' => $chefId]);
+            Log::warning("Chef not found for confirmation reminder", ['chef_id' => $chefId]);
             return false;
         }
 
-        // Skip if already online
-        if ($chef->is_online) {
-            Log::info("Chef already online, skipping reminder", ['chef_id' => $chefId]);
+        // Check if there's already an override for tomorrow
+        $existingOverride = AvailabilityOverride::forChef($chefId)
+            ->forDate($tomorrowDate)
+            ->first();
+
+        if ($existingOverride) {
+            Log::info("Chef already has override for tomorrow, skipping reminder", [
+                'chef_id' => $chefId,
+                'date' => $tomorrowDate,
+                'override_status' => $existingOverride->status
+            ]);
             return false;
         }
 
-        // Skip if we recently sent a reminder (prevent spam)
+        // Check if we recently sent a reminder (prevent spam)
         if ($chef->last_online_reminder_sent_at) {
             $lastReminderTime = strtotime($chef->last_online_reminder_sent_at);
             $timeSinceLastReminder = time() - $lastReminderTime;
 
-            // Don't send more than once per day (24 hours)
-            if ($timeSinceLastReminder < 86400) {
+            // Don't send more than once per 12 hours
+            if ($timeSinceLastReminder < 43200) { // 12 hours
                 Log::info("Recently sent reminder, skipping", [
                     'chef_id' => $chefId,
                     'hours_since_last' => round($timeSinceLastReminder / 3600, 1)
@@ -70,15 +81,18 @@ class ChefOnlineReminderService
             }
         }
 
+        $tomorrowFormatted = date('l, M j', strtotime($tomorrowDate)); // "Tuesday, Dec 3"
+        $timeRange = date('g:i A', strtotime($scheduledStart)) . ' - ' . date('g:i A', strtotime($scheduledEnd));
+
         $title = "Confirm tomorrow's availability";
-        $body = "You're scheduled for {$scheduledTime} tomorrow. Confirm now to receive same-day orders.";
+        $body = "You're scheduled for {$tomorrowFormatted} from {$timeRange}. Confirm, modify, or cancel in the app.";
 
         $sent = false;
 
         // 1. Push notification (if available)
         if ($chef->fcm_token && $this->firebaseMessaging) {
             try {
-                $this->sendPushNotification($chef, $title, $body);
+                $this->sendPushNotification($chef, $title, $body, $tomorrowDate);
                 $sent = true;
                 Log::info("Sent push notification", ['chef_id' => $chefId]);
             } catch (Exception $e) {
@@ -92,7 +106,7 @@ class ChefOnlineReminderService
         // 2. SMS notification (primary method for time-sensitive reminders)
         if ($chef->phone) {
             try {
-                $this->sendSmsReminder($chef, $scheduledTime);
+                $this->sendSmsReminder($chef, $tomorrowFormatted, $timeRange);
                 $sent = true;
                 Log::info("Sent SMS reminder", ['chef_id' => $chefId]);
             } catch (Exception $e) {
@@ -116,7 +130,7 @@ class ChefOnlineReminderService
     /**
      * Send push notification via Firebase
      */
-    private function sendPushNotification($chef, $title, $body)
+    private function sendPushNotification($chef, $title, $body, $tomorrowDate)
     {
         if (!$this->firebaseMessaging) {
             return;
@@ -128,9 +142,10 @@ class ChefOnlineReminderService
                 'body' => $body,
             ])
             ->withData([
-                'type' => 'online_reminder',
-                'action' => 'toggle_online',
+                'type' => 'availability_confirmation',
+                'action' => 'confirm_availability',
                 'chef_id' => (string)$chef->id,
+                'date' => $tomorrowDate,
             ]);
 
         $this->firebaseMessaging->send($message);
@@ -149,17 +164,17 @@ class ChefOnlineReminderService
     /**
      * Send SMS reminder via Twilio
      */
-    private function sendSmsReminder($chef, $scheduledTime)
+    private function sendSmsReminder($chef, $tomorrowFormatted, $timeRange)
     {
-        $message = "Taist: You're scheduled tomorrow at {$scheduledTime}. Confirm now to receive same-day orders. Open app to confirm or adjust.";
+        $message = "Taist: You're scheduled {$tomorrowFormatted}, {$timeRange}. Open the app to confirm, modify, or cancel.";
 
         $result = $this->twilioService->sendSMS(
             $chef->phone,
             $message,
             [
                 'chef_id' => $chef->id,
-                'notification_type' => 'online_reminder',
-                'scheduled_time' => $scheduledTime
+                'notification_type' => 'availability_confirmation',
+                'date' => $tomorrowFormatted
             ]
         );
 
@@ -172,18 +187,19 @@ class ChefOnlineReminderService
      * Find chefs who should receive reminders right now
      * (24 hours before their scheduled availability)
      *
-     * @return array Array of chef IDs with their scheduled times
+     * @return array Array of reminder data
      */
     public function findChefsNeedingReminders()
     {
         $currentTime = now();
         $tomorrow = $currentTime->copy()->addDay();
+        $tomorrowDate = $tomorrow->format('Y-m-d');
         $tomorrowDayOfWeek = strtolower($tomorrow->format('l')); // monday, tuesday, etc.
 
         // Get all availabilities
         $availabilities = app(Availabilities::class)->with('user')->get();
 
-        $chefsToRemind = [];
+        $remindersToSend = [];
 
         foreach ($availabilities as $availability) {
             $chef = app(Listener::class)->where('id', $availability->user_id)->first();
@@ -192,12 +208,7 @@ class ChefOnlineReminderService
                 continue;
             }
 
-            // Skip if already online (already confirmed)
-            if ($chef->is_online) {
-                continue;
-            }
-
-            // Check if they have availability for tomorrow
+            // Check if they have availability for tomorrow in their weekly schedule
             $startField = $tomorrowDayOfWeek . '_start';
             $endField = $tomorrowDayOfWeek . '_end';
 
@@ -205,25 +216,36 @@ class ChefOnlineReminderService
             $scheduledEnd = $availability->$endField;
 
             if (!$scheduledStart || !$scheduledEnd) {
-                continue; // Not available tomorrow
+                continue; // Not scheduled for tomorrow in weekly schedule
             }
 
-            // Check if we're in the reminder window (24 hours before start)
-            // Create tomorrow's scheduled start timestamp
-            $tomorrowStartTimestamp = strtotime($tomorrow->format('Y-m-d') . ' ' . $scheduledStart);
-            $reminderTime = $tomorrowStartTimestamp - (24 * 60 * 60); // 24 hours before
+            // Check if they already have an override for tomorrow
+            $existingOverride = AvailabilityOverride::forChef($chef->id)
+                ->forDate($tomorrowDate)
+                ->first();
+
+            if ($existingOverride) {
+                continue; // Already confirmed/modified/cancelled
+            }
+
+            // Check if we're within the reminder window (around 24 hours before)
+            // We want to send at roughly the same time today as their scheduled start tomorrow
+            $tomorrowStartDateTime = strtotime($tomorrowDate . ' ' . $scheduledStart);
+            $reminderTime = $tomorrowStartDateTime - (24 * 60 * 60); // 24 hours before
             $now = time();
 
-            // Send reminder if we're within 5 minutes of the reminder time (24 hours before start)
-            // This gives a wider window for the cron job execution
-            if (abs($now - $reminderTime) <= 300) { // 5 minute window
-                $chefsToRemind[] = [
+            // Send reminder if we're within 30 minutes of the reminder time
+            // This gives a wider window for cron job execution
+            if (abs($now - $reminderTime) <= 1800) { // 30 minute window
+                $remindersToSend[] = [
                     'chef_id' => $chef->id,
-                    'scheduled_time' => date('g:i A', $tomorrowStartTimestamp),
+                    'tomorrow_date' => $tomorrowDate,
+                    'scheduled_start' => $scheduledStart,
+                    'scheduled_end' => $scheduledEnd,
                 ];
             }
         }
 
-        return $chefsToRemind;
+        return $remindersToSend;
     }
 }

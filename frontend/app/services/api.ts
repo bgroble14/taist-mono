@@ -805,6 +805,29 @@ export const CompleteChefQuizAPI = async (params: {
   return await data.json();
 };
 
+/**
+ * Get Available Timeslots (TMA-011 REVISED - Backend-Driven)
+ *
+ * Fetches pre-filtered time slots from backend that already apply:
+ * - Chef's availability (overrides or weekly schedule)
+ * - 3-hour minimum order window
+ * - Cancelled days
+ *
+ * @param chef_id - The chef's ID
+ * @param date - Date in YYYY-MM-DD format
+ * @returns Promise with array of time strings (e.g., ["14:00", "14:30", ...])
+ */
+export const GetAvailableTimeslotsAPI = async (
+  chef_id: number,
+  date: string
+) => {
+  const response = await GETAPICALL('get_available_timeslots', {
+    chef_id,
+    date,
+  });
+  return response;
+};
+
 ///////////////////////////////////////////////////////
 
 const ConvertObjectToFormdata = (obj: any) => {

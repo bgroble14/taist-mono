@@ -56,6 +56,15 @@ class Listener extends Authenticatable
     }
 
     /**
+     * Get chef's availability overrides
+     * TMA-011 REVISED
+     */
+    public function availabilityOverrides()
+    {
+        return $this->hasMany(\App\Models\AvailabilityOverride::class, 'chef_id', 'id');
+    }
+
+    /**
      * Check if chef is currently online
      *
      * @return bool
@@ -66,7 +75,14 @@ class Listener extends Authenticatable
     }
 
     /**
-     * Check if chef is available for a specific order date
+     * Check if chef is available for a specific order date/time
+     * TMA-011 REVISED - Uses override logic
+     *
+     * Logic:
+     * 1. Check if there's an override for this specific date
+     * 2. If override exists and is cancelled -> NOT available
+     * 3. If override exists and is active -> check time against override
+     * 4. If NO override -> fall back to weekly recurring schedule
      *
      * @param string $orderDate The order date/time
      * @return bool
@@ -74,32 +90,76 @@ class Listener extends Authenticatable
     public function isAvailableForOrder($orderDate)
     {
         $orderTimestamp = strtotime($orderDate);
-        $currentTimestamp = time();
-        $todayStart = strtotime('today');
-        $tomorrowStart = strtotime('tomorrow');
+        $orderDateOnly = date('Y-m-d', $orderTimestamp);
+        $orderTime = date('H:i', $orderTimestamp);
 
-        // Same-day order: must be online
-        if ($orderTimestamp >= $todayStart && $orderTimestamp < $tomorrowStart) {
-            return $this->is_online && $this->hasScheduleForToday();
+        // Check for override first
+        $override = \App\Models\AvailabilityOverride::forChef($this->id)
+            ->forDate($orderDateOnly)
+            ->first();
+
+        if ($override) {
+            // Override exists - use it instead of weekly schedule
+            return $override->isAvailableAt($orderTime);
         }
 
-        // Future order: check weekly schedule only
-        return $this->hasScheduleForDate($orderDate);
+        // No override - fall back to weekly recurring schedule
+        return $this->hasScheduleForDateTime($orderDate, $orderTime);
     }
 
     /**
-     * Check if chef has a schedule for today
+     * Check if chef has availability for a specific date/time in weekly schedule
+     * TMA-011 REVISED - Checks both day AND time
+     *
+     * @param string $dateTime The date/time to check
+     * @param string $time Time in H:i format
+     * @return bool
+     */
+    private function hasScheduleForDateTime($dateTime, $time)
+    {
+        $dayOfWeek = strtolower(date('l', strtotime($dateTime)));
+
+        // Get the chef's availability record
+        $availability = \App\Models\Availabilities::where('user_id', $this->id)->first();
+
+        if (!$availability) {
+            return false;
+        }
+
+        $startField = $dayOfWeek . '_start';
+        $endField = $dayOfWeek . '_end';
+
+        $scheduledStart = $availability->$startField;
+        $scheduledEnd = $availability->$endField;
+
+        // Check if both start and end times are set for this day
+        if (empty($scheduledStart) || empty($scheduledEnd)) {
+            return false;
+        }
+
+        // Check if the requested time falls within the scheduled hours
+        $checkTime = strtotime($time);
+        $startTime = strtotime($scheduledStart);
+        $endTime = strtotime($scheduledEnd);
+
+        return $checkTime >= $startTime && $checkTime <= $endTime;
+    }
+
+    /**
+     * Check if chef has a schedule for today (any time)
+     * TMA-011 REVISED - Simple day check
      *
      * @return bool
      */
     private function hasScheduleForToday()
     {
-        $dayOfWeek = strtolower(date('l')); // monday, tuesday, etc.
+        $dayOfWeek = strtolower(date('l'));
         return $this->hasScheduleForDay($dayOfWeek);
     }
 
     /**
-     * Check if chef has a schedule for a specific date
+     * Check if chef has a schedule for a specific date (any time)
+     * TMA-011 REVISED - Simple day check
      *
      * @param string $date The date to check
      * @return bool
@@ -111,7 +171,8 @@ class Listener extends Authenticatable
     }
 
     /**
-     * Check if chef has availability for a specific day of week
+     * Check if chef has availability for a specific day of week (any time)
+     * TMA-011 REVISED
      *
      * @param string $dayOfWeek monday, tuesday, etc.
      * @return bool

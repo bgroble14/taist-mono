@@ -197,6 +197,7 @@ class FixRailwayMigrations extends Command
             // Old broken migrations - mark as complete so they never run
             '2025_12_03_000003_create_availability_overrides' => 'tbl_availability_overrides',
             '2025_12_04_000004_fix_availability_overrides_foreign_key' => 'tbl_availability_overrides',
+            '2025_12_04_000001_create_availability_overrides_raw_sql' => 'tbl_availability_overrides',
         ];
     }
 

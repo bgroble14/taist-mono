@@ -1,10 +1,27 @@
 # TMA-011: Chef Online Toggle & 3-Hour Minimum Order Window
 
-**Status**: Planning
+**Status**: ❌ DEPRECATED - See TMA-011-REVISED-PLAN.md
 **Created**: 2025-12-03
+**Deprecated**: 2025-12-03
 **Priority**: High
 
 ---
+
+## ⚠️ THIS PLAN IS DEPRECATED
+
+This original plan was based on incorrect requirements. It has been superseded by the revised implementation.
+
+**See instead**: [TMA-011-REVISED-PLAN.md](TMA-011-REVISED-PLAN.md)
+
+**What changed:**
+- ❌ Original: Complex "online toggle" with auto-online/auto-offline
+- ✅ Revised: Simple day-specific overrides with 24-hour confirmations
+- ❌ Original: Same-day must be "online"
+- ✅ Revised: Today/tomorrow use overrides, 2+ days use weekly schedule
+
+---
+
+# ORIGINAL PLAN (DEPRECATED)
 
 ## Executive Summary
 

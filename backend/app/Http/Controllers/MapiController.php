@@ -607,6 +607,305 @@ class MapiController extends Controller
         ]);
     }
 
+    /**
+     * Set Availability Override (REVISED TMA-011 Phase 4)
+     *
+     * Creates or updates a day-specific availability override for a chef
+     *
+     * POST /mapi/set_availability_override
+     *
+     * Request body:
+     * {
+     *   "override_date": "2025-12-04" (YYYY-MM-DD format, required),
+     *   "start_time": "14:00" (HH:MM format, optional - null for cancellation),
+     *   "end_time": "17:00" (HH:MM format, optional - null for cancellation),
+     *   "status": "confirmed|modified|cancelled" (optional, auto-detected),
+     *   "source": "manual_toggle|reminder_confirmation" (optional, defaults to manual_toggle)
+     * }
+     */
+    public function setAvailabilityOverride(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied."]);
+
+        $user = $this->_authUser();
+
+        // Only chefs can set availability overrides
+        if (!$user || $user->user_type != 2) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Only chefs can set availability overrides'
+            ]);
+        }
+
+        // Validate required fields
+        $overrideDate = $request->input('override_date');
+        if (!$overrideDate) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'override_date is required (YYYY-MM-DD format)'
+            ]);
+        }
+
+        // Validate date format
+        $dateTimestamp = strtotime($overrideDate);
+        if (!$dateTimestamp) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Invalid date format. Use YYYY-MM-DD'
+            ]);
+        }
+
+        // Validate date is within 0-36 hours from now (per requirements)
+        $now = time();
+        $maxTime = $now + (36 * 60 * 60); // 36 hours from now
+        $overrideDateStart = strtotime($overrideDate . ' 00:00:00');
+        $overrideDateEnd = strtotime($overrideDate . ' 23:59:59');
+
+        if ($overrideDateEnd < $now) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Cannot set override for past dates'
+            ]);
+        }
+
+        if ($overrideDateStart > $maxTime) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Can only set overrides for dates within next 36 hours (today/tomorrow)'
+            ]);
+        }
+
+        $startTime = $request->input('start_time');
+        $endTime = $request->input('end_time');
+        $source = $request->input('source', 'manual_toggle');
+
+        // Determine status
+        $status = $request->input('status');
+        if (!$status) {
+            // Auto-detect status
+            if (!$startTime || !$endTime) {
+                $status = 'cancelled';
+            } else {
+                // Check against weekly schedule to see if modified
+                $dayOfWeek = strtolower(date('l', $dateTimestamp));
+                $availability = \App\Models\Availabilities::where('user_id', $user->id)->first();
+
+                if ($availability) {
+                    $weeklyStart = $availability->{$dayOfWeek . '_start'};
+                    $weeklyEnd = $availability->{$dayOfWeek . '_end'};
+
+                    if ($weeklyStart == $startTime && $weeklyEnd == $endTime) {
+                        $status = 'confirmed';
+                    } else {
+                        $status = 'modified';
+                    }
+                } else {
+                    $status = 'modified';
+                }
+            }
+        }
+
+        // Validate time format if provided
+        if ($startTime && !preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $startTime)) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Invalid start_time format. Use HH:MM'
+            ]);
+        }
+
+        if ($endTime && !preg_match('/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/', $endTime)) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Invalid end_time format. Use HH:MM'
+            ]);
+        }
+
+        // Validate end_time is after start_time if both provided
+        if ($startTime && $endTime && strtotime($endTime) <= strtotime($startTime)) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'end_time must be after start_time'
+            ]);
+        }
+
+        // Create or update override using updateOrCreate
+        $override = \App\Models\AvailabilityOverride::updateOrCreate(
+            [
+                'chef_id' => $user->id,
+                'override_date' => $overrideDate,
+            ],
+            [
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'status' => $status,
+                'source' => $source,
+            ]
+        );
+
+        \Log::info('Chef set availability override', [
+            'chef_id' => $user->id,
+            'override_date' => $overrideDate,
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+            'status' => $status,
+            'source' => $source,
+            'timestamp' => now()
+        ]);
+
+        return response()->json([
+            'success' => 1,
+            'data' => [
+                'id' => $override->id,
+                'override_date' => $override->override_date->format('Y-m-d'),
+                'start_time' => $override->start_time,
+                'end_time' => $override->end_time,
+                'status' => $override->status,
+                'source' => $override->source,
+                'status_message' => $override->getStatusMessage(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get Availability Overrides (REVISED TMA-011 Phase 4)
+     *
+     * Get all availability overrides for the authenticated chef
+     * Optionally filter by date range
+     *
+     * GET /mapi/get_availability_overrides
+     *
+     * Query params:
+     * - start_date (optional): YYYY-MM-DD
+     * - end_date (optional): YYYY-MM-DD
+     */
+    public function getAvailabilityOverrides(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied."]);
+
+        $user = $this->_authUser();
+
+        if (!$user) {
+            return response()->json(['success' => 0, 'error' => 'User not found']);
+        }
+
+        $query = \App\Models\AvailabilityOverride::forChef($user->id);
+
+        // Filter by date range if provided
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        if ($startDate && $endDate) {
+            $query->inDateRange($startDate, $endDate);
+        } elseif ($startDate) {
+            $query->where('override_date', '>=', $startDate);
+        } elseif ($endDate) {
+            $query->where('override_date', '<=', $endDate);
+        }
+
+        $overrides = $query->orderBy('override_date', 'asc')->get();
+
+        $data = $overrides->map(function ($override) {
+            return [
+                'id' => $override->id,
+                'override_date' => $override->override_date->format('Y-m-d'),
+                'start_time' => $override->start_time,
+                'end_time' => $override->end_time,
+                'status' => $override->status,
+                'source' => $override->source,
+                'status_message' => $override->getStatusMessage(),
+                'created_at' => $override->created_at->format('Y-m-d H:i:s'),
+            ];
+        });
+
+        return response()->json([
+            'success' => 1,
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * Get Available Timeslots (TMA-011 REVISED - Backend-Driven)
+     *
+     * Returns filtered time slots for a chef on a specific date
+     * Applies all business logic on backend:
+     * - Checks availability overrides
+     * - Falls back to weekly schedule
+     * - Filters out times < 3 hours from now
+     * - Returns only bookable time slots
+     *
+     * PUBLIC endpoint - customers can call this
+     *
+     * GET /mapi/get_available_timeslots
+     *
+     * Query params:
+     * - chef_id (required): Chef user ID
+     * - date (required): YYYY-MM-DD format
+     */
+    public function getAvailableTimeslots(Request $request)
+    {
+        if ($this->_checktaistApiKey($request->header('apiKey')) === false)
+            return response()->json(['success' => 0, 'error' => "Access denied."]);
+
+        // Validate required parameters
+        $chefId = $request->input('chef_id');
+        $date = $request->input('date');
+
+        if (!$chefId || !$date) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'chef_id and date are required'
+            ]);
+        }
+
+        // Verify chef exists
+        $chef = app(Listener::class)->where('id', $chefId)->where('user_type', 2)->first();
+        if (!$chef) {
+            return response()->json(['success' => 0, 'error' => 'Chef not found']);
+        }
+
+        // Validate date format
+        $dateTimestamp = strtotime($date);
+        if (!$dateTimestamp) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'Invalid date format. Use YYYY-MM-DD'
+            ]);
+        }
+
+        // Calculate 3-hour minimum from now
+        $now = time();
+        $minimumOrderTime = $now + (3 * 60 * 60);
+
+        // Generate all possible 30-minute time slots for the day (00:00 - 23:30)
+        $allSlots = [];
+        for ($hour = 0; $hour < 24; $hour++) {
+            for ($minute = 0; $minute < 60; $minute += 30) {
+                $timeStr = sprintf('%02d:%02d', $hour, $minute);
+
+                // Create timestamp for this slot on the selected date
+                $slotTimestamp = strtotime($date . ' ' . $timeStr . ':00');
+
+                // Skip if less than 3 hours from now
+                if ($slotTimestamp < $minimumOrderTime) {
+                    continue;
+                }
+
+                // Check if chef is available at this time using existing logic
+                $orderDateTime = $date . ' ' . $timeStr . ':00';
+                if ($chef->isAvailableForOrder($orderDateTime)) {
+                    $allSlots[] = $timeStr;
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => 1,
+            'data' => $allSlots
+        ]);
+    }
+
     private function resizeImage($file, $png = FALSE, $crop = FALSE)
     {
         $file = 'assets/uploads/images/' . $file;
@@ -1847,25 +2146,22 @@ Write only the review text:";
             ]);
         }
 
-        // ===== TMA-011: Validate chef online status for same-day orders =====
-        $isSameDayOrder = date('Y-m-d', $orderTimestamp) === date('Y-m-d', $currentTimestamp);
+        // ===== TMA-011 REVISED: Validate chef availability (uses override logic) =====
+        $chef = app(Listener::class)->where('id', $request->chef_user_id)->first();
 
-        if ($isSameDayOrder) {
-            $chef = app(Listener::class)->where('id', $request->chef_user_id)->first();
-
-            if (!$chef) {
-                return response()->json(['success' => 0, 'error' => 'Chef not found']);
-            }
-
-            if (!$chef->is_online) {
-                return response()->json([
-                    'success' => 0,
-                    'error' => 'This chef is not currently accepting same-day orders. Please select a future delivery date or try again later.',
-                    'chef_offline' => true,
-                ]);
-            }
+        if (!$chef) {
+            return response()->json(['success' => 0, 'error' => 'Chef not found']);
         }
-        // ===== END TMA-011 VALIDATION =====
+
+        // Use the override-aware availability check
+        if (!$chef->isAvailableForOrder($orderDate)) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'This chef is not available at the requested time. Please select a different delivery time or try again later.',
+                'chef_unavailable' => true,
+            ]);
+        }
+        // ===== END TMA-011 REVISED VALIDATION =====
 
         $chef_payment_method = app(PaymentMethodListener::class)->where(['user_id' => $request->chef_user_id, 'active' => 1])->first();
         if ($chef_payment_method) {
