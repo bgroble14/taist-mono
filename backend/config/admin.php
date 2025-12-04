@@ -16,11 +16,7 @@ return [
 
     'pagination_limit' => env('ADMIN_PAGINATION_LIMIT', 10),
 
-    // Asset paths (for legacy compatibility if needed)
-    'assets' => [
-        'css' => '/assets/css',
-        'js' => '/assets/js',
-        'images' => '/assets/images',
-    ],
+    // Server URL for JavaScript (legacy compatibility)
+    'server_url' => '/',
 ];
 

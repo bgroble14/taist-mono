@@ -2,11 +2,13 @@
 
 @section('title', config('admin.title') . ' - Login')
 
-@push('styles')
-    <link rel="stylesheet" href="{{ url('assets/login/index.css?r='.time()) }}">
-@endpush
-
 @section('content')
+    @php
+        $is_signup = isset($_GET['signup']) && $_GET['signup']==1 ? true : false;
+    @endphp
+
+    <link rel="stylesheet" href="{{ url('assets/login/index.css?r='.time()) }}">
+
     <div class="div_loading">
         <img src="/assets/images/load_image.webp" />
     </div>
@@ -35,15 +37,17 @@
     </div>
 @endsection
 
-@push('scripts')
+@section('page-scripts')
     <script src="{{ url('assets/libs/js/jquery-3.1.1.js') }}"></script>
     <script src="{{ url('assets/libs/js/bootstrap.js') }}"></script>
     <script src="{{ url('assets/libs/js/bootstrap-switch.js') }}"></script>
     <script src="{{ url('assets/libs/js/bootstrap-table.js') }}"></script>
+    <script src="{{ url('assets/libs/js/jwt-decode.js') }}"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="{{ url('assets/js/main.js?r='.time()) }}"></script>
     <script>
         $(function() {
 
         })
     </script>
-@endpush
+@endsection

@@ -1,24 +1,26 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
         @include('includes.head')
-        <title>@yield('title', config('admin.title', 'Taist - Admin Panel'))</title>
-        @stack('styles')
     </head>
 <body>
     @unless(Request::is('admin/login') || Request::is('admin'))
-        @if(isset($user) && $user)
+        @if(Auth::guard('admin')->check())
             <script>
-                var token = '{{ $user->api_token ?? "" }}';
+                var token = '{{ Auth::guard("admin")->user()->api_token }}';
             </script>
+            @include('includes.admin_header')
         @endif
-        @include('includes.admin_header')
     @endunless
 
-    @yield('content')
+    <div class="main_content @if(Request::is('admin/login') || Request::is('admin')) login-page @endif">
+        @yield('content')
+    </div>
 
-    @include('includes.admin_footer')
-    @stack('scripts')
+    @unless(Request::is('admin/login') || Request::is('admin'))
+        @include('includes.admin_footer')
+    @endunless
+
     @yield('page-scripts')
 </body>
 </html>
