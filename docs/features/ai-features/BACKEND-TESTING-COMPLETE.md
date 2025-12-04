@@ -71,7 +71,7 @@ All three AI endpoints are working perfectly with the **OpenAI Responses API** a
 - Output: Extracted from `output[].content[].text`
 
 ### Model Used
-**gpt-5-nano-2025-08-07**
+**gpt-5-mini-2025-08-07**
 - Fastest GPT-5 variant
 - Lowest cost
 - Perfect for our use case
@@ -79,7 +79,7 @@ All three AI endpoints are working perfectly with the **OpenAI Responses API** a
 ### Key Parameters
 ```php
 [
-    'model' => 'gpt-5-nano',
+    'model' => 'gpt-5-mini',
     'input' => [['role' => 'user', 'content' => $prompt]],
     'max_output_tokens' => 200,
     'reasoning' => ['effort' => 'minimal']
@@ -122,7 +122,7 @@ if ($isGPT5) {
 2. `enhanceMenuDescription()` - Lines 1188-1244
 3. `analyzeMenuMetadata()` - Lines 1246-1346
 
-All methods use `MODEL_GPT_5_NANO` with proper error handling.
+All methods use `MODEL_GPT_5_MINI` with proper error handling.
 
 ### ✅ mapi.php Routes
 **Location**: `/backend/routes/mapi.php`
@@ -232,7 +232,7 @@ All backend endpoints are ready. You can now:
 **Solution**: Already fixed! Using Responses API with proper parsing.
 
 ### If Rate Limit Error
-**Problem**: "Rate limit reached for gpt-5-nano"
+**Problem**: "Rate limit reached for gpt-5-mini"
 **Solution**: Wait 20 seconds between tests, or add payment method.
 
 ### If API Key Error
@@ -253,7 +253,7 @@ php artisan route:list | grep menu
 # Test OpenAI service
 php artisan tinker
 >>> $ai = new \App\Services\OpenAIService();
->>> $ai->chat("Say hello", \App\Services\OpenAIService::MODEL_GPT_5_NANO);
+>>> $ai->chat("Say hello", \App\Services\OpenAIService::MODEL_GPT_5_MINI);
 ```
 
 ---

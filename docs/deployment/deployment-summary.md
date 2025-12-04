@@ -109,7 +109,7 @@ grep OPENAI_API_KEY backend/.env
 # Test OpenAI service
 php artisan tinker
 >>> $ai = new \App\Services\OpenAIService();
->>> $ai->chat("Say hello", \App\Services\OpenAIService::MODEL_GPT_5_NANO);
+>>> $ai->chat("Say hello", \App\Services\OpenAIService::MODEL_GPT_5_MINI);
 ```
 
 ---

@@ -47,14 +47,14 @@ class OpenAIService
      * Send a chat completion request to OpenAI
      *
      * @param string $prompt The prompt to send
-     * @param string $model The model to use (default: gpt-5-nano)
+     * @param string $model The model to use (default: gpt-5-mini)
      * @param array $options Additional options like temperature, max_tokens, etc.
      * @return array Response containing the completion and metadata
      * @throws Exception
      */
     public function chat(
         string $prompt,
-        string $model = self::MODEL_GPT_5_NANO,
+        string $model = self::MODEL_GPT_5_MINI,
         array $options = []
     ): array {
         try {
@@ -202,7 +202,7 @@ class OpenAIService
      */
     public function chatWithHistory(
         array $messages,
-        string $model = self::MODEL_GPT_5_NANO,
+        string $model = self::MODEL_GPT_5_MINI,
         array $options = []
     ): array {
         try {
@@ -299,8 +299,8 @@ class OpenAIService
     {
         return [
             // GPT-5 Series (Latest - Recommended)
-            self::MODEL_GPT_5_NANO => 'GPT-5 Nano - Fastest, most cost-efficient ($0.05/1M in, $0.40/1M out) [RECOMMENDED DEFAULT]',
-            self::MODEL_GPT_5_MINI => 'GPT-5 Mini - Faster, cost-efficient for well-defined tasks ($0.25/1M in, $2.00/1M out)',
+            self::MODEL_GPT_5_NANO => 'GPT-5 Nano - Fastest, most cost-efficient ($0.05/1M in, $0.40/1M out)',
+            self::MODEL_GPT_5_MINI => 'GPT-5 Mini - Faster, cost-efficient for well-defined tasks ($0.25/1M in, $2.00/1M out) [RECOMMENDED DEFAULT]',
             self::MODEL_GPT_5 => 'GPT-5 - Intelligent reasoning model for coding and agentic tasks ($1.25/1M in, $10.00/1M out)',
             self::MODEL_GPT_5_1 => 'GPT-5.1 - Best model for coding and agentic tasks with configurable reasoning ($1.25/1M in, $10.00/1M out)',
             self::MODEL_GPT_5_1_CHAT => 'GPT-5.1 Chat Latest - Latest chat version with adaptive reasoning',

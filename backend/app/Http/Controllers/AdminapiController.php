@@ -360,7 +360,7 @@ Write only the review text:";
 
                     $result = $openAI->chat(
                         $prompt,
-                        \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                        \App\Services\OpenAIService::MODEL_GPT_5_MINI,
                         ['max_tokens' => 150]
                     );
 
@@ -384,7 +384,7 @@ Write only the review text:";
                             'source' => 'ai_generated',
                             'parent_review_id' => $review->id,
                             'ai_generation_params' => json_encode([
-                                'model' => 'gpt-5-nano',
+                                'model' => 'gpt-5-mini',
                                 'variant' => $index + 1,
                                 'focus' => $variant['focus'],
                                 'length' => $variant['length'],

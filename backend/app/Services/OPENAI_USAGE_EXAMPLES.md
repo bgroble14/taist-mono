@@ -8,7 +8,7 @@ The OpenAI service is already configured. Make sure your `.env` file has the `OP
 
 ## Default Model
 
-The service defaults to **GPT-5 Nano** - the fastest and most cost-efficient model at $0.05/1M input tokens and $0.40/1M output tokens. Perfect for most use cases!
+The service defaults to **GPT-5 Mini** - faster and cost-efficient for well-defined tasks at $0.25/1M input tokens and $2.00/1M output tokens. Perfect for most use cases!
 
 ## Important: Responses API vs Chat Completions API
 
@@ -20,7 +20,7 @@ The service handles this automatically - you don't need to worry about it!
 
 ## Usage Examples
 
-### 1. Simple Chat Completion (Uses GPT-5 Nano by Default)
+### 1. Simple Chat Completion (Uses GPT-5 Mini by Default)
 
 ```php
 use App\Services\OpenAIService;
@@ -28,7 +28,7 @@ use App\Services\OpenAIService;
 // Create service instance
 $openai = new OpenAIService();
 
-// Send a simple prompt - uses gpt-5-nano by default
+// Send a simple prompt - uses gpt-5-mini by default
 $response = $openai->chat(
     prompt: "What are the three laws of robotics?"
 );
@@ -47,13 +47,13 @@ if ($response['success']) {
 ```php
 $openai = new OpenAIService();
 
-// GPT-5 Nano (Default) - Fastest and cheapest
+// GPT-5 Mini (Default) - Faster, cost-efficient for well-defined tasks
 $response = $openai->chat(
     prompt: "Summarize this text...",
-    model: OpenAIService::MODEL_GPT_5_NANO
+    model: OpenAIService::MODEL_GPT_5_MINI
 );
 
-// GPT-5 Mini - Better for well-defined tasks
+// GPT-5 Nano - Fastest and cheapest
 $response = $openai->chat(
     prompt: "What's the capital of France?",
     model: OpenAIService::MODEL_GPT_5_MINI
@@ -89,7 +89,7 @@ $openai = new OpenAIService();
 // GPT-5 models use 'reasoning_effort' instead of 'temperature'
 $response = $openai->chat(
     prompt: "Write a creative story about a robot chef",
-    model: OpenAIService::MODEL_GPT_5_NANO,
+    model: OpenAIService::MODEL_GPT_5_MINI,
     options: [
         'max_tokens' => 500,              // Maximum length of response
         'reasoning_effort' => 'minimal',  // 'minimal', 'medium', or 'high'
@@ -158,7 +158,7 @@ $messages = [
 
 $response = $openai->chatWithHistory(
     messages: $messages,
-    model: OpenAIService::MODEL_GPT_5_NANO
+    model: OpenAIService::MODEL_GPT_5_MINI
 );
 
 echo $response['content'];
@@ -253,7 +253,7 @@ class AIChatController extends Controller
 
         $response = $this->openai->chatWithHistory(
             messages: $messages,
-            model: OpenAIService::MODEL_GPT_5_NANO
+            model: OpenAIService::MODEL_GPT_5_MINI
         );
 
         if (!$response['success']) {
@@ -294,7 +294,7 @@ class AskAI extends Command
 
         $response = $openai->chat(
             prompt: $prompt,
-            model: OpenAIService::MODEL_GPT_5_NANO
+            model: OpenAIService::MODEL_GPT_5_MINI
         );
 
         if ($response['success']) {
@@ -317,7 +317,7 @@ php artisan ai:ask "What is Laravel?"
 ## Available Models
 
 ### GPT-5 Series (Latest - Recommended)
-- `OpenAIService::MODEL_GPT_5_NANO` - **Default** - Fastest, most cost-efficient ($0.05/1M in, $0.40/1M out)
+- `OpenAIService::MODEL_GPT_5_MINI` - **Default** - Faster, cost-efficient for well-defined tasks ($0.25/1M in, $2.00/1M out)
 - `OpenAIService::MODEL_GPT_5_MINI` - Faster, cost-efficient for well-defined tasks ($0.25/1M in, $2.00/1M out)
 - `OpenAIService::MODEL_GPT_5` - Intelligent reasoning model ($1.25/1M in, $10.00/1M out)
 - `OpenAIService::MODEL_GPT_5_1` - Best for coding and agentic tasks ($1.25/1M in, $10.00/1M out)
@@ -368,8 +368,8 @@ If there's an error:
 ## Best Practices
 
 1. **Choose the right model**:
-   - **GPT-5 Nano** (default) - Perfect for most tasks: summaries, classification, simple Q&A
-   - **GPT-5 Mini** - Well-defined tasks requiring more capability
+   - **GPT-5 Mini** (default) - Perfect for most tasks: summaries, classification, simple Q&A
+   - **GPT-5 Nano** - Fastest and cheapest for simple tasks
    - **GPT-5.1 / GPT-5.1 Codex** - Complex coding, debugging, agentic tasks
    - **GPT-5 Pro** - Critical tasks requiring maximum precision
 
@@ -390,10 +390,10 @@ If there's an error:
 5. **Monitor usage**: Track token consumption in `$response['usage']`
 
 6. **Cost optimization**:
-   - Start with GPT-5 Nano (cheapest) and upgrade only if needed
+   - Start with GPT-5 Mini (default) and upgrade only if needed
    - Use `reasoning_effort: 'minimal'` for simple tasks
    - Set reasonable max_tokens limits
-   - GPT-5 Nano with minimal reasoning = fastest + cheapest
+   - GPT-5 Mini with minimal reasoning = good balance of speed and quality
 
 ## Real-World Example: Menu Description Generator
 
@@ -419,7 +419,7 @@ Description:";
 
 $response = $openai->chat(
     prompt: $prompt,
-    model: OpenAIService::MODEL_GPT_5_NANO,
+    model: OpenAIService::MODEL_GPT_5_MINI,
     options: [
         'max_tokens' => 200,
         'reasoning_effort' => 'minimal'  // Fast response
@@ -447,7 +447,7 @@ The service automatically selects the correct API:
 - Request format:
   ```json
   {
-    "model": "gpt-5-nano",
+    "model": "gpt-5-mini",
     "input": [{"role": "user", "content": "..."}],
     "max_output_tokens": 200,
     "reasoning": {"effort": "minimal"}

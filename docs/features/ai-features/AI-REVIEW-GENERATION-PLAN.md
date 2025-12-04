@@ -93,7 +93,7 @@ ADD INDEX `idx_parent_review_id` (`parent_review_id`);
 - `ai_generation_params`: JSON storing AI generation metadata
   ```json
   {
-    "model": "gpt-5-nano",
+    "model": "gpt-5-mini",
     "variant": 1,  // 1, 2, or 3
     "focus": "food_quality",
     "length": "medium",
@@ -177,7 +177,7 @@ public function generateAIReviews(Request $request)
 
             $result = $openAI->chat(
                 $prompt,
-                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                \App\Services\OpenAIService::MODEL_GPT_5_MINI,
                 ['max_tokens' => 150]
             );
 
@@ -195,7 +195,7 @@ public function generateAIReviews(Request $request)
                     'source' => 'ai_generated',
                     'parent_review_id' => $reviewId,
                     'ai_generation_params' => json_encode([
-                        'model' => 'gpt-5-nano',
+                        'model' => 'gpt-5-mini',
                         'variant' => $index + 1,
                         'focus' => $variant['focus'],
                         'length' => $variant['length'],

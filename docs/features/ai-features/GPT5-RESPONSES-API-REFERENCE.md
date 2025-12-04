@@ -5,7 +5,7 @@
 GPT-5 is OpenAI's latest reasoning-capable model series with three variants:
 - **gpt-5**: Full reasoning model
 - **gpt-5-mini**: Balanced reasoning and performance
-- **gpt-5-nano**: Ultra-light, low-latency variant for real-time applications
+- **gpt-5-mini**: Ultra-light, low-latency variant for real-time applications
 
 ### Model Characteristics
 
@@ -14,7 +14,7 @@ GPT-5 is OpenAI's latest reasoning-capable model series with three variants:
 - Designed for cost-sensitive, real-time applications
 - Maintains GPT-5 instruction-following improvements
 - Trades off reasoning depth for very low latency and token cost
-- Model ID: `gpt-5-nano-2025-08-07`
+- Model ID: `gpt-5-mini-2025-08-07`
 
 ---
 
@@ -48,7 +48,7 @@ reasoning = { "effort": "minimal" }
 
 ```php
 $payload = [
-    'model' => 'gpt-5-nano',
+    'model' => 'gpt-5-mini',
     'reasoning_effort' => 'minimal',
     // ... other parameters
 ];
@@ -115,7 +115,7 @@ The Responses API is a new unified, stateful interface that:
 **1. Create Response:**
 ```python
 response = client.responses.create(
-    model="gpt-5-nano",
+    model="gpt-5-mini",
     input=[
         {'role': 'developer', 'content': system_prompt},
         {'role': 'user', 'content': user_message}
@@ -139,7 +139,7 @@ client.responses.delete(response_id)  # 30-day default retention
 **4. Chain Responses:**
 ```python
 response = client.responses.create(
-    model="gpt-5-nano",
+    model="gpt-5-mini",
     previous_response_id="resp_abc123",
     input=[...]
 )
@@ -155,7 +155,7 @@ While Responses API is recommended, Chat Completions API still works:
 POST https://api.openai.com/v1/chat/completions
 
 {
-    "model": "gpt-5-nano",
+    "model": "gpt-5-mini",
     "messages": [
         {
             "role": "user",
@@ -173,7 +173,7 @@ POST https://api.openai.com/v1/chat/completions
     "id": "chatcmpl-xxx",
     "object": "chat.completion",
     "created": 1234567890,
-    "model": "gpt-5-nano-2025-08-07",
+    "model": "gpt-5-mini-2025-08-07",
     "choices": [{
         "index": 0,
         "message": {
@@ -202,7 +202,7 @@ POST https://api.openai.com/v1/chat/completions
 ```php
 $result = $openAI->chat(
     $prompt,
-    OpenAIService::MODEL_GPT_5_NANO,
+    OpenAIService::MODEL_GPT_5_MINI,
     [
         'max_tokens' => 200,
         'reasoning_effort' => 'minimal'  // Fast responses
@@ -215,7 +215,7 @@ $result = $openAI->chat(
 ```php
 $result = $openAI->chat(
     $prompt,
-    OpenAIService::MODEL_GPT_5_NANO,
+    OpenAIService::MODEL_GPT_5_MINI,
     [
         'max_tokens' => 200,
         'reasoning_effort' => 'minimal'  // Still fast, good enough
@@ -228,7 +228,7 @@ $result = $openAI->chat(
 ```php
 $result = $openAI->chat(
     $prompt,
-    OpenAIService::MODEL_GPT_5_NANO,
+    OpenAIService::MODEL_GPT_5_MINI,
     [
         'max_tokens' => 150,
         'reasoning_effort' => 'medium'  // Better accuracy for JSON
@@ -255,13 +255,13 @@ Http::post('https://api.openai.com/v1/responses', $payload)
 ```php
 // From
 $payload = [
-    'model' => 'gpt-5-nano',
+    'model' => 'gpt-5-mini',
     'messages' => [['role' => 'user', 'content' => $prompt]]
 ];
 
 // To
 $payload = [
-    'model' => 'gpt-5-nano',
+    'model' => 'gpt-5-mini',
     'input' => [['role' => 'user', 'content' => $prompt]],
     'reasoning' => ['effort' => 'minimal']
 ];
@@ -338,7 +338,7 @@ $payload['max_completion_tokens'] = 200;  // Not max_tokens
 - [GPT-5 Reasoning Effort Guide](https://www.arsturn.com/blog/gpt-5-reasoning-effort-levels-explained)
 - [Azure OpenAI Responses API](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/responses?view=foundry-classic)
 - [OpenAI GPT-5 Developer Guide](https://www.datacamp.com/tutorial/openai-gpt-5-api)
-- [OpenAI Developer Community - GPT-5-Nano Parameters](https://community.openai.com/t/gpt-5-nano-accepted-parameters/1355086)
+- [OpenAI Developer Community - GPT-5-Nano Parameters](https://community.openai.com/t/gpt-5-mini-accepted-parameters/1355086)
 
 ---
 

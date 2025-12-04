@@ -1633,6 +1633,14 @@ class MapiController extends Controller
 
 Write a concise, professional menu description for: {$dishName}
 
+CRITICAL SAFETY REQUIREMENT:
+- Generate SAFE, BASIC descriptions that match standard, recognizable dish types
+- If it's pizza, write a BASIC pizza description (e.g., \"Margherita pizza with tomato sauce, mozzarella, and fresh basil\" or \"Pepperoni pizza with mozzarella cheese\")
+- If it's pasta, write a BASIC pasta description (e.g., \"Spaghetti with marinara sauce and meatballs\" or \"Fettuccine alfredo with parmesan cheese\")
+- DO NOT create weird, creative, or unusual interpretations of common dishes
+- Stick to standard, recognizable preparations that customers would expect
+- When in doubt, choose the most common, basic version of the dish
+
 REQUIREMENTS:
 - Perfect spelling and grammar
 - 1 sentence, 100-150 characters maximum
@@ -1641,19 +1649,23 @@ REQUIREMENTS:
 - NO flowery language (no \"divine,\" \"heavenly,\" \"succulent,\" \"timeless,\" \"classic reimagined\")
 - Sound like a real chef, not a marketing copywriter
 
-GOOD EXAMPLES:
+GOOD EXAMPLES (SAFE & BASIC):
 ✓ \"Grilled lemon-garlic chicken over turmeric quinoa with roasted vegetables, avocado, tahini-lime drizzle, and microgreens.\"
 ✓ \"Pan-seared salmon with herb butter over garlic mashed potatoes and charred broccolini.\"
+✓ \"Margherita pizza with tomato sauce, fresh mozzarella, and basil.\"
+✓ \"Spaghetti with marinara sauce, ground beef meatballs, and parmesan cheese.\"
 
 BAD EXAMPLES:
 ✗ \"A timeless classic reimagined: tender chicken lightly breaded and sautéed to a crisp, crowned with melted mozzarella\" (too flowery, too long)
 ✗ \"Chicken and rice\" (too plain)
+✗ \"Deconstructed pizza with molecular gastronomy foam\" (too weird/creative for basic pizza)
+✗ \"Pizza with unexpected flavor combinations and avant-garde toppings\" (not safe/basic)
 
 Write only the description:";
 
             $result = $openAI->chat(
                 $prompt,
-                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                \App\Services\OpenAIService::MODEL_GPT_5_MINI,
                 ['temperature' => 0.7, 'max_tokens' => 200]
             );
 
@@ -1703,31 +1715,35 @@ Write only the description:";
                 ]);
             }
 
-            $prompt = "You are a professional editor for Taist, a personal chef marketplace. Your job is to fix any errors while maintaining the chef's voice.
+            $prompt = "You are a professional editor for Taist, a personal chef marketplace. Your job is to fix ALL errors while maintaining the chef's voice.
 
 ORIGINAL DESCRIPTION:
 {$description}
 
-YOUR TASK:
-1. Fix ALL spelling errors
-2. Fix ALL grammar mistakes
-3. Fix ALL punctuation errors
-4. Ensure proper capitalization
-5. Make it sound professional but keep the original meaning
-6. If it's too casual or has slang, make it more professional
-7. If it's missing key details, keep what's there but ensure it reads well
+YOUR TASK (MANDATORY - YOU MUST FIX ALL OF THESE):
+1. Fix ALL spelling errors - check every word for correct spelling
+2. Fix ALL grammar mistakes - ensure subject-verb agreement, proper tense, correct word usage
+3. Fix ALL punctuation errors - add missing periods, commas, apostrophes; remove extra punctuation; fix quotation marks
+4. Ensure proper capitalization - capitalize proper nouns, start sentences with capitals
+5. Fix spacing errors - remove extra spaces, ensure single spaces between words
+6. Make it sound professional but keep the original meaning
+7. If it's too casual or has slang, make it more professional
+8. If it's missing key details, keep what's there but ensure it reads well
+
+CRITICAL: You MUST actively identify and correct spelling mistakes (e.g., \"reciepe\" → \"recipe\", \"restaraunt\" → \"restaurant\", \"delicous\" → \"delicious\") and punctuation errors (e.g., missing apostrophes in \"dont\" → \"don't\", missing commas, incorrect periods).
 
 DO NOT:
 - Add flowery language that wasn't there
 - Change the core ingredients or dish description
 - Add information the chef didn't provide
 - Make it overly formal or stuffy
+- Skip fixing spelling or punctuation errors - this is your primary job
 
-Output ONLY the corrected description, nothing else:";
+Output ONLY the corrected description with all spelling and punctuation fixed, nothing else:";
 
             $result = $openAI->chat(
                 $prompt,
-                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                \App\Services\OpenAIService::MODEL_GPT_5_MINI,
                 ['temperature' => 0.3, 'max_tokens' => 200]
             );
 
@@ -1810,7 +1826,7 @@ Respond ONLY with valid JSON:
 
             $result = $openAI->chat(
                 $prompt,
-                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                \App\Services\OpenAIService::MODEL_GPT_5_MINI,
                 ['temperature' => 0.3, 'max_tokens' => 150]
             );
 
@@ -1934,7 +1950,7 @@ Respond ONLY with valid JSON:
 
                 $result = $openAI->chat(
                     $prompt,
-                    \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                    \App\Services\OpenAIService::MODEL_GPT_5_MINI,
                     ['max_tokens' => 150]
                 );
 
@@ -1952,7 +1968,7 @@ Respond ONLY with valid JSON:
                         'source' => 'ai_generated',
                         'parent_review_id' => $reviewId,
                         'ai_generation_params' => json_encode([
-                            'model' => 'gpt-5-nano',
+                            'model' => 'gpt-5-mini',
                             'variant' => $index + 1,
                             'focus' => $variant['focus'],
                             'length' => $variant['length'],
@@ -2497,7 +2513,7 @@ Write only the review text:";
 
             $result = $openAI->chat(
                 $prompt,
-                \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+                \App\Services\OpenAIService::MODEL_GPT_5_MINI,
                 ['max_tokens' => 150]
             );
 
@@ -2514,7 +2530,7 @@ Write only the review text:";
                     'source' => 'ai_generated',
                     'parent_review_id' => $reviewId,
                     'ai_generation_params' => json_encode([
-                        'model' => 'gpt-5-nano',
+                        'model' => 'gpt-5-mini',
                         'variant' => $index + 1,
                         'focus' => $variant['focus'],
                         'length' => $variant['length'],

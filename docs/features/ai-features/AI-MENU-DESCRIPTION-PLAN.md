@@ -61,7 +61,7 @@ public function generateMenuDescription(Request $request)
 
         $result = $openAI->chat(
             $prompt,
-            \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+            \App\Services\OpenAIService::MODEL_GPT_5_MINI,
             ['temperature' => 0.7, 'max_tokens' => 200]
         );
 
@@ -131,7 +131,7 @@ public function enhanceMenuDescription(Request $request)
 
         $result = $openAI->chat(
             $prompt,
-            \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+            \App\Services\OpenAIService::MODEL_GPT_5_MINI,
             ['temperature' => 0.3, 'max_tokens' => 200]
         );
 
@@ -193,7 +193,7 @@ Respond ONLY with valid JSON:
 
         $result = $openAI->chat(
             $prompt,
-            \App\Services\OpenAIService::MODEL_GPT_5_NANO,
+            \App\Services\OpenAIService::MODEL_GPT_5_MINI,
             ['temperature' => 0.3, 'max_tokens' => 150]
         );
 

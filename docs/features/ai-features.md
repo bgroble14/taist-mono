@@ -196,8 +196,8 @@ Response: {
 
 ### OpenAI Configuration
 
-**Model Used**: GPT-5-nano (`gpt-5-nano-2025-08-07`)
-- Fastest and cheapest GPT-5 variant
+**Model Used**: GPT-5-mini (`gpt-5-mini-2025-08-07`)
+- Faster, cost-efficient for well-defined tasks
 - Perfect for short-form content
 - Excellent instruction-following
 
@@ -209,7 +209,7 @@ Response: {
 **Key Parameters**:
 ```php
 [
-    'model' => 'gpt-5-nano',
+    'model' => 'gpt-5-mini',
     'input' => [['role' => 'user', 'content' => $prompt]],
     'max_output_tokens' => 200,
     'reasoning' => ['effort' => 'minimal']  // Fast responses
@@ -245,7 +245,7 @@ OPENAI_API_KEY=sk-proj-...
 $openAI = new \App\Services\OpenAIService();
 $result = $openAI->chat(
     $prompt,
-    OpenAIService::MODEL_GPT_5_NANO,
+    OpenAIService::MODEL_GPT_5_MINI,
     ['max_tokens' => 150]
 );
 

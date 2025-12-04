@@ -182,7 +182,7 @@ All endpoints are protected with API key authentication and require user login.
 ## Technical Details
 
 ### AI Model Used
-- **Model**: GPT-5-nano (`gpt-5-nano`)
+- **Model**: GPT-5-mini (`gpt-5-mini`)
 - **Cost**: ~$0.00017 per menu item
 - **Temperature**:
   - 0.7 for description generation (more creative)
@@ -292,9 +292,9 @@ No additional configuration needed. The frontend uses the existing API authentic
 
 ## Cost Analysis
 
-Using GPT-5-nano model:
-- Input: $0.05 per 1M tokens
-- Output: $0.40 per 1M tokens
+Using GPT-5-mini model:
+- Input: $0.25 per 1M tokens
+- Output: $2.00 per 1M tokens
 
 **Per menu item**:
 1. Description generation: ~100 input + ~100 output = $0.000045
