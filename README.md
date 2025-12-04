@@ -18,9 +18,9 @@ npm run dev:local
 
 **Test Accounts**: `john.customer@test.com` / `password` or `maria.chef@test.com` / `password`
 
-**First time?** See [Local Development Guide](./LOCAL-DEVELOPMENT-GUIDE.md) for full setup.
+**First time?** See [Local Development Guide](docs/setup/local-development.md) for full setup.
 
-**Quick reference?** See [Quick Start Guide](./LOCAL-DEV-QUICKSTART.md) for commands.
+**Quick reference?** See [Quick Start Guide](docs/setup/quick-start.md) for commands.
 
 ---
 
@@ -80,14 +80,28 @@ Fully configured with test data:
 
 ## 📚 Documentation
 
-| Doc | Purpose |
-|-----|---------|
-| [LOCAL-DEV-QUICKSTART.md](./LOCAL-DEV-QUICKSTART.md) | Quick commands & troubleshooting |
-| [LOCAL-DEVELOPMENT-GUIDE.md](./LOCAL-DEVELOPMENT-GUIDE.md) | Complete setup guide |
-| [AI-FEATURES-README.md](./AI-FEATURES-README.md) | **AI menu descriptions & review generation** |
-| [backend/README.md](./backend/README.md) | Backend API details |
-| [frontend/README.md](./frontend/README.md) | Frontend app details |
-| [sprint-tasks.md](./sprint-tasks.md) | Current sprint tasks |
+### Getting Started
+- [Quick Start Guide](docs/setup/quick-start.md) - Get running in 5 minutes
+- [Local Development](docs/setup/local-development.md) - Complete setup guide
+- [Database Setup](docs/setup/database-copy-guide.md) - Database configuration & copying
+
+### Features
+- [AI Features](docs/features/ai-features.md) - AI menu descriptions & review generation
+- [SMS Notifications](docs/features/twilio-implementation.md) - Twilio SMS setup
+- [Discount Codes](docs/archive/sprint-1/tasks/TMA-007-IMPLEMENTATION-SUMMARY.md) - Coupon system
+
+### Infrastructure & Deployment
+- [AWS Setup](docs/infrastructure/aws-setup.md) - AWS configuration
+- [Domain Strategy](docs/infrastructure/domain-migration.md) - Domain migration plan
+- [Deployment Guide](docs/deployment/deployment-summary.md) - How to deploy
+- [Railway Migration](docs/deployment/RAILWAY-MIGRATION-GUIDE.md) - Railway hosting guide
+
+### Reference
+- [UI Documentation](docs/ui/ui-documentation.md) - Complete UI reference
+- [Sprint 1 Archive](docs/archive/sprint-1/) - Completed sprint history
+- [Backend README](backend/README.md) - Backend API details
+- [Frontend README](frontend/README.md) - Frontend app details
+- [Current Sprint Tasks](sprint-tasks.md) - Active sprint tracking
 
 ---
 
@@ -130,7 +144,7 @@ brew services start mysql
 - Check you used `dev:local` script
 - Verify environment in Metro bundler
 
-See [troubleshooting guide](./LOCAL-DEVELOPMENT-GUIDE.md#-troubleshooting) for more.
+See [troubleshooting guide](docs/setup/local-development.md#-troubleshooting) for more.
 
 ---
 

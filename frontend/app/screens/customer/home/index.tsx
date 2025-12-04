@@ -27,7 +27,7 @@ import EmptyListView from '../../../components/emptyListView/emptyListView';
 import { AppColors, Spacing } from '../../../../constants/theme';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
-import { GetSearchChefAPI } from '../../../services/api';
+import { GetSearchChefAPI, GetZipCodes } from '../../../services/api';
 import { Delay } from '../../../utils/functions';
 import { navigate } from '../../../utils/navigation';
 import ChefCard from './components/chefCard';
@@ -100,12 +100,21 @@ const Home = () => {
   // Focus effect to reload data when screen comes into focus or notification_id changes
   useFocusEffect(
     useCallback(() => {
+      // TMA-014: Silently refresh zip codes when home screen focuses
+      // This ensures users see new service areas without restarting the app
+      GetZipCodes({}, dispatch).catch(err =>
+        console.log('Failed to refresh zip codes on focus:', err)
+      );
       loadData();
     }, [notification_id]),
   );
 
   const onRefresh = async () => {
     setRefreshing(true);
+    // TMA-014: Refresh zip codes when user pulls to refresh
+    await GetZipCodes({}, dispatch).catch(err =>
+      console.log('Failed to refresh zip codes on pull-to-refresh:', err)
+    );
     await loadDatax();
     setRefreshing(false);
   };

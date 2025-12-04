@@ -13,7 +13,9 @@
     "frontend:install": "cd frontend && npm install",
     "backend:install": "cd backend && composer install",
     "backend:serve": "cd backend && php artisan serve",
-    "install:all": "npm run frontend:install && npm run backend:install"
+    "install:all": "npm run frontend:install && npm run backend:install",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "repository": {
     "type": "git",
@@ -27,6 +29,10 @@
     "expo"
   ],
   "author": "William Groble",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "expo": "~54.0.26",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  }
 }
-

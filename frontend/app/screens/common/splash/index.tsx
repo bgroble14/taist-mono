@@ -11,7 +11,7 @@ import { useAppDispatch } from '../../../hooks/useRedux';
 
 import { navigate } from '@/app/utils/navigation';
 import { check, openSettings, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
-import { GETVERSIONAPICALL } from '../../../services/api';
+import { GETVERSIONAPICALL, GetZipCodes } from '../../../services/api';
 import { ReadLoginData } from '../../../utils/storage';
 import { styles } from './styles';
 LogBox.ignoreLogs([
@@ -110,6 +110,13 @@ const Splash = () => {
           setSplash(false);
           return;
         } else {
+          // Silently refresh zip codes on app launch (TMA-014)
+          try {
+            await GetZipCodes({}, dispatch);
+          } catch (error) {
+            console.log('Failed to refresh zip codes on launch:', error);
+          }
+
           // Navigate to appropriate home screen based on user role
           if (loginData?.role == 1) {
             navigate.toCustomer.home();
@@ -157,6 +164,15 @@ const Splash = () => {
         setSplash(false);
         return;
       } else {
+        // Silently refresh zip codes on app launch (TMA-014)
+        // This ensures users see updated service areas without needing to force quit
+        try {
+          await GetZipCodes({}, dispatch);
+        } catch (error) {
+          console.log('Failed to refresh zip codes on launch:', error);
+          // Don't block app launch if this fails
+        }
+
         // Navigate to appropriate home screen based on user role
         if (loginData?.role == 1) {
           navigate.toCustomer.home();

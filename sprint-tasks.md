@@ -7,24 +7,24 @@
 | Ticket ID | Title | Status |
 |-----------|-------|--------|
 | TMA-000 | *Hide "Cook with Taist" option, "Contact Taist" option, AND Search field on Customer side | Completed |
-| TMA-001 | Twilio text notifications | In Progress |
+| TMA-001 | Twilio text notifications | Completed |
 | TMA-002 | Only require phone number + email when signing up as a customer | Completed |
 | TMA-003 | Cart icon at top of Customer screen | Completed |
-| TMA-004 | *Simple tutorial overhaul (pictures, make it look nicer, make sure chef's don't skip it) | Not Started |
-| TMA-005 | *Overall styling overhaul | In Progress |
+| TMA-004 | *Simple tutorial overhaul (pictures, make it look nicer, make sure chef's don't skip it) | Completed |
+| TMA-005 | *Overall styling overhaul | Completed |
 | TMA-006 | *Simplify chef stripe signup without moving to app | Not Started |
 | TMA-007 | Coupon code functionality | Completed |
 | TMA-008 | **Overall entire chef signup flow (not 1 long form, prepopulate stuff if available, address auto finish) | Completed |
-| TMA-009 | *AI for menu page | In Progress |
+| TMA-009 | *AI for menu page | Completed |
 | TMA-010 | Move from AWS to Railway | In Progress - Planning Complete ✅ |
-| TMA-011 | **Calendar overhaul | Not Started |
+| TMA-011 | **Calendar overhaul | Completed |
 | TMA-012 | Enable camera roll option for chef profile pic | Completed |
 | TMA-013 | Show Current Location on Home tab | Completed |
-| TMA-014 | Automatic reload when new zip code is added by Admin | Not Started |
+| TMA-014 | Automatic reload when new zip code is added by Admin | Completed |
 | TMA-015 | Dialog box on "cancel order" button in case user accidentally taps it | Completed |
 | TMA-016 | Time window for chef accepting order and Stripe logic for full refund if Chef does NOT accept order | Completed |
-| TMA-017 | Backend logic to generate AI-generated reviews for a chef everytime a review is submitted for that chef | Not Started |
-| TMA-018 | Categories (including time of day filters) not functioning | Not Started |
+| TMA-017 | Backend logic to generate AI-generated reviews for a chef everytime a review is submitted for that chef | Completed |
+| TMA-018 | Categories (including time of day filters) not functioning | Completed |
 | TMA-019 | Order receipt for chef doesn't show added customizations written out | Completed |
 | TMA-020 | Closed order status needs to update based on certain user actions | Completed |
 | TMA-021 | From Order Date selection, ONLY able to tap back button to return to the current day | Completed |
@@ -36,9 +36,9 @@
 ---
 
 ### Summary
-- **Completed**: 14 tasks
-- **In Progress**: 4 tasks
-- **Not Started**: 6 tasks
+- **Completed**: 22 tasks
+- **In Progress**: 1 task (TMA-010)
+- **Not Started**: 1 task (TMA-006)
 - **Deferred/TBD**: 2 tasks (TMA-023, TMA-024)
 - **Total**: 26 tasks
 
