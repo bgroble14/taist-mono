@@ -96,7 +96,7 @@ const Splash = () => {
   }, []);
 
   // Get version from app.json dynamically
-  const CURRENT_VERSION = Constants.expoConfig?.version || '28.0.3';
+  const CURRENT_VERSION = Constants.expoConfig?.version || '29.0.0';
   // Get environment to skip version check in local development
   const APP_ENV = Constants.expoConfig?.extra?.APP_ENV || 'production';
 

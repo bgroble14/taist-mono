@@ -257,7 +257,7 @@ const getEnvironmentUrls = () => {
 
 Since you're changing API URLs, you need new app versions:
 
-**Current Version:** 28.0.3
+**Current Version:** 29.0.0
 
 **New Version:** 29.0.0 (major version - infrastructure change)
 

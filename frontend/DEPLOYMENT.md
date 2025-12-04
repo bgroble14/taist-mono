@@ -529,7 +529,7 @@ If a production build has critical issues:
 
 ### Build Shows Wrong Version
 
-**Symptom**: Build shows old version (e.g., `28.0.3`) even after updating `app.json`
+**Symptom**: Build shows old version (e.g., `29.0.0`) even after updating `app.json`
 
 **Cause**: Native project files (`Info.plist`, `project.pbxproj`, `build.gradle`) weren't updated
 

@@ -365,7 +365,7 @@ export const styles = StyleSheet.create({
 
 #### Design System
 
-**Current App Version: 28.0.3**
+**Current App Version: 29.0.0**
 
 The app follows a consistent design system defined in `/app/constants/theme.ts`:
 
@@ -516,9 +516,9 @@ Version numbers are managed in `app.json`:
 ```json
 {
   "expo": {
-    "version": "28.0.3",
-    "ios": { "buildNumber": "28.0.3" },
-    "android": { "versionCode": 280003 }
+    "version": "29.0.0",
+    "ios": { "buildNumber": "29.0.0" },
+    "android": { "versionCode": 290000 }
   }
 }
 ```

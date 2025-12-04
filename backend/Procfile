@@ -1,1 +1,1 @@
-web: sleep 10 && php artisan railway:fix-migrations && php artisan migrate --force && echo "=== Updating Version ===" && php artisan version:update 29.0.0 && echo "=== Running VersionSeeder ===" && php artisan db:seed --class=VersionSeeder && echo "=== VersionSeeder completed ===" && php artisan serve --host=0.0.0.0 --port=$PORT
+web: sleep 10 && php artisan railway:fix-migrations && php artisan migrate --force && php artisan version:sync && php artisan serve --host=0.0.0.0 --port=$PORT
