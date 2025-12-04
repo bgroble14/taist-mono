@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Image, Linking, LogBox, Platform, Pressable, SafeAreaView, Text, View } from 'react-native';
 import Constants from 'expo-constants';
+import * as SplashScreen from 'expo-splash-screen';
 
 // Types & Services
 // Note: NavigationStackType is not needed with Expo Router
@@ -90,6 +91,12 @@ const Splash = () => {
   };
 
   useEffect(() => {
+    // Hide native splash screen once React component is mounted
+    // This ensures seamless transition - native and React splash look identical
+    SplashScreen.hideAsync().catch(() => {
+      // Ignore errors if splash screen is already hidden
+    });
+
     setTimeout(() => {
       autoLogin();
     }, 2000);

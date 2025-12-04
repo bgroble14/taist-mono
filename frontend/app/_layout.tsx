@@ -34,8 +34,8 @@ export default function RootLayout() {
     // Initialize navigation
     initializeNavigation();
     
-    // Hide the splash screen
-    SplashScreen.hideAsync();
+    // Don't hide splash screen here - let the Splash component handle it
+    // This ensures seamless transition from native to React splash
   }, []);
 
   return (
