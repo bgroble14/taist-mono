@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,6 +14,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // Ignore Passport's vendor migrations since OAuth tables are already
+        // created and managed in our database. This prevents migration conflicts
+        // on Railway and other deployment environments.
+        Passport::ignoreMigrations();
+
         //
         // $this->app['request']->server->set('HTTPS', true);
     }

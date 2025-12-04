@@ -39,10 +39,6 @@ class FixRailwayMigrations extends Command
             return 0;
         }
 
-        // Get all migration files
-        $migrationPath = database_path('migrations');
-        $migrationFiles = scandir($migrationPath);
-
         // Get current batch number (or start at 1)
         try {
             $currentBatch = DB::table('migrations')->max('batch') ?? 0;
@@ -54,6 +50,40 @@ class FixRailwayMigrations extends Command
 
         $marked = 0;
         $skipped = 0;
+
+        // First, handle Passport OAuth migrations from vendor
+        $this->info("\nChecking Passport OAuth tables...");
+        $passportMigrations = $this->getPassportMigrations();
+
+        foreach ($passportMigrations as $migrationName => $tableName) {
+            // Check if migration is already recorded
+            $exists = DB::table('migrations')
+                ->where('migration', $migrationName)
+                ->exists();
+
+            if ($exists) {
+                $skipped++;
+                continue;
+            }
+
+            // Check if table exists in database
+            if (Schema::hasTable($tableName)) {
+                DB::table('migrations')->insert([
+                    'migration' => $migrationName,
+                    'batch' => $newBatch,
+                ]);
+                $this->line("✓ Marked as migrated: {$migrationName} (OAuth table: {$tableName})");
+                $marked++;
+            } else {
+                $this->line("  Skipped: {$migrationName} (OAuth table doesn't exist)");
+                $skipped++;
+            }
+        }
+
+        // Then handle regular app migrations
+        $this->info("\nChecking application migrations...");
+        $migrationPath = database_path('migrations');
+        $migrationFiles = scandir($migrationPath);
 
         foreach ($migrationFiles as $file) {
             if ($file === '.' || $file === '..' || !str_ends_with($file, '.php')) {
@@ -96,6 +126,27 @@ class FixRailwayMigrations extends Command
         $this->info("Skipped: {$skipped}");
 
         return 0;
+    }
+
+    /**
+     * Get Passport OAuth migration mappings
+     *
+     * Returns a map of migration names to table names for all Passport OAuth tables.
+     * Even though we ignore Passport migrations in AppServiceProvider, this ensures
+     * that if the tables exist in the database, we mark them as migrated to prevent
+     * any conflicts.
+     *
+     * @return array
+     */
+    private function getPassportMigrations()
+    {
+        return [
+            '2016_06_01_000001_create_oauth_auth_codes_table' => 'oauth_auth_codes',
+            '2016_06_01_000002_create_oauth_access_tokens_table' => 'oauth_access_tokens',
+            '2016_06_01_000003_create_oauth_refresh_tokens_table' => 'oauth_refresh_tokens',
+            '2016_06_01_000004_create_oauth_clients_table' => 'oauth_clients',
+            '2016_06_01_000005_create_oauth_personal_access_clients_table' => 'oauth_personal_access_clients',
+        ];
     }
 
     /**
