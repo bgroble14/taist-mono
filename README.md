@@ -95,6 +95,7 @@ Fully configured with test data:
 - [Domain Strategy](docs/infrastructure/domain-migration.md) - Domain migration plan
 - [Deployment Guide](docs/deployment/deployment-summary.md) - How to deploy
 - [Railway Migration](docs/deployment/RAILWAY-MIGRATION-GUIDE.md) - Railway hosting guide
+- [Version Management](docs/VERSION-MANAGEMENT.md) - Version sync & update process
 
 ### Reference
 - [UI Documentation](docs/ui/ui-documentation.md) - Complete UI reference

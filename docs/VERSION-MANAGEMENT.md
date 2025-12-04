@@ -23,6 +23,16 @@ The Taist app uses a centralized version management system to ensure consistency
   - Used by the version check in splash screen
 
 ### Backend
+- **[backend/VERSION](../backend/VERSION)** - Contains current version (e.g., `29.0.0`)
+  - Single source of truth for backend version
+  - Automatically synced from `frontend/app.json` via `scripts/sync-version.sh`
+  - Read by `VersionSeeder` during Railway deployments
+  
+- **[backend/database/seeds/VersionSeeder.php](../backend/database/seeds/VersionSeeder.php)**
+  - Automatically runs on every Railway deployment (via Procfile)
+  - Reads version from `backend/VERSION` file
+  - Updates database `versions` table automatically
+  
 - **[backend/database/migrations/2025_03_26_085235_create_versions_table.php](../backend/database/migrations/2025_03_26_085235_create_versions_table.php)** - Line 18: `default('29.0.0')`
   - Sets the default version when the database is created
   - Only applies to NEW databases or after running migrations fresh
@@ -34,7 +44,11 @@ The Taist app uses a centralized version management system to ensure consistency
 
 ## How to Update the Version
 
-### When Releasing a New Version:
+### Automated Version Sync (Recommended)
+
+The version system now automatically syncs from `frontend/app.json` to the database via Railway deployments.
+
+**When Releasing a New Version:**
 
 1. **Update frontend/app.json**
    ```json
@@ -45,30 +59,45 @@ The Taist app uses a centralized version management system to ensure consistency
    }
    ```
 
-2. **Update the database migration**
-   ```php
-   // backend/database/migrations/2025_03_26_085235_create_versions_table.php
-   $table->string('version')->default('30.0.0');
+2. **Sync version to backend** (automatic sync)
+   ```bash
+   ./scripts/sync-version.sh
+   ```
+   This updates `backend/VERSION` file which Railway uses during deployment.
+
+3. **Commit and push** - Railway will automatically:
+   - Deploy the backend with the new `VERSION` file
+   - Run migrations
+   - Run `VersionSeeder` (reads from `VERSION` file and updates database)
+   - Database version will be synced automatically! ✅
+
+4. **Update native version files** (if needed)
+   - iOS: Info.plist and Xcode project
+   - Android: build.gradle
+   - See [frontend/VERSION-BUMP-GUIDE.md](../frontend/VERSION-BUMP-GUIDE.md) for details
+
+5. **Build and deploy app**
+   - Build new app binaries
+   - Submit to App Store / Play Store
+
+### Manual Version Update (Legacy - Only if automated sync fails)
+
+If the automated sync isn't working, you can manually update:
+
+1. **Update backend/VERSION file**
+   ```bash
+   echo "30.0.0" > backend/VERSION
    ```
 
-3. **Update the database directly** (for existing databases)
+2. **Or set APP_VERSION environment variable in Railway**
+   ```
+   APP_VERSION=30.0.0
+   ```
+
+3. **Or manually update database** (last resort)
    ```sql
    UPDATE versions SET version = '30.0.0' WHERE id = 1;
    ```
-   Run this on:
-   - Local database
-   - Staging database (Railway)
-   - Production database (Railway)
-
-4. **Update native version files**
-   - iOS: Info.plist and Xcode project
-   - Android: build.gradle
-   - See [docs/native-version-management.md](./native-version-management.md) for details
-
-5. **Build and deploy**
-   - Build new app binaries
-   - Submit to App Store / Play Store
-   - Deploy backend with updated migration
 
 ## Critical Rules
 
@@ -161,10 +190,26 @@ Increment the appropriate number when releasing:
 - New features: 29.0.0 → 29.1.0
 - Major changes: 29.0.0 → 30.0.0
 
-## Automation Ideas (Future)
+## Automation (Current Implementation)
 
-Consider automating this process:
-1. Create a `bump-version.sh` script that updates all files
-2. Add pre-deployment checks to verify versions match
-3. Use environment variables to inject version into backend
-4. Create a CI/CD step to sync versions before deployment
+✅ **Automated version sync is now implemented:**
+
+1. **Version Sync Script**: `scripts/sync-version.sh`
+   - Syncs version from `frontend/app.json` to `backend/VERSION`
+   - Run manually when updating versions
+
+2. **Automatic Database Sync**: `VersionSeeder`
+   - Runs automatically on every Railway deployment (via Procfile)
+   - Reads from `backend/VERSION` file
+   - Updates database `versions` table
+
+3. **Fallback Options**:
+   - Environment variable: `APP_VERSION` (set in Railway)
+   - Manual database update (last resort)
+
+### Future Improvements
+
+Consider:
+- Pre-commit hook to auto-sync versions
+- CI/CD step to verify versions match before deployment
+- Automated version bump script for all files (app.json, native files, etc.)
