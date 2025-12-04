@@ -58,24 +58,22 @@ eas --version
 
 ### Step 1: Prepare the Build
 
-1. **Update version number** in `app.json`:
-   ```json
-   {
-     "expo": {
-       "version": "28.0.4",  // Increment this
-       "ios": {
-         "buildNumber": "28.0.4"  // Match version
-       }
-     }
-   }
-   ```
+⚠️ **CRITICAL**: This project has native iOS/Android code. You **MUST** update all version files (see [Version Management](#version-management) section below).
 
-2. **Commit version bump**:
+1. **Update version numbers** in ALL required files:
+   - `app.json`
+   - `ios/Taist/Info.plist`
+   - `ios/Taist.xcodeproj/project.pbxproj`
+   - `android/app/build.gradle`
+
+2. **Commit and push ALL version changes**:
    ```bash
-   git add app.json
-   git commit -m "🔖 Bump version to 28.0.4"
+   git add frontend/app.json frontend/ios frontend/android
+   git commit -m "🔖 Bump version to X.X.X"
    git push origin main
    ```
+   
+   **Wait for push to complete** before starting the build!
 
 ### Step 2: Build for TestFlight
 
@@ -186,6 +184,10 @@ Testers will:
 
 ## Version Management
 
+### ⚠️ CRITICAL: Native Project Version Files
+
+**IMPORTANT**: This project has native iOS/Android directories. When native projects exist, **EAS Build uses native files instead of `app.json`** for version information. You **MUST** update all version files listed below, or builds will use the old version!
+
 ### Versioning Strategy
 
 We use semantic versioning: `MAJOR.MINOR.PATCH`
@@ -194,35 +196,109 @@ We use semantic versioning: `MAJOR.MINOR.PATCH`
 - **MINOR**: New features, backward compatible
 - **PATCH**: Bug fixes and minor improvements
 
-### Current Version: 28.0.3
+### Current Version: 29.0.0
 
-### Incrementing Versions
+### ⚠️ Required Files to Update (ALL OF THEM)
 
-**For bug fixes:**
+When bumping versions, you **MUST** update these files:
+
+#### 1. `frontend/app.json` (for reference)
 ```json
 {
-  "version": "28.0.4",
-  "ios": { "buildNumber": "28.0.4" },
-  "android": { "versionCode": 280004 }  // MAJOR*10000 + MINOR*100 + PATCH
+  "expo": {
+    "version": "29.0.0",
+    "ios": { "buildNumber": "1" },
+    "android": { "versionCode": 8 }
+  }
 }
 ```
 
-**For new features:**
-```json
-{
-  "version": "28.1.0",
-  "ios": { "buildNumber": "28.1.0" },
-  "android": { "versionCode": 280100 }
-}
+#### 2. `frontend/ios/Taist/Info.plist` (iOS - REQUIRED)
+```xml
+<key>CFBundleShortVersionString</key>
+<string>29.0.0</string>  <!-- Version -->
+<key>CFBundleVersion</key>
+<string>1</string>  <!-- Build number -->
 ```
+
+#### 3. `frontend/ios/Taist.xcodeproj/project.pbxproj` (iOS - REQUIRED)
+Update `MARKETING_VERSION` in **both** Debug and Release configurations:
+```
+MARKETING_VERSION = 29.0.0;
+```
+
+#### 4. `frontend/android/app/build.gradle` (Android - REQUIRED)
+```gradle
+versionCode 8
+versionName "29.0.0"
+```
+
+### Version Bump Checklist
+
+**Before every build, follow this checklist:**
+
+- [ ] Update `app.json` → `version` and `ios.buildNumber`
+- [ ] Update `ios/Taist/Info.plist` → `CFBundleShortVersionString` and `CFBundleVersion`
+- [ ] Update `ios/Taist.xcodeproj/project.pbxproj` → `MARKETING_VERSION` (both Debug & Release)
+- [ ] Update `android/app/build.gradle` → `versionName` and `versionCode`
+- [ ] Commit all changes: `git add frontend/app.json frontend/ios frontend/android && git commit -m "🔖 Bump version to X.X.X"`
+- [ ] Push to remote: `git push origin main`
+- [ ] **Wait for push to complete** before starting EAS build
+- [ ] Start build: `npx eas-cli build --platform ios --profile preview`
+
+### Version Number Examples
+
+**For bug fixes (patch):**
+- Version: `29.0.1`
+- iOS buildNumber: `2` (increment from previous)
+- Android versionCode: `9` (increment from previous)
+
+**For new features (minor):**
+- Version: `29.1.0`
+- iOS buildNumber: `1` (reset to 1 for new minor version)
+- Android versionCode: `10` (increment)
 
 **For major releases:**
-```json
-{
-  "version": "29.0.0",
-  "ios": { "buildNumber": "29.0.0" },
-  "android": { "versionCode": 290000 }
-}
+- Version: `30.0.0`
+- iOS buildNumber: `1` (reset to 1)
+- Android versionCode: `11` (increment)
+
+### Why Native Files Matter
+
+When `ios/` and `android/` directories exist in your Expo project:
+- EAS Build detects native code and uses native project files
+- `app.json` version is **ignored** for native builds
+- Only `Info.plist`, `project.pbxproj`, and `build.gradle` values are used
+- This is why updating only `app.json` doesn't work!
+
+### Quick Version Bump Script
+
+```bash
+#!/bin/bash
+# Usage: ./bump-version.sh 29.0.1 2 9
+
+VERSION=$1
+IOS_BUILD=$2
+ANDROID_CODE=$3
+
+# Update app.json
+sed -i '' "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" frontend/app.json
+sed -i '' "s/\"buildNumber\": \".*\"/\"buildNumber\": \"$IOS_BUILD\"/" frontend/app.json
+sed -i '' "s/\"versionCode\": [0-9]*/\"versionCode\": $ANDROID_CODE/" frontend/app.json
+
+# Update Info.plist
+sed -i '' "s/<string>[0-9.]*<\/string>/<string>$VERSION<\/string>/" frontend/ios/Taist/Info.plist
+sed -i '' "s/<string>[0-9]*<\/string>/<string>$IOS_BUILD<\/string>/" frontend/ios/Taist/Info.plist
+
+# Update build.gradle
+sed -i '' "s/versionCode [0-9]*/versionCode $ANDROID_CODE/" frontend/android/app/build.gradle
+sed -i '' "s/versionName \".*\"/versionName \"$VERSION\"/" frontend/android/app/build.gradle
+
+# Update Xcode project (MARKETING_VERSION)
+sed -i '' "s/MARKETING_VERSION = [0-9.]*/MARKETING_VERSION = $VERSION/" frontend/ios/Taist.xcodeproj/project.pbxproj
+
+echo "✅ Version updated to $VERSION"
+echo "⚠️  Review changes before committing!"
 ```
 
 ---
@@ -444,8 +520,31 @@ If a production build has critical issues:
 
 ---
 
-*Last Updated: November 21, 2025*  
-*Current Version: 28.0.3*  
+*Last Updated: December 4, 2025*  
+*Current Version: 29.0.0*
+
+---
+
+## ⚠️ Common Mistakes & Troubleshooting
+
+### Build Shows Wrong Version
+
+**Symptom**: Build shows old version (e.g., `28.0.3`) even after updating `app.json`
+
+**Cause**: Native project files (`Info.plist`, `project.pbxproj`, `build.gradle`) weren't updated
+
+**Solution**: 
+1. Check all version files listed in [Version Management](#version-management)
+2. Update native files, commit, push, then rebuild
+3. Verify version in EAS build logs before submission
+
+### "Bundle version must be higher" Error
+
+**Symptom**: TestFlight upload fails with version conflict
+
+**Cause**: Version number is same or lower than previously uploaded build
+
+**Solution**: Increment version in ALL native files, commit, push, rebuild  
 *Maintained by: Development Team*
 
 
