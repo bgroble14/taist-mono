@@ -794,15 +794,25 @@ export const VerifyPhoneAPI = async (phone_number: string) => {
 export const CompleteChefQuizAPI = async (params: {
   user_id?: number;
 }): Promise<IResponse<IUser>> => {
-  const data = await fetch(MAPI_URL + '/complete_chef_quiz', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      apiKey: API_KEY,
-    },
-    body: JSON.stringify(params),
-  });
-  return await data.json();
+  try {
+    const data = await fetch(BASE_URL + 'complete_chef_quiz', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apiKey: API_KEY,
+      },
+      body: JSON.stringify(params),
+    });
+
+    if (!data.ok) {
+      return { success: 0, error: 'Failed to complete quiz. Please try again.' };
+    }
+
+    return await data.json();
+  } catch (error) {
+    console.error('<<<API Error complete_chef_quiz', error);
+    return { success: 0, error: 'An error occurred. Please try again.' };
+  }
 };
 
 /**
