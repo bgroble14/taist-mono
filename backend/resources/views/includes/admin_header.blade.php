@@ -136,6 +136,9 @@
             <a class="left_menu_item l_menu_item_orders" href="/admin/orders" title="Orders">
                 <i class="fa fa-calendar-check-o l_menu_icon"></i>
                 <span>Orders</span></a>
+            <a class="left_menu_item l_menu_item_discount_codes" href="/admin/discount-codes" title="Discount Codes">
+                <i class="fa fa-tag l_menu_icon"></i>
+                <span>Discount Codes</span></a>
             <!--
             <a class="left_menu_item l_menu_item_reviews" href="/admin/reviews" title="Reviews">
                 <i class="fa fa-star l_menu_icon"></i>
