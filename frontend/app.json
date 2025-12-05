@@ -181,6 +181,7 @@
           }
         }
       ],
+      "@react-native-firebase/crashlytics",
       [
         "expo-location",
         {

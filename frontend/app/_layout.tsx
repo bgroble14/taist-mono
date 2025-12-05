@@ -20,6 +20,8 @@ import { StripPublishableKey } from './utils/constance';
 import { initializeNavigation } from './utils/navigation';
 import { toastConfig } from './utils/toast';
 import AppTheme from '../constants/theme';
+import { initializeCrashlytics } from './services/crashlytics';
+import { ErrorBoundary } from './components/ErrorBoundary';
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
@@ -27,6 +29,11 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
+    // Initialize Crashlytics early
+    initializeCrashlytics().catch(error => {
+      console.error('Failed to initialize Crashlytics:', error);
+    });
+
     if (Platform.OS === 'ios') {
       KeyboardManager.setEnable(true);
     }
@@ -39,26 +46,28 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <PaperProvider theme={AppTheme}>
-          <ProgressProvider>
-            <StripeProvider publishableKey={StripPublishableKey}>
-              <SafeAreaProvider>
-                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                  <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="index" options={{ headerShown: false }} />
-                    <Stack.Screen name="screens" options={{ headerShown: false }} />
-                    <Stack.Screen name="(not-found)" options={{ title: 'Not Found' }} />
-                  </Stack>
-                  <StatusBar style="auto" />
-                </ThemeProvider>
-              </SafeAreaProvider>
-            </StripeProvider>
-            <Toast config={toastConfig} />
-          </ProgressProvider>
-        </PaperProvider>
-      </PersistGate>
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <PaperProvider theme={AppTheme}>
+            <ProgressProvider>
+              <StripeProvider publishableKey={StripPublishableKey}>
+                <SafeAreaProvider>
+                  <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                    <Stack screenOptions={{ headerShown: false }}>
+                      <Stack.Screen name="index" options={{ headerShown: false }} />
+                      <Stack.Screen name="screens" options={{ headerShown: false }} />
+                      <Stack.Screen name="(not-found)" options={{ title: 'Not Found' }} />
+                    </Stack>
+                    <StatusBar style="auto" />
+                  </ThemeProvider>
+                </SafeAreaProvider>
+              </StripeProvider>
+              <Toast config={toastConfig} />
+            </ProgressProvider>
+          </PaperProvider>
+        </PersistGate>
+      </Provider>
+    </ErrorBoundary>
   );
 }
