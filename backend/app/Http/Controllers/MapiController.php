@@ -1646,7 +1646,7 @@ CRITICAL SAFETY REQUIREMENT:
 REQUIREMENTS:
 - Perfect spelling and grammar
 - 1 sentence, 100-150 characters maximum
-- List main components: protein, base, vegetables, sauce/garnish
+- Include key ingredients naturally without labeling them (no parentheses like \"protein\" or \"base\")
 - Specific cooking methods (grilled, roasted, pan-seared, baked)
 - NO flowery language (no \"divine,\" \"heavenly,\" \"succulent,\" \"timeless,\" \"classic reimagined\")
 - Sound like a real chef, not a marketing copywriter
