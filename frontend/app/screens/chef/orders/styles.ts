@@ -33,6 +33,12 @@ export const styles = StyleSheet.create({
 		textAlign:'center',
 		color: AppColors.text
 	},
+	notificationText:{
+		fontSize:14,
+		textAlign:'center',
+		color: AppColors.textSecondary,
+		fontStyle: 'italic',
+	},
 	emptyImg:{
 		width:'80%',
 		height:'30%',

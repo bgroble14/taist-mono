@@ -140,6 +140,9 @@ const Orders = () => {
             Refer to the Main Menu in the Home tab to help you get the
             customers you deserve!{' '}
           </Text>
+          <Text style={styles.notificationText}>
+            You'll receive a notification when you get an order request!
+          </Text>
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.pageView}>
