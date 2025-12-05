@@ -8,18 +8,14 @@ import StyledButton from '../../../../components/styledButton';
 import { useAppSelector } from '../../../../hooks/useRedux';
 import { getImageURL } from '../../../../utils/functions';
 
-// Default appliance icon mapping
+// Default appliance icon mapping (fallback emojis if image fails to load)
 const applianceIcons: { [key: string]: string } = {
+  'Sink': '💧',
+  'Stove': '🍳',
   'Oven': '🔥',
   'Microwave': '📻',
-  'Stovetop': '🍳',
-  'Air Fryer': '🍟',
-  'Instant Pot': '🍲',
-  'Grill': '🔥',
-  'Sink': '💧',
-  'Refrigerator': '❄️',
-  'Blender': '🥤',
   'Toaster': '🍞',
+  'Grill': '🔥',
 };
 
 interface StepMenuItemKitchenProps {
@@ -46,8 +42,8 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
     if (typeof menuItemData.appliances === 'string' && menuItemData.appliances) {
       return menuItemData.appliances.split(',').map(x => parseInt(x)).filter(x => !isNaN(x));
     }
-    // Default to Sink (id: 1)
-    return [1];
+    // No default selection - user must choose
+    return [];
   }, [menuItemData.appliances]);
 
   const completionTimeId = menuItemData.completion_time_id ?? '1';
@@ -68,10 +64,6 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
       tempIds.splice(index, 1);
     } else {
       tempIds.push(id);
-    }
-    // Ensure at least Sink is selected
-    if (tempIds.length === 0) {
-      tempIds.push(appliances[0]?.id ?? 1);
     }
     onUpdateMenuItemData({ appliances: tempIds as any });
   };
@@ -117,10 +109,9 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
         <View style={styles.applianceContainer}>
           {appliances.map((appliance, idx) => {
             const isSelected = applianceIds.includes(appliance.id ?? 0);
-            const isSink = appliance.name === 'Sink';
             const applianceId = appliance.id ?? 0;
             const hasImageError = imageErrors[applianceId];
-            
+
             return (
               <TouchableOpacity
                 style={[
@@ -128,7 +119,6 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
                   isSelected && styles.applianceSelected,
                 ]}
                 onPress={() => handleAppliancePress(applianceId)}
-                disabled={isSink}
                 key={`appliance_${idx}`}
               >
                 {appliance.image && appliance.image.trim() !== '' && !hasImageError ? (

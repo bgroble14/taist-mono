@@ -29,14 +29,14 @@ class LocalTestDataSeeder extends Seeder
         ];
         DB::table('tbl_allergens')->insert($allergens);
         
-        // 2. APPLIANCES
+        // 2. APPLIANCES (order: Sink, Stove, Oven, Microwave, Toaster, Grill)
         echo "Seeding appliances...\n";
         $appliances = [
+            ['name' => 'Sink', 'image' => 'sink.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
+            ['name' => 'Stove', 'image' => 'stove.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
             ['name' => 'Oven', 'image' => 'oven.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
             ['name' => 'Microwave', 'image' => 'microwave.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
-            ['name' => 'Stovetop', 'image' => 'stovetop.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
-            ['name' => 'Air Fryer', 'image' => 'airfryer.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
-            ['name' => 'Instant Pot', 'image' => 'instantpot.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
+            ['name' => 'Toaster', 'image' => 'toaster.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
             ['name' => 'Grill', 'image' => 'grill.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
         ];
         DB::table('tbl_appliances')->insert($appliances);
@@ -290,7 +290,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Lunch,Dinner',
             'category_ids' => '1',
             'allergens' => '1', // Gluten
-            'appliances' => '3,4', // Stovetop, Air Fryer
+            'appliances' => '2', // Stove
             'estimated_time' => 20,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -306,7 +306,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Dinner',
             'category_ids' => '1',
             'allergens' => '1,2', // Gluten, Dairy
-            'appliances' => '1', // Oven
+            'appliances' => '3', // Oven
             'estimated_time' => 35,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -322,7 +322,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Lunch,Dinner',
             'category_ids' => '1',
             'allergens' => '1,2', // Gluten, Dairy
-            'appliances' => '3', // Stovetop
+            'appliances' => '2', // Stove
             'estimated_time' => 15,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -339,7 +339,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Lunch,Dinner',
             'category_ids' => '2',
             'allergens' => '4,6', // Peanuts, Soy
-            'appliances' => '3', // Stovetop
+            'appliances' => '2', // Stove
             'estimated_time' => 25,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -355,7 +355,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Lunch,Dinner',
             'category_ids' => '2',
             'allergens' => '3,4,6,8', // Eggs, Peanuts, Soy, Shellfish
-            'appliances' => '3', // Stovetop
+            'appliances' => '2', // Stove
             'estimated_time' => 20,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -371,7 +371,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Lunch,Dinner',
             'category_ids' => '2',
             'allergens' => '6,7', // Soy, Fish
-            'appliances' => '1,3', // Oven, Stovetop
+            'appliances' => '2,3', // Stove, Oven
             'estimated_time' => 30,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -388,7 +388,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Lunch,Dinner',
             'category_ids' => '3',
             'allergens' => '', // No major allergens
-            'appliances' => '1', // Oven
+            'appliances' => '3', // Oven
             'estimated_time' => 25,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -404,7 +404,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Dinner',
             'category_ids' => '3',
             'allergens' => '1', // Gluten (if not using GF rice)
-            'appliances' => '3', // Stovetop
+            'appliances' => '2', // Stove
             'estimated_time' => 40,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -420,7 +420,7 @@ class LocalTestDataSeeder extends Seeder
             'meals' => 'Lunch,Dinner',
             'category_ids' => '3',
             'allergens' => '', // No major allergens
-            'appliances' => '3', // Stovetop
+            'appliances' => '2', // Stove
             'estimated_time' => 20,
             'is_live' => 1,
             'created_at' => $timestamp,
@@ -480,6 +480,7 @@ class LocalTestDataSeeder extends Seeder
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
     }
 }
+
 
 
 
