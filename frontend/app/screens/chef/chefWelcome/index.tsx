@@ -42,10 +42,16 @@ const ChefWelcome = () => {
           {/* Hero Image */}
           <View style={styles.heroContainer}>
             <Image
-              source={require('../../../assets/images/chef1.jpg')}
+              source={require('../../../assets/images/chefDelivery.png')}
               style={styles.heroImage}
               resizeMode="cover"
             />
+          </View>
+
+          {/* Scroll Indicator */}
+          <View style={styles.scrollIndicator}>
+            <Text style={styles.scrollText}>Scroll to learn more</Text>
+            <Text style={styles.scrollArrow}>↓</Text>
           </View>
 
           {/* Benefits Card */}
@@ -59,7 +65,7 @@ const ChefWelcome = () => {
               <View style={styles.benefitText}>
                 <Text style={styles.benefitTitle}>Work 24/7</Text>
                 <Text style={styles.benefitDescription}>
-                  You choose when you want to work and how much
+                  You choose when and how much you want to work
                 </Text>
               </View>
             </View>
@@ -83,7 +89,7 @@ const ChefWelcome = () => {
               <View style={styles.benefitText}>
                 <Text style={styles.benefitTitle}>Custom Menus</Text>
                 <Text style={styles.benefitDescription}>
-                  Make whatever you'd like and switch items anytime
+                  Make whatever you'd like and switch out items anytime
                 </Text>
               </View>
             </View>
@@ -202,10 +208,25 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: '100%',
-    height: 200,
+    height: 220,
     borderRadius: 20,
     borderWidth: 3,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  scrollIndicator: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  scrollText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    opacity: 0.9,
+    marginBottom: 4,
+  },
+  scrollArrow: {
+    fontSize: 20,
+    color: '#FFFFFF',
+    opacity: 0.9,
   },
   card: {
     backgroundColor: '#FFFFFF',
