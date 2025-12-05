@@ -42,8 +42,8 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
     if (typeof menuItemData.appliances === 'string' && menuItemData.appliances) {
       return menuItemData.appliances.split(',').map(x => parseInt(x)).filter(x => !isNaN(x));
     }
-    // No default selection - user must choose
-    return [];
+    // Default to Sink (id: 1) - always required
+    return [1];
   }, [menuItemData.appliances]);
 
   const completionTimeId = menuItemData.completion_time_id ?? '1';
@@ -109,6 +109,7 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
         <View style={styles.applianceContainer}>
           {appliances.map((appliance, idx) => {
             const isSelected = applianceIds.includes(appliance.id ?? 0);
+            const isSink = appliance.name === 'Sink';
             const applianceId = appliance.id ?? 0;
             const hasImageError = imageErrors[applianceId];
 
@@ -119,6 +120,7 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
                   isSelected && styles.applianceSelected,
                 ]}
                 onPress={() => handleAppliancePress(applianceId)}
+                disabled={isSink}
                 key={`appliance_${idx}`}
               >
                 {appliance.image && appliance.image.trim() !== '' && !hasImageError ? (
