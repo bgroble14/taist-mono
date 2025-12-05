@@ -67,5 +67,45 @@ export const styles = StyleSheet.create({
 		borderColor:AppColors.border,
 		justifyContent:'center',
 		alignItems:'center',
-	}
+	},
+	// Time picker modal styling
+	timePickerModalOverlay: {
+		flex: 1,
+		backgroundColor: 'rgba(0, 0, 0, 0.5)',
+		justifyContent: 'flex-end',
+	},
+	timePickerModalContent: {
+		backgroundColor: 'white',
+		borderTopLeftRadius: 20,
+		borderTopRightRadius: 20,
+		paddingBottom: 34, // Safe area for home indicator
+	},
+	timePickerModalHeader: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: Spacing.lg,
+		paddingVertical: Spacing.md,
+		borderBottomWidth: 1,
+		borderBottomColor: '#E5E5E5',
+	},
+	timePickerModalCancel: {
+		fontSize: 16,
+		color: AppColors.textSecondary,
+		fontWeight: '600',
+	},
+	timePickerModalTitle: {
+		fontSize: 17,
+		fontWeight: '600',
+		color: AppColors.text,
+	},
+	timePickerModalDone: {
+		fontSize: 16,
+		color: AppColors.primary,
+		fontWeight: '600',
+	},
+	timePickerPicker: {
+		width: '100%',
+		height: 200,
+	},
 });
