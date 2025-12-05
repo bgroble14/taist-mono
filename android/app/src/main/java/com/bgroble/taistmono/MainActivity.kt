@@ -1,4 +1,4 @@
-package com.taistmono
+package com.bgroble.taistmono
 
 import android.os.Build
 import android.os.Bundle

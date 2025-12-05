@@ -18,3 +18,4 @@ return [
     'version' => env('APP_VERSION', '29.0.0'),
 ];
 
+

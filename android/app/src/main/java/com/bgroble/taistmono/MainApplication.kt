@@ -1,4 +1,4 @@
-package com.taistmono
+package com.bgroble.taistmono
 
 import android.app.Application
 import android.content.res.Configuration

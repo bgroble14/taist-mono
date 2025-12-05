@@ -2,6 +2,9 @@
   "expo": {
     "android": {
       "package": "com.bgroble.taistmono"
+    },
+    "ios": {
+      "bundleIdentifier": "com.bgroble.taistmono"
     }
   }
 }
