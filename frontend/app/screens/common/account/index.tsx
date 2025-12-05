@@ -599,9 +599,9 @@ const user: IUser = typeof params?.user === 'string'
             </Pressable>
           </View>
           <Text style={styles.helperText}>
-            {userInfo.user_type === 1 
-              ? "We'll ask for your full address when you place your first order. Tap the 📍 icon to auto-fill from your location."
-              : "Tap the 📍 icon above to auto-fill your address from your current location."}
+            {userInfo.user_type === 1
+              ? "We'll ask for your full address when you place your first order. Tap the ➤ icon to auto-fill from your location."
+              : "Tap the ➤ icon above to auto-fill your address from your current location."}
           </Text>
           <StyledTextInput
             label={userInfo.user_type === 1 ? "Address (Optional)" : "Address"}

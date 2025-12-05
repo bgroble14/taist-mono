@@ -202,7 +202,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   selectedDayContainer: {
-    backgroundColor: '#fa4616', // Orange background when selected
+    backgroundColor: '#ffffff', // White background when selected
+    borderWidth: 1,
+    borderColor: '#fa4616', // Red border
   },
   disabledDayContainer: {
     opacity: 0.4,
@@ -214,7 +216,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   selectedDayName: {
-    color: '#ffffff', // White text when selected
+    color: '#fa4616', // Red text when selected
   },
   dayNumber: {
     color: '#1a1a1a', // Dark text
@@ -222,7 +224,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   selectedDayNumber: {
-    color: '#ffffff', // White text when selected
+    color: '#fa4616', // Red text when selected
   },
   disabledText: {
     color: '#cccccc', // Light gray for disabled
