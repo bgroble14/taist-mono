@@ -49,7 +49,7 @@ export const StepChefBasicInfo: React.FC<StepChefBasicInfoProps> = ({
   return (
     <SignupStepContainer
       title="What's your name?"
-      subtitle="This will be displayed on your chef profile"
+      subtitle="Your full name is only visible to you"
     >
       <StyledTextInput
         label="First Name"
