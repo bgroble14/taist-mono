@@ -1,8 +1,9 @@
 import { Text, TextInput } from '@react-native-material/core';
 import React, { useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 
 import { goBack } from '@/app/utils/navigation';
+import KeyboardAwareScrollView from '../../../components/KeyboardAwareScrollView';
 import { useAppDispatch } from '../../../hooks/useRedux';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import { ForgotAPI, ResetPasswordAPI } from '../../../services/api';
@@ -81,16 +82,9 @@ const Forgot = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    <KeyboardAwareScrollView 
+      style={styles.container}
     >
-      <ScrollView 
-        style={styles.container}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
         <View style={styles.center}>
           <Image
             style={styles.logo}
@@ -188,8 +182,7 @@ const Forgot = () => {
             <Text style={styles.buttonText2}>Login </Text>
           </Pressable>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 

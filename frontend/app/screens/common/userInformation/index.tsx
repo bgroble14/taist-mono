@@ -16,7 +16,6 @@ import {
   Platform,
   Pressable,
   SafeAreaView,
-  ScrollView,
   View
 } from 'react-native';
 import { SelectList } from 'react-native-dropdown-select-list';
@@ -32,6 +31,7 @@ import StyledPhotoPicker from '../../../components/styledPhotoPicker';
 import StyledProfileImage from '../../../components/styledProfileImage';
 import StyledSwitch from '../../../components/styledSwitch';
 import StyledTextInput from '../../../components/styledTextInput';
+import KeyboardAwareScrollView from '../../../components/KeyboardAwareScrollView';
 import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
@@ -227,7 +227,7 @@ const UserInformation = ({navigation, route}: any) => {
   return (
     <SafeAreaView style={styles.main}>
       <Container backMode={true} title="Sign Up">
-        <ScrollView contentContainerStyle={styles.pageView}>
+        <KeyboardAwareScrollView contentContainerStyle={styles.pageView}>
           {userInfo.user_type == 2 && (
             <View>
               <StyledPhotoPicker
@@ -357,7 +357,7 @@ const UserInformation = ({navigation, route}: any) => {
           <View style={styles.vcenter}>
             <StyledButton title={'SAVE '} onPress={() => handleSignUp()} />
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
        {/* Replace DatePicker with DateTimePicker */}
         {Platform.OS === 'ios' ? (
           <Modal

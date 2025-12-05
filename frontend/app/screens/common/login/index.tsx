@@ -1,8 +1,9 @@
 import { Button, IconButton, Text, TextInput } from '@react-native-material/core';
 import React, { useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 
 import { navigate } from '@/app/utils/navigation';
+import KeyboardAwareScrollView from '../../../components/KeyboardAwareScrollView';
 import { useAppDispatch } from '../../../hooks/useRedux';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import { LoginAPI } from '../../../services/api';
@@ -58,17 +59,10 @@ const Login = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    <KeyboardAwareScrollView
+      style={styles.container}
+      contentContainerStyle={{flexGrow: 1}}
     >
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={{flexGrow: 1}}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
       {/* Logo Section */}
       <View style={styles.logoContainer}>
         <Image
@@ -179,8 +173,7 @@ const Login = () => {
           <Text style={styles.signupButtonText}>Sign Up</Text>
         </Pressable>
       </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 

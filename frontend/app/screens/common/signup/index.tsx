@@ -1,8 +1,9 @@
 import { navigate } from '@/app/utils/navigation';
 import { Text, TextInput } from 'react-native-paper';
 import React, { useRef } from 'react';
-import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 import { router } from 'expo-router';
+import KeyboardAwareScrollView from '../../../components/KeyboardAwareScrollView';
 import { IUser } from '../../../types/index';
 import { ShowErrorToast } from '../../../utils/toast';
 import { emailValidation, passwordValidation } from '../../../utils/validations';
@@ -197,16 +198,9 @@ const Signup = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    <KeyboardAwareScrollView 
+      style={styles.container}
     >
-      <ScrollView 
-        style={styles.container}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
         <View style={styles.center}>
           <Image
             style={styles.logo}
@@ -410,8 +404,7 @@ const Signup = () => {
           onBack={() => setStep(6)}
         />
       )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 

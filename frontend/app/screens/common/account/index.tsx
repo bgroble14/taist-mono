@@ -5,7 +5,6 @@ import {
   Platform,
   Pressable,
   SafeAreaView,
-  ScrollView,
   Text, View
 } from 'react-native';
 
@@ -48,6 +47,7 @@ import StyledPhotoPicker from '../../../components/styledPhotoPicker';
 import StyledProfileImage from '../../../components/styledProfileImage';
 import StyledSwitch from '../../../components/styledSwitch';
 import StyledTextInput from '../../../components/styledTextInput';
+import KeyboardAwareScrollView from '../../../components/KeyboardAwareScrollView';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import {
@@ -68,7 +68,7 @@ const Account = () => {
   const selfInfo = useAppSelector(x => x.user.user);
   const dispatch = useAppDispatch();
   const appState = useRef(AppState.currentState);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<any>(null);
   const addressSectionRef = useRef<View>(null);
   const [addressSectionY, setAddressSectionY] = useState<number | null>(null);
 
@@ -512,7 +512,7 @@ const user: IUser = typeof params?.user === 'string'
           from == 'Signup' ? true : userInfo.user_type === 1 ? false : true
         }
         title={from == 'Signup' ? 'Sign Up' : 'ACCOUNT'}>
-        <ScrollView 
+        <KeyboardAwareScrollView 
           ref={scrollViewRef}
           contentContainerStyle={styles.pageView}
         >
@@ -671,7 +671,7 @@ const user: IUser = typeof params?.user === 'string'
               }}
             />
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
         
         {/* Replace DatePicker with DateTimePicker */}
         {Platform.OS === 'ios' ? (

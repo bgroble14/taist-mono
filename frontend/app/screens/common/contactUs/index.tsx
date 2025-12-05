@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SafeAreaView, ScrollView, View } from 'react-native';
+import { SafeAreaView, View } from 'react-native';
 
 // NPM
 
@@ -9,6 +9,7 @@ import { SafeAreaView, ScrollView, View } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
 
 import { goBack } from '@/app/utils/navigation';
+import KeyboardAwareScrollView from '../../../components/KeyboardAwareScrollView';
 import StyledButton from '../../../components/styledButton';
 import StyledTextInput from '../../../components/styledTextInput';
 import Container from '../../../layout/Container';
@@ -45,7 +46,7 @@ const ContactUs = () => {
   return (
     <SafeAreaView style={styles.main}>
       <Container backMode={true} title="Contact Us">
-        <ScrollView contentContainerStyle={styles.pageView}>
+        <KeyboardAwareScrollView contentContainerStyle={styles.pageView}>
           <StyledTextInput
             label="Subject "
             placeholder="Subject "
@@ -62,7 +63,7 @@ const ContactUs = () => {
           <View style={styles.vcenter}>
             <StyledButton title={'SUBMIT'} onPress={() => handleSave()} />
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </Container>
     </SafeAreaView>
   );
