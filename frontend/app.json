@@ -126,7 +126,8 @@
         {
           "ios": {
             "useFrameworks": "static",
-            "privacyManifestAggregationEnabled": false
+            "privacyManifestAggregationEnabled": false,
+            "forceStaticLinking": ["RNFBApp", "RNFBCrashlytics", "RNFBMessaging"]
           },
           "android": {
             "enableProguardInReleaseBuilds": true,
