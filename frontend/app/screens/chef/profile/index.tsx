@@ -166,10 +166,35 @@ const Profile = () => {
     onChangeDays(prevDays =>
       prevDays.map(day => {
         if (day.id !== dayId) return day;
-        // Create new object with updated time
+
+        let newStart = type === 'start' ? time : day.start;
+        let newEnd = type === 'end' ? time : day.end;
+
+        // Enforce constraint: start must be before end
+        // Auto-adjust the other time if needed to maintain validity
+        if (newStart && newEnd) {
+          const startMoment = moment(newStart);
+          const endMoment = moment(newEnd);
+
+          // Compare only hours and minutes (ignore date component)
+          const startMinutes = startMoment.hours() * 60 + startMoment.minutes();
+          const endMinutes = endMoment.hours() * 60 + endMoment.minutes();
+
+          if (startMinutes >= endMinutes) {
+            if (type === 'start') {
+              // User changed start time to be >= end, push end forward by 1 hour
+              newEnd = moment(newStart).add(1, 'hour').toDate();
+            } else {
+              // User changed end time to be <= start, pull start backward by 1 hour
+              newStart = moment(newEnd).subtract(1, 'hour').toDate();
+            }
+          }
+        }
+
         return {
           ...day,
-          [type]: time,
+          start: newStart,
+          end: newEnd,
         };
       })
     );
