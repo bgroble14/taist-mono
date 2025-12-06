@@ -399,6 +399,8 @@ const Profile = () => {
                 display="spinner"
                 value={tempTime}
                 onChange={handleTimeChange}
+                themeVariant="light"
+                textColor="#000000"
                 style={styles.picker}
               />
             </View>
@@ -568,7 +570,8 @@ const styles = StyleSheet.create({
   },
   picker: {
     width: '100%',
-    height: 200,
+    height: 216, // iOS standard picker height
+    backgroundColor: 'white',
   },
 });
 

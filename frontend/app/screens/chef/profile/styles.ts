@@ -79,6 +79,7 @@ export const styles = StyleSheet.create({
 		borderTopLeftRadius: 20,
 		borderTopRightRadius: 20,
 		paddingBottom: 34, // Safe area for home indicator
+		overflow: 'hidden',
 	},
 	timePickerModalHeader: {
 		flexDirection: 'row',
@@ -106,6 +107,7 @@ export const styles = StyleSheet.create({
 	},
 	timePickerPicker: {
 		width: '100%',
-		height: 200,
+		height: 216, // iOS standard picker height
+		backgroundColor: 'white',
 	},
 });

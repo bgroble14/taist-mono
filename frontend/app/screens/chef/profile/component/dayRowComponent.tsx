@@ -181,6 +181,8 @@ export const DayRowComponent = ({day, onDayChanged}: Props) => {
                 display="spinner"
                 value={displayStartTime}
                 onChange={onStartTimeChange}
+                themeVariant="light"
+                textColor="#000000"
                 style={styles.timePickerPicker}
               />
             </View>
@@ -244,6 +246,8 @@ export const DayRowComponent = ({day, onDayChanged}: Props) => {
                 display="spinner"
                 value={displayEndTime}
                 onChange={onEndTimeChange}
+                themeVariant="light"
+                textColor="#000000"
                 style={styles.timePickerPicker}
               />
             </View>
