@@ -11,10 +11,4 @@
 -keep class com.swmansion.reanimated.** { *; }
 -keep class com.facebook.react.turbomodule.** { *; }
 
-# Stripe SDK ProGuard rules
--keep class com.stripe.android.** { *; }
--keep class com.stripe.android.pushProvisioning.** { *; }
--keep class com.reactnativestripesdk.** { *; }
--dontwarn com.stripe.android.pushProvisioning.**
-
 # Add any project specific keep options here:
