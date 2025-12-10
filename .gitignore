@@ -56,6 +56,9 @@ frontend/android/app/build/
 frontend/android/.gradle/
 frontend/ios/Pods/
 frontend/ios/build/
+frontend/ios/Podfile.lock
+frontend/ios/*.xcworkspace/
+frontend/ios/PrivacyInfo.xcprivacy
 
 # Cache
 .cache/

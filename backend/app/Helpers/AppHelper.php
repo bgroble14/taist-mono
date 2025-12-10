@@ -17,7 +17,77 @@ class AppHelper
         $c = 'https://www.flagpictures.com/static/flags/vector/'.$c.'.svg';
         return $c;
     }
-    
+
+    /**
+     * Convert US state name to 2-letter abbreviation
+     * Returns the input if already abbreviated or not found
+     */
+    public static function getStateAbbreviation($state) {
+        if (empty($state)) {
+            return $state;
+        }
+
+        // If already 2 characters, assume it's already abbreviated
+        if (strlen(trim($state)) === 2) {
+            return strtoupper(trim($state));
+        }
+
+        $states = [
+            'alabama' => 'AL', 'alaska' => 'AK', 'arizona' => 'AZ', 'arkansas' => 'AR',
+            'california' => 'CA', 'colorado' => 'CO', 'connecticut' => 'CT', 'delaware' => 'DE',
+            'florida' => 'FL', 'georgia' => 'GA', 'hawaii' => 'HI', 'idaho' => 'ID',
+            'illinois' => 'IL', 'indiana' => 'IN', 'iowa' => 'IA', 'kansas' => 'KS',
+            'kentucky' => 'KY', 'louisiana' => 'LA', 'maine' => 'ME', 'maryland' => 'MD',
+            'massachusetts' => 'MA', 'michigan' => 'MI', 'minnesota' => 'MN', 'mississippi' => 'MS',
+            'missouri' => 'MO', 'montana' => 'MT', 'nebraska' => 'NE', 'nevada' => 'NV',
+            'new hampshire' => 'NH', 'new jersey' => 'NJ', 'new mexico' => 'NM', 'new york' => 'NY',
+            'north carolina' => 'NC', 'north dakota' => 'ND', 'ohio' => 'OH', 'oklahoma' => 'OK',
+            'oregon' => 'OR', 'pennsylvania' => 'PA', 'rhode island' => 'RI', 'south carolina' => 'SC',
+            'south dakota' => 'SD', 'tennessee' => 'TN', 'texas' => 'TX', 'utah' => 'UT',
+            'vermont' => 'VT', 'virginia' => 'VA', 'washington' => 'WA', 'west virginia' => 'WV',
+            'wisconsin' => 'WI', 'wyoming' => 'WY',
+            'district of columbia' => 'DC', 'puerto rico' => 'PR',
+        ];
+
+        $stateLower = strtolower(trim($state));
+        return $states[$stateLower] ?? $state;
+    }
+
+    /**
+     * Format phone number to E.164 format for US numbers
+     * Returns null if phone is empty or invalid
+     */
+    public static function formatPhoneE164($phone) {
+        if (empty($phone)) {
+            return null;
+        }
+
+        // Remove all non-numeric characters
+        $cleaned = preg_replace('/[^0-9]/', '', $phone);
+
+        // If empty after cleaning, return null
+        if (empty($cleaned)) {
+            return null;
+        }
+
+        // If it's already 11 digits starting with 1, format it
+        if (strlen($cleaned) === 11 && substr($cleaned, 0, 1) === '1') {
+            return '+' . $cleaned;
+        }
+
+        // If it's 10 digits, assume US and add +1
+        if (strlen($cleaned) === 10) {
+            return '+1' . $cleaned;
+        }
+
+        // If it doesn't start with +, add it
+        if (substr($phone, 0, 1) !== '+') {
+            return '+' . $cleaned;
+        }
+
+        return $phone;
+    }
+
     public static function instance()
     {
         return new AppHelper();
