@@ -3960,6 +3960,12 @@ Write only the review text:";
                     'product_description' => 'Home chef selling homemade food through Taist',
                     'mcc' => '5812', // Restaurants/eating places
                 ],
+                // Pre-fill statement descriptor to skip that page entirely
+                'settings' => [
+                    'payments' => [
+                        'statement_descriptor' => 'TAIST',
+                    ],
+                ],
             ]);
 
             $accountId = $account['id'];
@@ -3969,6 +3975,10 @@ Write only the review text:";
                 'refresh_url' => 'https://connect.stripe.com/express',
                 'return_url' => 'https://connect.stripe.com/express',
                 'type' => 'account_onboarding',
+                'collection_options' => [
+                    'fields' => 'eventually_due',
+                    'future_requirements' => 'include',
+                ],
             ]);
 
             if ($account_link) {
