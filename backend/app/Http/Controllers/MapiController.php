@@ -3846,7 +3846,7 @@ Write only the review text:";
         $data = request()->input();
         $user = $this->_authUser();
         $accountId = '';
-        $email = $data['email'] ? $data['email'] : $user->email;
+        $email = $data['email'] ?? $user->email;
 
         $errorMsg = "";
         // $emailResponse;
