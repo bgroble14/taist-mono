@@ -28,6 +28,12 @@ use App\Models\Version;
 use App\Models\DiscountCodes;
 use App\Models\DiscountCodeUsage;
 use App\Notification;
+use App\Notifications\NewOrderNotification;
+use App\Notifications\OrderAcceptedNotification;
+use App\Notifications\OrderReadyNotification;
+use App\Notifications\OrderCompletedNotification;
+use App\Notifications\OrderRejectedNotification;
+use App\Notifications\ChefOnTheWayNotification;
 use App\Services\TwilioService;
 use App\Services\OrderSmsService;
 use Illuminate\Support\Str;
@@ -2288,24 +2294,9 @@ Write only the review text:";
 
         $data = app(Orders::class)->where(['id' => $id])->first();
 
+        // Send new order notification to chef
         $user = app(Listener::class)->where(['id' => $request->chef_user_id])->first();
-        if ($user->fcm_token) {
-            $notification = app(NotificationTemplates::class)->where(['id' => 6])->first();
-            try {
-                $this->notification($user->fcm_token, $notification->subject, $notification->push, $id, $role = 'chef');
-                Notification::create([
-                    'title' => $notification->template_name,
-                    'body' => $notification->push,
-                    'image' => $user->photo ?? 'N/A',
-                    'fcm_token' => $user->fcm_token,
-                    'user_id' => $user->id,
-                    'navigation_id' => $data->id,
-                    'role' => $role,
-                ]);
-            } catch (FirebaseException $e) {
-                $errorMsg = $e->getMessage();
-            }
-        }
+        $user->notify(new NewOrderNotification($data));
 
         // Send SMS notification to chef about new order
         try {
@@ -3409,43 +3400,13 @@ Write only the review text:";
         $order = app(Orders::class)->where(['id' => $id])->first();
 
         if ($request->status == 1) {
+            // Payment confirmed - notify chef of new order
             $user = app(Listener::class)->where(['id' => $order->chef_user_id])->first();
-            if ($user->fcm_token) {
-                $notification = app(NotificationTemplates::class)->where(['id' => 6])->first();
-                try {
-                    $this->notification($user->fcm_token, $notification->subject, $notification->push, $id, $role = 'chef');
-                    Notification::create([
-                        'title' => $notification->template_name,
-                        'body' => $notification->push,
-                        'image' => $user->photo ?? 'N/A',
-                        'fcm_token' => $user->fcm_token,
-                        'user_id' => $user->id,
-                        'navigation_id' => $order->id,
-                        'role' => $role,
-                    ]);
-                } catch (FirebaseException $e) {
-                    $errorMsg = $e->getMessage();
-                }
-            }
+            $user->notify(new NewOrderNotification($order));
         } else if ($request->status == 2) {
+            // Chef accepted order - notify customer
             $user = app(Listener::class)->where(['id' => $order->customer_user_id])->first();
-            if ($user->fcm_token) {
-                $notification = app(NotificationTemplates::class)->where(['id' => 10])->first();
-                try {
-                    $this->notification($user->fcm_token, $notification->subject, $notification->push, $id, $role = 'user');
-                    Notification::create([
-                        'title' => $notification->template_name,
-                        'body' => $notification->push,
-                        'image' => $user->photo ?? 'N/A',
-                        'fcm_token' => $user->fcm_token,
-                        'user_id' => $user->id,
-                        'navigation_id' => $order->id,
-                        'role' => $role,
-                    ]);
-                } catch (FirebaseException $e) {
-                    $errorMsg = $e->getMessage();
-                }
-            }
+            $user->notify(new OrderAcceptedNotification($order));
 
             // Send SMS notification to customer about order acceptance
             try {
@@ -3457,24 +3418,9 @@ Write only the review text:";
                 ]);
             }
         } else if ($request->status == 3) {
+            // Order ready for pickup - notify customer
             $user = app(Listener::class)->where(['id' => $order->customer_user_id])->first();
-            if ($user->fcm_token) {
-                $notification = app(NotificationTemplates::class)->where(['id' => 15])->first();
-                try {
-                    $this->notification($user->fcm_token, $notification->subject, $notification->push, $id, $role = 'user');
-                    Notification::create([
-                        'title' => $notification->template_name,
-                        'body' => $notification->push,
-                        'image' => $user->photo ?? 'N/A',
-                        'fcm_token' => $user->fcm_token,
-                        'user_id' => $user->id,
-                        'navigation_id' => $order->id,
-                        'role' => $role,
-                    ]);
-                } catch (FirebaseException $e) {
-                    $errorMsg = $e->getMessage();
-                }
-            }
+            $user->notify(new OrderReadyNotification($order));
 
             $menu = app(Menus::class)->where(['id' => $order->menu_id])->first();
 
@@ -3507,43 +3453,13 @@ Write only the review text:";
                 ]);
             }
         } else if ($request->status == 4) {
+            // Order completed - notify customer
             $user = app(Listener::class)->where(['id' => $order->customer_user_id])->first();
-            if ($user->fcm_token) {
-                $notification = app(NotificationTemplates::class)->where(['id' => 4])->first();
-                try {
-                    $this->notification($user->fcm_token, $notification->subject, $notification->push, $id, $role = 'user');
-                    Notification::create([
-                        'title' => $notification->template_name,
-                        'body' => $notification->push,
-                        'image' => $user->photo ?? 'N/A',
-                        'fcm_token' => $user->fcm_token,
-                        'user_id' => $user->id,
-                        'navigation_id' => $order->id,
-                        'role' => $role,
-                    ]);
-                } catch (FirebaseException $e) {
-                    $errorMsg = $e->getMessage();
-                }
-            }
+            $user->notify(new OrderCompletedNotification($order));
         } else if ($request->status == 5) {
+            // Chef rejected order - notify customer
             $user = app(Listener::class)->where(['id' => $order->customer_user_id])->first();
-            if ($user->fcm_token) {
-                $notification = app(NotificationTemplates::class)->where(['id' => 20])->first();
-                try {
-                    $this->notification($user->fcm_token, $notification->subject, $notification->push, $id, $role = 'user');
-                    Notification::create([
-                        'title' => $notification->template_name,
-                        'body' => $notification->push,
-                        'image' => $user->photo ?? 'N/A',
-                        'fcm_token' => $user->fcm_token,
-                        'user_id' => $user->id,
-                        'navigation_id' => $order->id,
-                        'role' => $role,
-                    ]);
-                } catch (FirebaseException $e) {
-                    $errorMsg = $e->getMessage();
-                }
-            }
+            $user->notify(new OrderRejectedNotification($order));
 
             // Send SMS notification to customer about order rejection
             try {
@@ -3555,24 +3471,9 @@ Write only the review text:";
                 ]);
             }
         } else if ($request->status == 7) {
+            // Chef is on the way - notify customer
             $user = app(Listener::class)->where(['id' => $order->customer_user_id])->first();
-            if ($user->fcm_token) {
-                $notification = app(NotificationTemplates::class)->where(['id' => 14])->first();
-                try {
-                    $this->notification($user->fcm_token, $notification->subject, $notification->push, $id, $role = 'user');
-                    Notification::create([
-                        'title' => $notification->template_name,
-                        'body' => $notification->push,
-                        'image' => $user->photo ?? 'N/A',
-                        'fcm_token' => $user->fcm_token,
-                        'user_id' => $user->id,
-                        'navigation_id' => $order->id,
-                        'role' => $role,
-                    ]);
-                } catch (FirebaseException $e) {
-                    $errorMsg = $e->getMessage();
-                }
-            }
+            $user->notify(new ChefOnTheWayNotification($order));
 
             // Send SMS notification to customer that chef is on the way
             try {
