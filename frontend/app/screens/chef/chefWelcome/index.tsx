@@ -49,7 +49,9 @@ const ChefWelcome = () => {
 
           {/* Scroll Indicator */}
           <View style={styles.scrollIndicator}>
-            <Text style={styles.scrollText}>Scroll to learn more</Text>
+            <View style={styles.scrollRow}>
+              <Text style={styles.scrollText}>Scroll to learn more</Text>
+            </View>
             <Text style={styles.scrollArrow}>↓</Text>
           </View>
 
@@ -218,6 +220,9 @@ const styles = StyleSheet.create({
   scrollIndicator: {
     alignItems: 'center',
     marginBottom: 16,
+  },
+  scrollRow: {
+    alignItems: 'center',
   },
   scrollText: {
     fontSize: 14,
