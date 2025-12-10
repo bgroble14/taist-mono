@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, Image, StyleSheet, useWindowDimensions } from 'react-native';
 import { MenuItemStepContainer } from '../components/MenuItemStepContainer';
 import { AppColors, Spacing } from '../../../../../constants/theme';
 import { IMenu } from '../../../../types/index';
@@ -33,6 +33,14 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
 }) => {
   const appliances = useAppSelector(x => x.table.appliances);
   const [imageErrors, setImageErrors] = React.useState<{[key: number]: boolean}>({});
+  const { width } = useWindowDimensions();
+
+  // Calculate appliance item width based on screen size
+  // Aim for 3 columns on wider screens, 2 on narrow screens
+  const horizontalPadding = Spacing.lg * 2; // Container padding
+  const gap = Spacing.md;
+  const numColumns = width < 360 ? 2 : 3;
+  const applianceItemWidth = Math.floor((width - horizontalPadding - (gap * (numColumns - 1))) / numColumns);
 
   // Parse appliance IDs from string or array
   const applianceIds = React.useMemo(() => {
@@ -117,6 +125,7 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
               <TouchableOpacity
                 style={[
                   styles.applianceItem,
+                  { width: applianceItemWidth },
                   isSelected && styles.applianceSelected,
                 ]}
                 onPress={() => handleAppliancePress(applianceId)}
@@ -166,6 +175,7 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
               >
                 <Text
                   style={isSelected ? styles.tabText : styles.tabDisabledText}
+                  numberOfLines={1}
                 >
                   {ct.value}
                 </Text>
@@ -208,7 +218,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   applianceItem: {
-    width: 100,
     height: 110,
     alignItems: 'center',
     justifyContent: 'center',
@@ -247,29 +256,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.sm,
+    justifyContent: 'flex-start',
   },
   tab: {
     backgroundColor: AppColors.primary,
-    paddingHorizontal: Spacing.md + 4,
+    paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: 20,
+    minWidth: 60,
+    alignItems: 'center',
   },
   tabDisabled: {
     backgroundColor: AppColors.backgroundSecondary,
-    paddingHorizontal: Spacing.md + 4,
+    paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: AppColors.border,
+    minWidth: 60,
+    alignItems: 'center',
   },
   tabText: {
     color: AppColors.white,
     fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
   },
   tabDisabledText: {
     color: AppColors.textSecondary,
     fontSize: 14,
+    textAlign: 'center',
   },
   buttonContainer: {
     gap: Spacing.md,

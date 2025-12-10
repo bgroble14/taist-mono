@@ -11,6 +11,7 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Keyboard,
+  useWindowDimensions,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -76,6 +77,10 @@ const normalizeTimeDate = (date: Date): Date => {
 const Profile = () => {
   const chefProfile: IChefProfile = useAppSelector(x => x.chef.profile);
   const dispatch = useAppDispatch();
+  const { width } = useWindowDimensions();
+
+  // Use abbreviated day names on narrow screens (< 360px)
+  const useShortDayNames = width < 360;
 
   const [bio, onChangeBio] = useState('');
   const [days, onChangeDays] = useState<Array<HoursAvailableType>>([
@@ -359,11 +364,14 @@ const Profile = () => {
                       <FontAwesomeIcon icon={faCheck} size={12} color="#fff" />
                     )}
                   </View>
-                  <Text style={[
-                    styles.dayName,
-                    day.checked && styles.dayNameActive
-                  ]}>
-                    {day.fullDay}
+                  <Text
+                    style={[
+                      styles.dayName,
+                      day.checked && styles.dayNameActive
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {useShortDayNames ? day.day : day.fullDay}
                   </Text>
                 </TouchableOpacity>
 
@@ -505,35 +513,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: AppColors.divider,
+    gap: 8,
   },
   dayToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    flexShrink: 1,
+    minWidth: 100,
   },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     borderRadius: 6,
     borderWidth: 2,
     borderColor: AppColors.border,
     backgroundColor: AppColors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 8,
+    flexShrink: 0,
   },
   checkboxChecked: {
     backgroundColor: AppColors.primary,
     borderColor: AppColors.primary,
   },
   dayName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '500',
     color: AppColors.textSecondary,
+    flexShrink: 1,
   },
   dayNameActive: {
     color: AppColors.text,
@@ -542,16 +554,17 @@ const styles = StyleSheet.create({
   timeInputs: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
+    flexShrink: 0,
   },
   timeButton: {
     backgroundColor: AppColors.background,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: AppColors.border,
-    minWidth: 80,
+    minWidth: 70,
     alignItems: 'center',
   },
   timeButtonDisabled: {
