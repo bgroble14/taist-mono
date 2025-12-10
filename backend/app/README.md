@@ -244,9 +244,17 @@ Tokens are validated on each request. Expired tokens return 401 Unauthorized.
 ### Stripe
 Payment processing and chef payouts:
 - Customer payments
-- Stripe Connect for chef accounts
+- Stripe Connect for chef accounts (with pre-filled user data for streamlined onboarding)
 - Webhook handling for payment events
 - Refunds and disputes
+
+**Stripe Connect Onboarding:**
+When creating a connected account, user data is pre-filled to minimize form fields:
+- Name, email, phone, DOB, address from user profile
+- Business profile set to "Home chef selling homemade food through Taist"
+- MCC code 5812 (restaurants/eating places)
+
+See `MapiController@addStripeAccount` for implementation.
 
 ### Firebase Cloud Messaging
 Push notifications:

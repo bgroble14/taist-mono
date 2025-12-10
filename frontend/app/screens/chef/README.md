@@ -138,6 +138,18 @@ Configure Stripe Connect for receiving payments.
 - Payout configuration
 - Account status
 
+**Pre-filled Data:**
+The following user data is automatically pre-filled in the Stripe onboarding form:
+- First name, last name
+- Email, phone
+- Date of birth
+- Full address (street, city, state, zip)
+- Business description (set to "Home chef selling homemade food through Taist")
+
+Users can review and edit this pre-filled data before confirming. They only need to manually enter:
+- SSN (required by law for tax reporting)
+- Bank account details (required for payouts)
+
 ### profile/
 Manage chef's public profile and business settings.
 
