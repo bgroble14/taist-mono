@@ -1,7 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {
   IAllergy,
-  IAppliance,
   ICategory,
   IMenu,
   IOrder,
@@ -12,7 +11,6 @@ import {
 
 interface TablesState {
   users: Array<IUser>;
-  appliances: Array<IAppliance>;
   categories: Array<ICategory>;
   allergens: Array<IAllergy>;
   zipcodes: Array<string>;
@@ -24,7 +22,6 @@ interface TablesState {
 
 const initialState: TablesState = {
   users: [],
-  appliances: [],
   categories: [],
   allergens: [],
   zipcodes: [],
@@ -55,7 +52,6 @@ const tablesSlicer = createSlice({
   reducers: {
     clearTable: state => {
       state.users = [];
-      state.appliances = [];
       state.categories = [];
       state.allergens = [];
       state.zipcodes = [];
@@ -71,10 +67,6 @@ const tablesSlicer = createSlice({
 
     updateUsers: (state, action: PayloadAction<Array<IUser>>) => {
       state.users = [...action.payload];
-    },
-
-    updateAppliances: (state, action: PayloadAction<Array<IAppliance>>) => {
-      state.appliances = [...action.payload];
     },
 
     updateCategories: (state, action: PayloadAction<Array<ICategory>>) => {
@@ -126,7 +118,6 @@ export const {
   clearTable,
   addOrUpdateUsers,
   updateUsers,
-  updateAppliances,
   updateCategories,
   updateAllergen,
   updateZipcodes,

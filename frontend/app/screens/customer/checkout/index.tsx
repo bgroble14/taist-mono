@@ -51,11 +51,11 @@ import { getFormattedDateTime } from '../../../utils/validations';
 import CustomCalendar from './components/customCalendar';
 import OrderItem from './components/orderItem';
 import { styles } from './styles';
+import { getApplianceById } from '../../../constants/appliances';
 
 const Checkout = () => {
   const self = useAppSelector(x => x.user.user);
   const menus = useAppSelector(x => x.table.menus);
-  const appliances = useAppSelector(x => x.table.appliances);
   const dispatch = useAppDispatch();
   const {initPaymentSheet, presentPaymentSheet, createToken} = useStripe();
 
@@ -431,7 +431,7 @@ const Checkout = () => {
 
     var applianceNames: Array<string> = [];
     applianceIds.map((aId, idx) => {
-      const appliance = appliances.find(x => x.id == aId);
+      const appliance = getApplianceById(aId);
       if (appliance && appliance.name) {
         if (!applianceNames.includes(appliance.name)) {
           applianceNames.push(appliance.name);

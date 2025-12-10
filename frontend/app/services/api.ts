@@ -13,7 +13,6 @@ import {
   addOrUpdateReviews,
   addOrUpdateUsers,
   updateAllergen,
-  updateAppliances,
   updateCategories,
   updateZipcodes
 } from "../reducers/tableSlice";
@@ -210,7 +209,6 @@ export const LoginAPI = async (params: IUser, dispatch?: any) => {
   }
   dispatch(setUser(response.data.user));
 
-  await GetAppliancesAPI({}, dispatch);
   await GetCategoriesAPI({}, dispatch);
   await GetAllergensAPI({}, dispatch);
   await GetUsersAPI({}, dispatch);
@@ -501,13 +499,6 @@ export const GetUsersAPI = async (params: {}, dispatch?: any) => {
   return response;
 };
 
-export const GetAppliancesAPI = async (params: {}, dispatch?: any) => {
-  var response = await GETAPICALL("get_appliances", params);
-  if (response.success == 1 && dispatch) {
-    dispatch(updateAppliances(response.data));
-  }
-  return response;
-};
 // ------->>>>> user by id
 export const GetUserById = async (id: string) => {
   var response = await GETAPICALL("get_user/" + id, {});

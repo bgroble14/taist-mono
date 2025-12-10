@@ -5,18 +5,8 @@ import { AppColors, Spacing } from '../../../../../constants/theme';
 import { IMenu } from '../../../../types/index';
 import { ShowErrorToast } from '../../../../utils/toast';
 import StyledButton from '../../../../components/styledButton';
-import { useAppSelector } from '../../../../hooks/useRedux';
 import { getImageURL } from '../../../../utils/functions';
-
-// Default appliance icon mapping (fallback emojis if image fails to load)
-const applianceIcons: { [key: string]: string } = {
-  'Sink': '💧',
-  'Stove': '🍳',
-  'Oven': '🔥',
-  'Microwave': '📻',
-  'Charcoal Grill': '🍖',
-  'Gas Grill': '🔥',
-};
+import { APPLIANCES } from '../../../../constants/appliances';
 
 interface StepMenuItemKitchenProps {
   menuItemData: Partial<IMenu>;
@@ -31,7 +21,6 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
   onNext,
   onBack,
 }) => {
-  const appliances = useAppSelector(x => x.table.appliances);
   const [imageErrors, setImageErrors] = React.useState<{[key: number]: boolean}>({});
   const { width } = useWindowDimensions();
 
@@ -115,11 +104,10 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
           Select the customer's kitchen appliances that are required to make the item.
         </Text>
         <View style={styles.applianceContainer}>
-          {appliances.map((appliance, idx) => {
-            const isSelected = applianceIds.includes(appliance.id ?? 0);
+          {APPLIANCES.map((appliance, idx) => {
+            const isSelected = applianceIds.includes(appliance.id);
             const isSink = appliance.name === 'Sink';
-            const applianceId = appliance.id ?? 0;
-            const hasImageError = imageErrors[applianceId];
+            const hasImageError = imageErrors[appliance.id];
 
             return (
               <TouchableOpacity
@@ -128,7 +116,7 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
                   { width: applianceItemWidth },
                   isSelected && styles.applianceSelected,
                 ]}
-                onPress={() => handleAppliancePress(applianceId)}
+                onPress={() => handleAppliancePress(appliance.id)}
                 disabled={isSink}
                 key={`appliance_${idx}`}
               >
@@ -136,11 +124,11 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
                   <Image
                     source={{ uri: getImageURL(appliance.image) }}
                     style={styles.applianceImg}
-                    onError={() => setImageErrors(prev => ({...prev, [applianceId]: true}))}
+                    onError={() => setImageErrors(prev => ({...prev, [appliance.id]: true}))}
                   />
                 ) : (
                   <Text style={styles.applianceEmoji}>
-                    {applianceIcons[appliance.name ?? ''] ?? '🔧'}
+                    {appliance.emoji}
                   </Text>
                 )}
                 <Text
@@ -301,4 +289,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-

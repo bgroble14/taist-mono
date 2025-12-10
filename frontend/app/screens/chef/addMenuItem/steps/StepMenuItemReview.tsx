@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { MenuItemStepContainer } from '../components/MenuItemStepContainer';
 import { AppColors, Spacing } from '../../../../../constants/theme';
 import { IMenu } from '../../../../types/index';
 import StyledButton from '../../../../components/styledButton';
 import StyledSwitch from '../../../../components/styledSwitch';
 import { useAppSelector } from '../../../../hooks/useRedux';
+import { getAppliancesByIds } from '../../../../constants/appliances';
 
 interface StepMenuItemReviewProps {
   menuItemData: Partial<IMenu>;
@@ -21,7 +22,6 @@ export const StepMenuItemReview: React.FC<StepMenuItemReviewProps> = ({
   onBack,
 }) => {
   const categories = useAppSelector(x => x.table.categories);
-  const appliances = useAppSelector(x => x.table.appliances);
   const allergens = useAppSelector(x => x.table.allergens);
 
   const displayItem = menuItemData.is_live ?? true;
@@ -59,7 +59,7 @@ export const StepMenuItemReview: React.FC<StepMenuItemReviewProps> = ({
 
   // Get names from IDs
   const selectedCategories = categories.filter(c => categoryIds.includes(c.id ?? 0));
-  const selectedAppliances = appliances.filter(a => applianceIds.includes(a.id ?? 0));
+  const selectedAppliances = getAppliancesByIds(applianceIds);
   const selectedAllergens = allergens.filter(a => allergyIds.includes(a.id ?? 0));
 
   const completionTimes = [
