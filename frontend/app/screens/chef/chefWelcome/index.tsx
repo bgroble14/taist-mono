@@ -118,7 +118,7 @@ const ChefWelcome = () => {
             <View style={styles.checklistItem}>
               <Text style={styles.checkmark}>✓</Text>
               <Text style={styles.checklistText}>
-                Cooler with ice for cold ingredients
+                Cooler with ice for perishable ingredients
               </Text>
             </View>
 
@@ -196,11 +196,13 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 28,
+    fontWeight: '700',
     color: '#FFFFFF',
     textAlign: 'center',
     opacity: 0.95,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
+    lineHeight: 36,
   },
   heroContainer: {
     paddingHorizontal: 28,
