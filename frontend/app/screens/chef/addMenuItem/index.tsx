@@ -5,9 +5,9 @@ import { SafeAreaView } from 'react-native';
 import { IMenu } from '../../../types/index';
 
 // Hooks
-import { useAppDispatch } from '../../../hooks/useRedux';
+import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
 
-import { goBack } from '@/app/utils/navigation';
+import { goBack, navigate } from '@/app/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
@@ -33,7 +33,11 @@ import { StepMenuItemReview } from './steps/StepMenuItemReview';
 const AddMenuItem = () => {
   const params = useLocalSearchParams();
   const dispatch = useAppDispatch();
-  
+
+  // Get user and menu state for onboarding detection
+  const self = useAppSelector(x => x.user.user);
+  const menus = useAppSelector(x => x.table.menus);
+
   // Parse existing menu item info for edit mode
   const info: IMenu | undefined = typeof params?.info === 'string'
     ? JSON.parse(params.info as string)
@@ -220,7 +224,19 @@ const AddMenuItem = () => {
           info ? 'Menu item updated successfully!' : 'Menu item added successfully!'
         );
         dispatch(hideLoading());
-        goBack();
+
+        // Check if this is the first menu item during onboarding
+        // Navigate to Home tab to show progress, otherwise go back to previous screen
+        const isOnboarding = self.is_pending === 1;
+        const isFirstMenuItem = !info && menus.length === 0;
+
+        if (isOnboarding && isFirstMenuItem) {
+          // Take chef to Home tab to see their onboarding progress
+          navigate.toChef.home();
+        } else {
+          // Normal flow: return to previous screen (Menu tab or wherever they came from)
+          goBack();
+        }
       } else {
         ShowErrorToast(resp_menu.error || resp_menu.message);
         dispatch(hideLoading());
