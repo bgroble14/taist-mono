@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {SafeAreaView} from 'react-native';
+import {SafeAreaView, Linking} from 'react-native';
 import {Image, Pressable, Text, View, ScrollView} from 'react-native';
  
 // Hooks
@@ -36,11 +36,9 @@ const SetupStrip = () => {
     console.log('resp :', resp);
 
     dispatch(hideLoading());
-    if (resp.success == 1) {
-      ShowSuccessToast(
-        'Check your email and click the link from Stripe. Please allow up to 24 hours to receive this email.',
-        'Success!',
-      );
+    if (resp.success == 1 && resp.onboarding_url) {
+      // Open Stripe onboarding directly in browser
+      Linking.openURL(resp.onboarding_url);
     } else {
       ShowErrorToast(resp.error ?? resp.message);
     }

@@ -3941,20 +3941,7 @@ Write only the review text:";
             ]);
 
             if ($account_link) {
-                $msg = "";
-                $msg .= "<p>Hi " . $user->first_name . ",</p>";
-                $msg .= "<p>Please use the link below to set up your payments through Stripe.</p>";
-                $msg .= "<p><a href='" . $account_link->url . "'>Setup Stripe</a></p>";
-                $msg .= "<p>IMPORTANT: Please use the exact selections below to answer these questions when prompted.</p>";
-                $msg .= "<p><b>Industry</b>: Other Food and Dining</p>";
-                $msg .= "<p><b>Your website</b>: <a href='https://www.taist.app'>www.taist.app</a></p>";
-                $msg .= "<p><img alt='Taist Stripe Setup Guide' src='http://18.216.154.184/assets/uploads/images/stripe_guide.jpeg' /></p>";
-                $msg .= "<p>Thank You! <div>- The Taist Team</div></p>";
-                $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo-2.png' /></p>";
-
-                $emailResponse = $this->_sendEmail($email, "Taist - Stripe Account Creation", $msg);
-
-
+                // Save the Stripe account ID to the database
                 if (app(PaymentMethodListener::class)->where(['user_id' => $user->id, 'active' => 1])->first()) {
                     app(PaymentMethodListener::class)->where(['user_id' => $user->id, 'active' => 1])->update([
                         'stripe_account_id' => $accountId,
@@ -3968,6 +3955,12 @@ Write only the review text:";
                         'updated_at' => now()
                     ]);
                 }
+
+                // Return the onboarding URL directly instead of emailing it
+                return response()->json([
+                    'success' => 1,
+                    'onboarding_url' => $account_link->url
+                ]);
             }
         } catch (\Stripe\Exception\CardException $e) {
             $errorMsg = $e->getError()->message;
@@ -3988,7 +3981,7 @@ Write only the review text:";
             return response()->json(['success' => 0, 'error' => $errorMsg]);
         }
 
-        return response()->json(['success' => 1]);
+        return response()->json(['success' => 0, 'error' => 'Failed to create Stripe account link']);
     }
 
     public function createPaymentIntent(Request $request)
