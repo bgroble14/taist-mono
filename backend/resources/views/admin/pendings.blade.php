@@ -10,6 +10,12 @@
          <!--<a class="bt bt_new" style="margin:0" href="/admin/chef">+ Add</a>-->
       </div>
       <div class="div_table">
+         <div class="flex flex_acenter mb10">
+            <div class="fsize18 font_bold">Change Selected Chefs Status:</div>
+            <button class="bt_status color color3" data-status="1">Activate</button>
+            <button class="bt_status color color4" data-status="2">Reject</button>
+            <button class="bt_status color color2" data-status="4">Delete</button>
+         </div>
          <table class="table" id="table">
             <thead>
                <tr>

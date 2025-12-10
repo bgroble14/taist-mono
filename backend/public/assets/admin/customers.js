@@ -61,8 +61,25 @@ $(function() {
             return false;
         }
         showConfirm("", "Are you sure you want to change the selected customer status?", function() {
-            $.getJSON('/adminapi/change_chef_status?ids='+data+'&api_token='+token+'&status='+status, function(res) {
-                window.location.reload();
+            $.ajax({
+                url: '/adminapi/change_chef_status',
+                method: 'GET',
+                data: {
+                    ids: data,
+                    api_token: token,
+                    status: status
+                },
+                success: function(res) {
+                    if (res.success) {
+                        window.location.reload();
+                    } else {
+                        showAlert('Error: ' + (res.error || 'Unknown error'));
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showAlert('Request failed: ' + error + ' (Status: ' + xhr.status + ')');
+                    console.error('API Error:', xhr.responseText);
+                }
             });
         })
     });

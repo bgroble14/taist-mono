@@ -1,5 +1,25 @@
-$(function() {	
+$(function() {
     var table = $('#table').DataTable({});
+
+    // Default filter to show only "Requested" categories
+    table.column(4).search('Requested').draw();
+
+    // Filter button handlers
+    $('.bt_filter').click(function() {
+        $('.bt_filter').removeClass('active');
+        $(this).addClass('active');
+        var filter = $(this).data('filter');
+        if (filter === 'all') {
+            table.column(4).search('').draw();
+        } else if (filter === 'requested') {
+            table.column(4).search('Requested').draw();
+        } else if (filter === 'approved') {
+            table.column(4).search('Approved').draw();
+        } else if (filter === 'rejected') {
+            table.column(4).search('Rejected').draw();
+        }
+    });
+
     $('#table').on('click', 'tbody tr', function (e) {
         e.currentTarget.classList.toggle('selected');
     });

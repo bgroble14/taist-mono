@@ -121,6 +121,7 @@ class AdminController extends Controller
         $data['user'] = $user;
         $data['categories'] = DB::table('tbl_categories as c')->leftJoin('tbl_users as u', 'c.chef_id', '=', 'u.id')
             ->select(['c.*', 'u.email as user_email'])->get();
+        $data['requestedCount'] = DB::table('tbl_categories')->where('status', 1)->count();
 
         return view("admin.categories", $data);
     }

@@ -3,6 +3,13 @@
    <link rel="stylesheet" href="/assets/admin/index.css?r={{ time() }}">
 	<div class="admin_wrapper">
       <div class="fsize24 font_bold mb24">Categories</div>
+      <div class="flex flex_acenter mb10">
+         <div class="fsize14 mr10">Filter:</div>
+         <button class="bt_filter active color" data-filter="requested">Requested ({{ $requestedCount ?? 0 }})</button>
+         <button class="bt_filter color" data-filter="approved">Approved</button>
+         <button class="bt_filter color" data-filter="rejected">Rejected</button>
+         <button class="bt_filter color" data-filter="all">All</button>
+      </div>
       <div class="div_table">
          <div class="flex flex_acenter mb10">
             <div class="fsize18 font_bold">Change Selected Categories Status:</div>
