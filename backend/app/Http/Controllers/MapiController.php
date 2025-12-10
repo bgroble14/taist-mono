@@ -3912,10 +3912,13 @@ Write only the review text:";
                 $accountId = $account['id'];
             }
 
+            // Stripe requires HTTPS URLs - use backend endpoints that redirect to the app
+            $baseUrl = config('app.url') ?: 'https://taist-mono-staging.up.railway.app';
+
             $account_link = $stripe->accountLinks->create([
                 'account' => $accountId,
-                'refresh_url' => 'taistexpo://stripe-refresh?status=incomplete',
-                'return_url' => 'taistexpo://stripe-complete?status=success',
+                'refresh_url' => $baseUrl . '/stripe/refresh',
+                'return_url' => $baseUrl . '/stripe/complete',
                 'type' => 'account_onboarding',
                 'collection_options' => [
                     'fields' => 'eventually_due',

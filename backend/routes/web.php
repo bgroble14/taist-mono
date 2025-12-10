@@ -24,3 +24,12 @@ Route::get('/api_doc', function () {
     return view('api_doc');
 });
 */
+
+// Stripe Connect redirect endpoints - these redirect back to the app
+Route::get('/stripe/complete', function () {
+    return redirect('taistexpo://stripe-complete?status=success');
+});
+
+Route::get('/stripe/refresh', function () {
+    return redirect('taistexpo://stripe-refresh?status=incomplete');
+});
