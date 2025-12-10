@@ -148,6 +148,29 @@ INSERT INTO versions (version, created_at, updated_at)
 VALUES ('29.0.0', NOW(), NOW());
 ```
 
+## iOS Build Number
+
+The iOS build number is separate from the app version and must be incremented for each TestFlight/App Store submission.
+
+### Location
+- **[frontend/ios/Taist/Info.plist](../frontend/ios/Taist/Info.plist)** - Line 41-42: `CFBundleVersion`
+
+### Current Build Number
+**11**
+
+### How to Bump
+Edit `frontend/ios/Taist/Info.plist` and increment the value:
+```xml
+<key>CFBundleVersion</key>
+<string>12</string>  <!-- Increment this number -->
+```
+
+### ⚠️ Important Notes
+- The build number in `Info.plist` is the **authoritative source** for iOS builds
+- `app.json` has a `buildNumber` field but `Info.plist` takes precedence for native builds
+- `project.pbxproj` has `CURRENT_PROJECT_VERSION` but this is not used for the actual build number
+- Always increment before submitting to TestFlight or App Store
+
 ## Version Numbering Convention
 
 We use semantic versioning: `MAJOR.MINOR.PATCH`
