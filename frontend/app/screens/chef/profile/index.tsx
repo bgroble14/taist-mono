@@ -46,6 +46,33 @@ type HoursAvailableType = {
   end?: Date;
 };
 
+// Use a fixed date far in the past to avoid any iOS date constraints
+// iOS UIDatePicker in time mode still respects date - using a fixed date
+// ensures no times are ever "in the past" relative to current time
+const FIXED_TIME_DATE = new Date(2000, 0, 1); // Jan 1, 2000
+
+// Convert a timestamp (seconds) to a Date with fixed date, preserving only hours/minutes
+const timestampToTimeDate = (timestamp: number): Date => {
+  const date = new Date(timestamp * 1000);
+  const result = new Date(FIXED_TIME_DATE);
+  result.setHours(date.getHours(), date.getMinutes(), 0, 0);
+  return result;
+};
+
+// Create a time Date with fixed date from hours and minutes
+const createTimeDate = (hours: number, minutes: number = 0): Date => {
+  const result = new Date(FIXED_TIME_DATE);
+  result.setHours(hours, minutes, 0, 0);
+  return result;
+};
+
+// Normalize any Date to use the fixed date (preserving hours/minutes)
+const normalizeTimeDate = (date: Date): Date => {
+  const result = new Date(FIXED_TIME_DATE);
+  result.setHours(date.getHours(), date.getMinutes(), 0, 0);
+  return result;
+};
+
 const Profile = () => {
   const chefProfile: IChefProfile = useAppSelector(x => x.chef.profile);
   const dispatch = useAppDispatch();
@@ -64,7 +91,7 @@ const Profile = () => {
   // Time picker state
   const [activePickerDay, setActivePickerDay] = useState<string | null>(null);
   const [activePickerType, setActivePickerType] = useState<'start' | 'end'>('start');
-  const [tempTime, setTempTime] = useState<Date>(new Date());
+  const [tempTime, setTempTime] = useState<Date>(createTimeDate(9, 0)); // Use fixed date
   const [showPicker, setShowPicker] = useState(false);
 
   // Refs for scrolling
@@ -100,8 +127,8 @@ const Profile = () => {
           return {
             ...day,
             checked: true,
-            start: moment(startVal * 1000).toDate(),
-            end: moment(endVal * 1000).toDate(),
+            start: timestampToTimeDate(startVal),
+            end: timestampToTimeDate(endVal),
           };
         }
         return { ...day }; // Return new object even if unchanged
@@ -122,8 +149,8 @@ const Profile = () => {
           return {
             ...day,
             checked: newChecked,
-            start: moment().startOf('day').add(9, 'hours').toDate(),
-            end: moment().startOf('day').add(17, 'hours').toDate(),
+            start: createTimeDate(9, 0),   // 9:00 AM
+            end: createTimeDate(17, 0),    // 5:00 PM
           };
         }
         return {
@@ -138,7 +165,8 @@ const Profile = () => {
     const day = days.find(d => d.id === dayId);
     if (day) {
       const currentTime = type === 'start' ? day.start : day.end;
-      setTempTime(currentTime || moment().startOf('day').add(9, 'hours').toDate());
+      // Normalize to fixed date to avoid iOS disabling "past" times
+      setTempTime(currentTime ? normalizeTimeDate(currentTime) : createTimeDate(9, 0));
       setActivePickerDay(dayId);
       setActivePickerType(type);
       setShowPicker(true);
@@ -154,9 +182,9 @@ const Profile = () => {
       return;
     }
 
-    // iOS - update temp time
+    // iOS - update temp time (normalize to fixed date)
     if (selectedDate) {
-      setTempTime(selectedDate);
+      setTempTime(normalizeTimeDate(selectedDate));
     }
   };
 
@@ -168,30 +196,30 @@ const Profile = () => {
   };
 
   const updateDayTime = (dayId: string, type: 'start' | 'end', time: Date) => {
+    // Normalize incoming time to fixed date
+    const normalizedTime = normalizeTimeDate(time);
+
     onChangeDays(prevDays =>
       prevDays.map(day => {
         if (day.id !== dayId) return day;
 
-        let newStart = type === 'start' ? time : day.start;
-        let newEnd = type === 'end' ? time : day.end;
+        let newStart = type === 'start' ? normalizedTime : day.start;
+        let newEnd = type === 'end' ? normalizedTime : day.end;
 
         // Enforce constraint: start must be before end
         // Auto-adjust the other time if needed to maintain validity
         if (newStart && newEnd) {
-          const startMoment = moment(newStart);
-          const endMoment = moment(newEnd);
-
-          // Compare only hours and minutes (ignore date component)
-          const startMinutes = startMoment.hours() * 60 + startMoment.minutes();
-          const endMinutes = endMoment.hours() * 60 + endMoment.minutes();
+          // Compare only hours and minutes
+          const startMinutes = newStart.getHours() * 60 + newStart.getMinutes();
+          const endMinutes = newEnd.getHours() * 60 + newEnd.getMinutes();
 
           if (startMinutes >= endMinutes) {
             if (type === 'start') {
               // User changed start time to be >= end, push end forward by 1 hour
-              newEnd = moment(newStart).add(1, 'hour').toDate();
+              newEnd = createTimeDate(newStart.getHours() + 1, newStart.getMinutes());
             } else {
               // User changed end time to be <= start, pull start backward by 1 hour
-              newStart = moment(newEnd).subtract(1, 'hour').toDate();
+              newStart = createTimeDate(newEnd.getHours() - 1, newEnd.getMinutes());
             }
           }
         }
