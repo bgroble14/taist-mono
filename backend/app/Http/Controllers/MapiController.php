@@ -1677,6 +1677,7 @@ BAD EXAMPLES:
 ✗ \"Chicken and rice\" (too plain)
 ✗ \"Deconstructed pizza with molecular gastronomy foam\" (too weird/creative for basic pizza)
 ✗ \"Pizza with unexpected flavor combinations and avant-garde toppings\" (not safe/basic)
+✗ \"Baked pizza: pepperoni (protein) on a sourdough crust (base)\" (too weird with punctuation)
 
 Write only the description:";
 
