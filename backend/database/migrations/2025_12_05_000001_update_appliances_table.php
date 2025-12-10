@@ -7,7 +7,7 @@ class UpdateAppliancesTable extends Migration
 {
     /**
      * Run the migrations.
-     * Updates appliances to: Sink, Stove, Oven, Microwave, Toaster, Grill
+     * Updates appliances to: Sink, Stove, Oven, Microwave, Charcoal Grill, Gas Grill
      * Removes: Air Fryer, Instant Pot
      *
      * @return void
@@ -25,11 +25,11 @@ class UpdateAppliancesTable extends Migration
             ['id' => 2, 'name' => 'Stove', 'image' => 'stove.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
             ['id' => 3, 'name' => 'Oven', 'image' => 'oven.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
             ['id' => 4, 'name' => 'Microwave', 'image' => 'microwave.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
-            ['id' => 5, 'name' => 'Toaster', 'image' => 'toaster.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
-            ['id' => 6, 'name' => 'Grill', 'image' => 'grill.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
+            ['id' => 5, 'name' => 'Charcoal Grill', 'image' => 'charcoal_grill.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
+            ['id' => 6, 'name' => 'Gas Grill', 'image' => 'gas_grill.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
         ]);
 
-        echo "Appliances updated: Sink, Stove, Oven, Microwave, Toaster, Grill\n";
+        echo "Appliances updated: Sink, Stove, Oven, Microwave, Charcoal Grill, Gas Grill\n";
     }
 
     /**

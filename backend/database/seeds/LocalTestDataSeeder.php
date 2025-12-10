@@ -29,15 +29,15 @@ class LocalTestDataSeeder extends Seeder
         ];
         DB::table('tbl_allergens')->insert($allergens);
         
-        // 2. APPLIANCES (order: Sink, Stove, Oven, Microwave, Toaster, Grill)
+        // 2. APPLIANCES (order: Sink, Stove, Oven, Microwave, Charcoal Grill, Gas Grill)
         echo "Seeding appliances...\n";
         $appliances = [
             ['name' => 'Sink', 'image' => 'sink.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
             ['name' => 'Stove', 'image' => 'stove.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
             ['name' => 'Oven', 'image' => 'oven.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
             ['name' => 'Microwave', 'image' => 'microwave.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
-            ['name' => 'Toaster', 'image' => 'toaster.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
-            ['name' => 'Grill', 'image' => 'grill.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
+            ['name' => 'Charcoal Grill', 'image' => 'charcoal_grill.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
+            ['name' => 'Gas Grill', 'image' => 'gas_grill.png', 'created_at' => $timestamp, 'updated_at' => $timestamp],
         ];
         DB::table('tbl_appliances')->insert($appliances);
         
@@ -480,6 +480,7 @@ class LocalTestDataSeeder extends Seeder
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
     }
 }
+
 
 
 

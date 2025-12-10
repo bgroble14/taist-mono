@@ -14,8 +14,8 @@ const applianceIcons: { [key: string]: string } = {
   'Stove': '🍳',
   'Oven': '🔥',
   'Microwave': '📻',
-  'Toaster': '🍞',
-  'Grill': '🔥',
+  'Charcoal Grill': '🍖',
+  'Gas Grill': '🔥',
 };
 
 interface StepMenuItemKitchenProps {
