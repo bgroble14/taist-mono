@@ -113,12 +113,10 @@
                     </a>
                 </li>
             </ul>
-            
-            <!--
+
             <a class="left_menu_item l_menu_item_pendings" href="/admin/pendings" title="Pending chefs">
                 <i class="fa fa-user-circle-o l_menu_icon"></i>
                 <span>Pending chefs</span></a>
-            -->
             <a class="left_menu_item l_menu_item_customers" href="/admin/customers" title="Customers">
                 <i class="fa fa-user l_menu_icon"></i>
                 <span>Customers</span></a>
