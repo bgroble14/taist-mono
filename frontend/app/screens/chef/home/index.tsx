@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  Alert,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -23,9 +24,9 @@ import Container from '../../../layout/Container';
 import { setNotificationOrderId } from '../../../reducers/deviceSlice';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import { setUser } from '../../../reducers/userSlice';
-import { GetChefOrdersAPI, GetUserById } from '../../../services/api';
+import { GetChefOrdersAPI, GetUserById, GetPaymentMethodAPI } from '../../../services/api';
 import { getImageURL } from '../../../utils/functions';
-import { ShowErrorToast } from '../../../utils/toast';
+import { ShowErrorToast, ShowSuccessToast } from '../../../utils/toast';
 import { getDateStartTime } from '../../../utils/validations';
 import ChefOrderCard from './components/chefOrderCard';
 import SettingItem from './components/settingItem';
@@ -297,23 +298,54 @@ useFocusEffect(
                 />
                 <SettingItem
                   title={'4. Submit Payment Info'}
-                  completed={payment?.stripe_account_id !== undefined}
-                  isNext={checkEmptyFieldInProfile() == '' && payment?.stripe_account_id == undefined}
+                  completed={payment?.verification_complete === true}
+                  isNext={checkEmptyFieldInProfile() == '' && !payment?.stripe_account_id}
+                  subtitle={
+                    payment?.stripe_account_id && !payment?.verification_complete
+                      ? 'Verification pending...'
+                      : undefined
+                  }
                   onPress={() => {
                     if (checkEmptyFieldInProfile() !== '') {
                       ShowErrorToast('Complete Your Profile');
                       return;
                     }
-                    navigate.toChef.setupStrip();
+
+                    // If account exists but not verified, offer to refresh or continue
+                    if (payment?.stripe_account_id && !payment?.verification_complete) {
+                      Alert.alert(
+                        'Stripe Verification',
+                        'Your Stripe account is pending verification. What would you like to do?',
+                        [
+                          {
+                            text: 'Refresh Status',
+                            onPress: async () => {
+                              await GetPaymentMethodAPI();
+                              ShowSuccessToast('Status updated');
+                            },
+                          },
+                          {
+                            text: 'Continue Setup',
+                            onPress: () => navigate.toChef.setupStrip(),
+                          },
+                          {
+                            text: 'Cancel',
+                            style: 'cancel',
+                          },
+                        ]
+                      );
+                    } else {
+                      navigate.toChef.setupStrip();
+                    }
                    }}
                 />
                 <SettingItem
                   title={'5. Background Check'}
                   completed={self.applicant_guid ? true : false}
-                  isNext={payment?.stripe_account_id !== undefined && !self.applicant_guid}
+                  isNext={payment?.verification_complete === true && !self.applicant_guid}
                   onPress={() => {
-                    if (payment?.stripe_account_id == undefined) {
-                      ShowErrorToast('Submit Payment Info');
+                    if (!payment?.verification_complete) {
+                      ShowErrorToast('Complete Stripe verification first');
                       return;
                     }
                     navigate.toChef.backgroundCheck();

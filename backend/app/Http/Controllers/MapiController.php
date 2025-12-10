@@ -3751,7 +3751,36 @@ Write only the review text:";
 
         $user = $this->_authUser();
         $data = app(PaymentMethodListener::class)->where(['user_id' => $user->id])->get();
-        return response()->json(['success' => 1, 'data' => $data]);
+
+        // Enhance payment methods with live Stripe verification status
+        $enhancedData = $data->map(function ($payment) {
+            $paymentArray = $payment->toArray();
+
+            // If this payment method has a Stripe account, fetch live verification status
+            if (!empty($payment->stripe_account_id)) {
+                try {
+                    require_once('../stripe-php/init.php');
+                    $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+                    $account = $stripe->accounts->retrieve($payment->stripe_account_id);
+
+                    // Add verification status fields
+                    $paymentArray['charges_enabled'] = $account->charges_enabled;
+                    $paymentArray['payouts_enabled'] = $account->payouts_enabled;
+                    $paymentArray['details_submitted'] = $account->details_submitted;
+                    $paymentArray['verification_complete'] = $account->charges_enabled &&
+                                                              $account->payouts_enabled &&
+                                                              $account->details_submitted;
+                } catch (\Exception $e) {
+                    // If Stripe API fails, log error and return payment data without verification status
+                    \Log::error('Stripe account retrieval failed for account ' . $payment->stripe_account_id . ': ' . $e->getMessage());
+                    // Verification fields will be absent, frontend should handle gracefully
+                }
+            }
+
+            return $paymentArray;
+        });
+
+        return response()->json(['success' => 1, 'data' => $enhancedData]);
     }
 
     public function deletePaymentMethod(Request $request)
@@ -3873,8 +3902,8 @@ Write only the review text:";
 
             $account_link = $stripe->accountLinks->create([
                 'account' => $accountId,
-                'refresh_url' => 'https://connect.stripe.com/express',
-                'return_url' => 'https://connect.stripe.com/express',
+                'refresh_url' => 'taistexpo://stripe-refresh?status=incomplete',
+                'return_url' => 'taistexpo://stripe-complete?status=success',
                 'type' => 'account_onboarding',
                 'collection_options' => [
                     'fields' => 'eventually_due',

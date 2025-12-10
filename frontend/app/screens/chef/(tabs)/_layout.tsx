@@ -5,8 +5,13 @@ import { Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNavigationItem } from '../../../features/navigation';
 import { AppColors } from '../../../../constants/theme';
+import { useStripeReturnHandler } from '../../../hooks/useStripeReturnHandler';
+
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+
+  // Initialize Stripe return handler for deep links and app state changes
+  useStripeReturnHandler();
 
   return (
     <Tabs
