@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   benefitRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   iconCircle: {
     width: 50,
