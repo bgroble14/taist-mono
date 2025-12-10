@@ -7,13 +7,10 @@ import {
   ScrollView,
   StyleSheet,
   Image,
-  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { navigate } from '../../../utils/navigation';
 import { AppColors } from '../../../../constants/theme';
-
-const { width } = Dimensions.get('window');
 
 const ChefWelcome = () => {
   return (
@@ -43,15 +40,13 @@ const ChefWelcome = () => {
             <Image
               source={require('../../../assets/images/chefDelivery.png')}
               style={styles.heroImage}
-              resizeMode="cover"
+              resizeMode="contain"
             />
           </View>
 
           {/* Scroll Indicator */}
           <View style={styles.scrollIndicator}>
-            <View style={styles.scrollRow}>
-              <Text style={styles.scrollText}>Scroll to learn more</Text>
-            </View>
+            <Text style={styles.scrollText}>Scroll to learn more</Text>
             <Text style={styles.scrollArrow}>↓</Text>
           </View>
 
@@ -221,9 +216,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  scrollRow: {
-    alignItems: 'center',
-  },
   scrollText: {
     fontSize: 14,
     color: '#FFFFFF',
@@ -263,10 +255,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: 16,
+    minHeight: 60,
   },
   iconCircle: {
     width: 50,
     height: 50,
+    minHeight: 50,
+    maxHeight: 50,
     borderRadius: 25,
     backgroundColor: AppColors.primaryLight || '#FFE8DC',
     alignItems: 'center',
@@ -278,6 +273,7 @@ const styles = StyleSheet.create({
   },
   benefitText: {
     flex: 1,
+    flexShrink: 1,
     paddingTop: 4,
   },
   benefitTitle: {
@@ -300,11 +296,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#4CAF50',
     fontWeight: '700',
-    marginRight: 12,
+    width: 24,
     marginTop: 2,
   },
   checklistText: {
     flex: 1,
+    flexShrink: 1,
     fontSize: 16,
     color: AppColors.text,
     lineHeight: 22,
