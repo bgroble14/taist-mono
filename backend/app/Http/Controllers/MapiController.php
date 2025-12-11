@@ -3566,6 +3566,16 @@ Write only the review text:";
 
         if (!$candidate_id || $candidate_id == '') {
 
+            // Handle birthday - could be Unix timestamp or date string
+            $birthday = $request->birthday;
+            if (is_numeric($birthday)) {
+                // Unix timestamp (in seconds)
+                $dateOfBirth = date("Y-m-d", (int)$birthday);
+            } else {
+                // Date string
+                $dateOfBirth = date("Y-m-d", strtotime($birthday));
+            }
+
             $postData = array(
                 'applicantGuid' => null,
                 'firstName' => $request->first_name,
@@ -3575,7 +3585,7 @@ Write only the review text:";
                 'email' => $request->email,
                 'ssn' => $ssn,
                 'phoneNumber' => $phoneNumber,
-                'dateOfBirth' => date("Y-m-d", strtotime($request->birthday)),
+                'dateOfBirth' => $dateOfBirth,
                 'textingEnabled' => true,
             );
 
