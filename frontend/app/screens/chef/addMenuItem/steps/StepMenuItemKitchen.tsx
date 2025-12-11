@@ -94,7 +94,6 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
   return (
     <MenuItemStepContainer
       title="Kitchen Requirements"
-      subtitle="What does the customer need to prepare this dish?"
       currentStep={5}
       totalSteps={8}
     >

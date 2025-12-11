@@ -103,7 +103,7 @@ export const StepMenuItemCustomizations: React.FC<StepMenuItemCustomizationsProp
         )}
 
         <StyledButton
-          title="+ ADD ADD-ON"
+          title="+ ADD-ON"
           onPress={handleAddCustomization}
           style={styles.addButton}
           titleStyle={styles.addButtonText}
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: AppColors.textSecondary,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.md,
   },
   emptyStateSubtext: {
     fontSize: 14,
