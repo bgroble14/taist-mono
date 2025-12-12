@@ -3096,8 +3096,9 @@ Write only the review text:";
                 'u.verified' => 1
             ])
             // PERFORMANCE: Bounding box filter (uses index, eliminates distant chefs quickly)
-            ->whereBetween('u.latitude', [$minLat, $maxLat])
-            ->whereBetween('u.longitude', [$minLng, $maxLng])
+            // Note: lat/lng stored as strings, so CAST to DECIMAL for proper numeric comparison
+            ->whereRaw('CAST(u.latitude AS DECIMAL(10,6)) BETWEEN ? AND ?', [$minLat, $maxLat])
+            ->whereRaw('CAST(u.longitude AS DECIMAL(10,6)) BETWEEN ? AND ?', [$minLng, $maxLng])
             ->whereRaw($whereDayTime)
             // Precise Haversine calculation for remaining candidates
             ->whereRaw("
