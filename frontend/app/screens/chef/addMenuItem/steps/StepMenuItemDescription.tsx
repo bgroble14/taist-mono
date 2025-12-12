@@ -11,7 +11,7 @@ import { EnhanceMenuDescriptionAPI } from '../../../../services/api';
 interface StepMenuItemDescriptionProps {
   menuItemData: Partial<IMenu>;
   onUpdateMenuItemData: (data: Partial<IMenu>) => void;
-  onNext: () => void;
+  onNext: () => void | Promise<void>;
   onBack: () => void;
 }
 
@@ -22,6 +22,7 @@ export const StepMenuItemDescription: React.FC<StepMenuItemDescriptionProps> = (
   onBack,
 }) => {
   const [isEnhancing, setIsEnhancing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // Debounce for Continue button
   const [showEnhancePreview, setShowEnhancePreview] = useState(false);
   const [enhancedDescription, setEnhancedDescription] = useState('');
   const [hasUsedAI, setHasUsedAI] = useState(false);
@@ -51,25 +52,32 @@ export const StepMenuItemDescription: React.FC<StepMenuItemDescriptionProps> = (
       if (response.success === 1 && response.enhanced_description) {
         setEnhancedDescription(response.enhanced_description);
         setShowEnhancePreview(true);
+        // Don't call onNext here - modal will handle it
+        // Keep isProcessing true until modal action
       } else {
         // If enhancement fails, just continue
-        onNext();
+        await onNext();
       }
     } catch (error) {
       console.log('Enhancement failed, continuing anyway', error);
-      onNext();
+      await onNext();
     } finally {
       setIsEnhancing(false);
     }
   };
 
-  const acceptEnhancedDescription = () => {
+  const acceptEnhancedDescription = async () => {
+    setIsProcessing(true);
     onUpdateMenuItemData({ description: enhancedDescription });
     setShowEnhancePreview(false);
-    onNext();
+    await onNext();
+    setIsProcessing(false);
   };
 
-  const validateAndProceed = () => {
+  const validateAndProceed = async () => {
+    // Prevent double-tap
+    if (isProcessing || isEnhancing) return;
+
     // Validate description
     if (!menuItemData.description || menuItemData.description.trim().length === 0) {
       ShowErrorToast('Please enter a description');
@@ -81,12 +89,17 @@ export const StepMenuItemDescription: React.FC<StepMenuItemDescriptionProps> = (
       return;
     }
 
-    // If user edited the description or wrote their own, enhance it
-    if (menuItemData.description_edited || !menuItemData.ai_generated_description) {
-      enhanceDescription(menuItemData.description);
-    } else {
-      // AI description used without edits, skip enhancement
-      onNext();
+    setIsProcessing(true);
+    try {
+      // If user edited the description or wrote their own, enhance it
+      if (menuItemData.description_edited || !menuItemData.ai_generated_description) {
+        await enhanceDescription(menuItemData.description);
+      } else {
+        // AI description used without edits, skip enhancement
+        await onNext();
+      }
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -148,18 +161,20 @@ export const StepMenuItemDescription: React.FC<StepMenuItemDescriptionProps> = (
 
       <View style={styles.buttonContainer}>
         <StyledButton
-          title={isEnhancing ? "Enhancing..." : "Continue"}
+          title={isEnhancing ? "Enhancing..." : isProcessing ? "Processing..." : "Continue"}
           onPress={validateAndProceed}
-          disabled={isEnhancing}
+          disabled={isEnhancing || isProcessing}
         />
-        {isEnhancing && (
+        {(isEnhancing || isProcessing) && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="small" color={AppColors.primary} />
-            <Text style={styles.loadingText}>Checking grammar and punctuation...</Text>
+            <Text style={styles.loadingText}>
+              {isEnhancing ? 'Checking grammar and punctuation...' : 'Analyzing your dish...'}
+            </Text>
           </View>
         )}
-        <Pressable onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backButtonText}>Back</Text>
+        <Pressable onPress={onBack} style={styles.backButton} disabled={isEnhancing || isProcessing}>
+          <Text style={[styles.backButtonText, (isEnhancing || isProcessing) && { opacity: 0.5 }]}>Back</Text>
         </Pressable>
       </View>
 
@@ -182,17 +197,21 @@ export const StepMenuItemDescription: React.FC<StepMenuItemDescriptionProps> = (
 
               <View style={styles.modalButtons}>
                 <StyledButton
-                  title="Looks Good!"
+                  title={isProcessing ? "Processing..." : "Looks Good!"}
                   onPress={acceptEnhancedDescription}
+                  disabled={isProcessing}
                 />
                 <Pressable
-                  onPress={() => {
+                  onPress={async () => {
+                    setIsProcessing(true);
                     setShowEnhancePreview(false);
-                    onNext();
+                    await onNext();
+                    setIsProcessing(false);
                   }}
                   style={styles.secondaryButton}
+                  disabled={isProcessing}
                 >
-                  <Text style={styles.secondaryButtonText}>Keep Original</Text>
+                  <Text style={[styles.secondaryButtonText, isProcessing && { opacity: 0.5 }]}>Keep Original</Text>
                 </Pressable>
               </View>
             </ScrollView>
