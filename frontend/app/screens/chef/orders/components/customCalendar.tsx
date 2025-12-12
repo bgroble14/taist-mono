@@ -1,13 +1,6 @@
 import moment from 'moment';
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  runOnJS,
-} from 'react-native-reanimated';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface CustomCalendarProps {
   selectedDate: moment.Moment;
@@ -74,28 +67,6 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
 
   const isToday = moment().isSame(selectedDate, 'day');
 
-  // Swipe gesture for week navigation
-  const translateX = useSharedValue(0);
-  const SWIPE_THRESHOLD = 50;
-
-  const panGesture = Gesture.Pan()
-    .activeOffsetX([-10, 10]) // Only activate after 10px horizontal movement
-    .onUpdate((e) => {
-      translateX.value = e.translationX * 0.5; // Dampen the movement
-    })
-    .onEnd((e) => {
-      if (e.translationX < -SWIPE_THRESHOLD) {
-        runOnJS(navigateWeek)('next');
-      } else if (e.translationX > SWIPE_THRESHOLD) {
-        runOnJS(navigateWeek)('prev');
-      }
-      translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
-    });
-
-  const animatedWeekStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
-
   return (
     <View style={styles.container}>
       {/* Month/Year Header */}
@@ -127,45 +98,47 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Week Strip - Swipeable */}
-      <GestureDetector gesture={panGesture}>
-        <Animated.View style={[styles.weekContainer, animatedWeekStyle]}>
-          {weekDates.map((date, index) => {
-            const isSelected = isDateSelected(date);
-            const isDisabled = isDateDisabled(date);
-            const dayName = date.format('ddd').toUpperCase();
-            const dayNumber = date.format('D');
+      {/* Week Strip */}
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.weekContainer}
+      >
+        {weekDates.map((date, index) => {
+          const isSelected = isDateSelected(date);
+          const isDisabled = isDateDisabled(date);
+          const dayName = date.format('ddd').toUpperCase();
+          const dayNumber = date.format('D');
 
-            return (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.dayContainer,
-                  isSelected && styles.selectedDayContainer,
-                  isDisabled && styles.disabledDayContainer,
-                ]}
-                onPress={() => handleDayPress(date)}
-                disabled={isDisabled}
-              >
-                <Text style={[
-                  styles.dayName,
-                  isSelected && styles.selectedDayName,
-                  isDisabled && styles.disabledText,
-                ]}>
-                  {dayName}
-                </Text>
-                <Text style={[
-                  styles.dayNumber,
-                  isSelected && styles.selectedDayNumber,
-                  isDisabled && styles.disabledText,
-                ]}>
-                  {dayNumber}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </Animated.View>
-      </GestureDetector>
+          return (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.dayContainer,
+                isSelected && styles.selectedDayContainer,
+                isDisabled && styles.disabledDayContainer,
+              ]}
+              onPress={() => handleDayPress(date)}
+              disabled={isDisabled}
+            >
+              <Text style={[
+                styles.dayName,
+                isSelected && styles.selectedDayName,
+                isDisabled && styles.disabledText,
+              ]}>
+                {dayName}
+              </Text>
+              <Text style={[
+                styles.dayNumber,
+                isSelected && styles.selectedDayNumber,
+                isDisabled && styles.disabledText,
+              ]}>
+                {dayNumber}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 };
@@ -215,6 +188,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 10,
     justifyContent: 'space-between',
+    width: '100%',
   },
   dayContainer: {
     alignItems: 'center',
