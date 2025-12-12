@@ -128,7 +128,7 @@ export const StepMenuItemDescription: React.FC<StepMenuItemDescriptionProps> = (
         <Text style={styles.textAreaLabel}>Description</Text>
         <TextInput
           style={styles.textArea}
-          placeholder="e.g., A hearty Italian classic with layers of pasta, rich meat sauce, and creamy ricotta cheese, baked to perfection."
+          placeholder=""
           placeholderTextColor={AppColors.textSecondary}
           value={menuItemData.description ?? ''}
           onChangeText={handleDescriptionChange}
