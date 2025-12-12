@@ -477,9 +477,9 @@ const Profile = () => {
       </KeyboardAvoidingView>
 
       {/* Time Picker Modal for iOS */}
-      {Platform.OS === 'ios' && (
+      {Platform.OS === 'ios' && showPicker && (
         <Modal
-          visible={showPicker}
+          visible={true}
           transparent
           animationType="slide"
           onRequestClose={() => setShowPicker(false)}
@@ -501,6 +501,7 @@ const Profile = () => {
                 </Pressable>
               </View>
               <DateTimePicker
+                key={`picker-${activePickerDay}-${activePickerType}`}
                 mode="time"
                 display="spinner"
                 value={tempTime}
