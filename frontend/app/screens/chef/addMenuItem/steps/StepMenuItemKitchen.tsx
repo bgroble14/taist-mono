@@ -162,7 +162,6 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
               >
                 <Text
                   style={isSelected ? styles.tabText : styles.tabDisabledText}
-                  numberOfLines={1}
                 >
                   {ct.value}
                 </Text>
