@@ -2947,7 +2947,7 @@ Write only the review text:";
             }
         }
         
-        $radius = 30000;
+        $radius = 50; // 50 miles - production distance
 
         $whereDayTime = "";
         if ($request->week_day == 1) {
