@@ -954,6 +954,10 @@ class MapiController extends Controller
 
         // Generate all possible 30-minute time slots for the day (00:00 - 23:30)
         $allSlots = [];
+
+        // Handle "00:00" end time as midnight (end of day) - treat as "24:00" for comparison
+        $endTimeForComparison = ($endTime === '00:00') ? '24:00' : $endTime;
+
         for ($hour = 0; $hour < 24; $hour++) {
             for ($minute = 0; $minute < 60; $minute += 30) {
                 $timeStr = sprintf('%02d:%02d', $hour, $minute);
@@ -967,7 +971,7 @@ class MapiController extends Controller
                 }
 
                 // Check if time is within available range (no DB query needed!)
-                if ($timeStr >= $startTime && $timeStr <= $endTime) {
+                if ($timeStr >= $startTime && $timeStr <= $endTimeForComparison) {
                     $allSlots[] = $timeStr;
                 }
             }

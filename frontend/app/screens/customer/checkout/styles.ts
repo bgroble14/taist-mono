@@ -76,6 +76,16 @@ export const styles = StyleSheet.create({
     fontStyle: 'italic',
     paddingVertical: Spacing.sm,
   },
+  loadingTimesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+  },
+  loadingTimesText: {
+    fontSize: 14,
+    color: AppColors.textSecondary,
+  },
   estimated: {
     fontSize: 13,
     fontWeight: '600',

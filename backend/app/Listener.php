@@ -171,8 +171,11 @@ class Listener extends Authenticatable
 
         \Log::debug("[TIMESLOTS] Converted times: start={$scheduledStartTime}, end={$scheduledEndTime}, checking time={$time}");
 
+        // Handle "00:00" end time as midnight (end of day) - treat as "24:00" for comparison
+        $endTimeForComparison = ($scheduledEndTime === '00:00') ? '24:00' : $scheduledEndTime;
+
         // Compare time strings (HH:MM format)
-        $isAvailable = $time >= $scheduledStartTime && $time <= $scheduledEndTime;
+        $isAvailable = $time >= $scheduledStartTime && $time <= $endTimeForComparison;
         \Log::debug("[TIMESLOTS] Time {$time} available: " . ($isAvailable ? 'yes' : 'no'));
 
         return $isAvailable;

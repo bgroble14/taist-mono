@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
   SafeAreaView,
@@ -71,6 +72,7 @@ const Checkout = () => {
   const [appliance, onChangeAppliance] = useState(false);
   const [paymentMethod, onChangePaymentMethod] = useState<IPayment>({});
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [isLoadingTimes, setIsLoadingTimes] = useState(true);
 
   // Discount code state
   const [discountCode, setDiscountCode] = useState<string>('');
@@ -193,9 +195,11 @@ const Checkout = () => {
   const addTimes = async () => {
     if (!chefInfo?.id) {
       onChangeTimes([]);
+      setIsLoadingTimes(false);
       return;
     }
 
+    setIsLoadingTimes(true);
     const selectedDate = DAY.format('YYYY-MM-DD');
 
     try {
@@ -228,6 +232,8 @@ const Checkout = () => {
     } catch (error) {
       console.error('[TMA-011] Error fetching timeslots:', error);
       onChangeTimes([]);
+    } finally {
+      setIsLoadingTimes(false);
     }
   };
 
@@ -519,7 +525,12 @@ const Checkout = () => {
             <Text style={styles.timeLabel}>Select a time:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.timeContainer}>
-                {times.length === 0 ? (
+                {isLoadingTimes ? (
+                  <View style={styles.loadingTimesContainer}>
+                    <ActivityIndicator size="small" color="#fa4616" />
+                    <Text style={styles.loadingTimesText}>Loading available times...</Text>
+                  </View>
+                ) : times.length === 0 ? (
                   <Text style={styles.noTimesText}>No available times for this date</Text>
                 ) : (
                   times.map((item, idx) => {
