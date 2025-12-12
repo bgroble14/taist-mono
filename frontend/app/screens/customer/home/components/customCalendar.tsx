@@ -2,6 +2,7 @@ import moment from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 
 interface CustomCalendarProps {
   selectedDate: moment.Moment;
@@ -95,10 +96,11 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
   const swipeGesture = Gesture.Pan()
     .activeOffsetX([-20, 20])
     .onEnd((e) => {
+      'worklet';
       if (e.translationX < -50) {
-        navigateWeek('next');
+        runOnJS(navigateWeek)('next');
       } else if (e.translationX > 50) {
-        navigateWeek('prev');
+        runOnJS(navigateWeek)('prev');
       }
     });
 
