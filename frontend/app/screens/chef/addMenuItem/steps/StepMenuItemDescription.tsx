@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, Modal, ScrollView } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ActivityIndicator, Modal, ScrollView, TextInput } from 'react-native';
 import { MenuItemStepContainer } from '../components/MenuItemStepContainer';
 import { AppColors, Spacing } from '../../../../../constants/theme';
 import { IMenu } from '../../../../types/index';
 import { ShowErrorToast } from '../../../../utils/toast';
-import StyledTextInput from '../../../../components/styledTextInput';
 import StyledButton from '../../../../components/styledButton';
 import { EnhanceMenuDescriptionAPI } from '../../../../services/api';
 
@@ -125,20 +124,22 @@ export const StepMenuItemDescription: React.FC<StepMenuItemDescriptionProps> = (
         </View>
       )}
 
-      <StyledTextInput
-        label="Description"
-        placeholder="e.g., A hearty Italian classic with layers of pasta, rich meat sauce, and creamy ricotta cheese, baked to perfection."
-        value={menuItemData.description ?? ''}
-        onChangeText={handleDescriptionChange}
-        multiline
-        numberOfLines={5}
-        maxLength={500}
-        style={styles.textArea}
-      />
-
-      <Text style={styles.charCount}>
-        {(menuItemData.description ?? '').length}/500 characters
-      </Text>
+      <View style={styles.textAreaContainer}>
+        <Text style={styles.textAreaLabel}>Description</Text>
+        <TextInput
+          style={styles.textArea}
+          placeholder="e.g., A hearty Italian classic with layers of pasta, rich meat sauce, and creamy ricotta cheese, baked to perfection."
+          placeholderTextColor={AppColors.textSecondary}
+          value={menuItemData.description ?? ''}
+          onChangeText={handleDescriptionChange}
+          multiline
+          maxLength={500}
+          textAlignVertical="top"
+        />
+        <Text style={styles.charCount}>
+          {(menuItemData.description ?? '').length}/500 characters
+        </Text>
+      </View>
 
       {/* AI Integration Point - Hidden for now */}
       {/* <View style={styles.aiSection}>
@@ -223,15 +224,31 @@ export const StepMenuItemDescription: React.FC<StepMenuItemDescriptionProps> = (
 };
 
 const styles = StyleSheet.create({
+  textAreaContainer: {
+    marginBottom: Spacing.sm,
+  },
+  textAreaLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: AppColors.text,
+    marginBottom: Spacing.xs,
+  },
   textArea: {
     minHeight: 120,
+    borderWidth: 1,
+    borderColor: AppColors.border,
+    borderRadius: 8,
+    padding: Spacing.md,
+    fontSize: 16,
+    color: AppColors.text,
+    backgroundColor: 'white',
     textAlignVertical: 'top',
   },
   charCount: {
     fontSize: 12,
     color: AppColors.textSecondary,
     textAlign: 'right',
-    marginTop: -Spacing.sm,
+    marginTop: Spacing.xs,
   },
   buttonContainer: {
     gap: Spacing.md,
