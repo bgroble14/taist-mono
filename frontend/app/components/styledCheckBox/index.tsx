@@ -16,7 +16,7 @@ type Props = {
 const StyledCheckBox = ({label, value, containerStyle, onPress}: Props) => {
   return (
     <View style={[styles.container, containerStyle]}>
-      <TouchableOpacity onPress={onPress} style={styles.box}>
+      <TouchableOpacity onPress={onPress} style={[styles.box, value && styles.boxChecked]}>
         {value && <FontAwesomeIcon icon={faCheck} size={15} color="#ffffff" />}
       </TouchableOpacity>
       <Text style={styles.label} numberOfLines={1}>

@@ -18,7 +18,9 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: AppColors.text, // Changed from white to dark text
         paddingTop:10,
-        padding:10,
+        paddingBottom:10,
+        paddingLeft:15,
+        paddingRight:15,
     },
     thumb:{
         backgroundColor: AppColors.primary, // Changed from red to orange

@@ -35,9 +35,6 @@ const AddToOrder = () => {
   const orderMenu: IMenu = JSON.parse(params.orderMenu as string);
   const chefInfo: IUser = JSON.parse(params.chefInfo as string);
 
-  // Debug: log customizations data
-  console.log('AddToOrder - orderMenu.customizations:', JSON.stringify(orderMenu.customizations));
-
   const [quantity, onChangeQuantity] = useState(1);
   const [orderNotes, onChangeOrderNotes] = useState('');
   const [customizationIds, onChangeCustomizationIds] = useState<Array<number>>(

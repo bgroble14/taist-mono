@@ -72,6 +72,11 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: AppColors.textSecondary,
   },
+  itemAddons: {
+    fontSize: 12,
+    color: AppColors.primary,
+    fontWeight: '500',
+  },
   itemNotes: {
     fontSize: 12,
     color: AppColors.textSecondary,

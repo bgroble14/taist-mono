@@ -1,4 +1,5 @@
 import {Dimensions, StyleSheet, Platform} from "react-native";
+import { AppColors } from '../../../constants/theme';
 
   const styles = StyleSheet.create({
     container: {
@@ -13,12 +14,17 @@ import {Dimensions, StyleSheet, Platform} from "react-native";
         height:22,
         borderWidth:2,
         borderRadius:5,
-        borderColor:'white',
+        borderColor: AppColors.text,
         alignItems:'center',
         justifyContent:'center'
     },
+    boxChecked:{
+        backgroundColor: AppColors.primary,
+        borderColor: AppColors.primary,
+    },
     label:{
-        color:'white'
+        color: AppColors.text,
+        flex: 1,
     }
 })
 

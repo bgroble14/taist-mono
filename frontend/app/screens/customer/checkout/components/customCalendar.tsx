@@ -184,30 +184,32 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fa4616',
-    borderRadius: 12,
+    backgroundColor: '#ffffff',
     paddingVertical: 16,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    marginBottom: 15,
+    paddingHorizontal: 8,
+    marginBottom: 16,
   },
   centerContent: {
     alignItems: 'center',
     gap: 6,
   },
   monthYearText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: '#1a1a1a',
+    fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
   },
   todayButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: '#fa4616',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -218,11 +220,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   navButton: {
-    padding: 10,
+    padding: 8,
   },
   navButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
+    color: '#fa4616',
+    fontSize: 20,
     fontWeight: 'bold',
   },
   weekContainer: {
@@ -233,20 +235,23 @@ const styles = StyleSheet.create({
   },
   dayContainer: {
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     minWidth: 42,
-    borderRadius: 8,
+    borderRadius: 10,
+    backgroundColor: 'transparent',
   },
   selectedDayContainer: {
     backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#fa4616',
   },
   disabledDayContainer: {
     opacity: 0.4,
   },
   dayName: {
-    color: '#ffffff',
-    fontSize: 12,
+    color: '#666666',
+    fontSize: 11,
     fontWeight: '600',
     marginBottom: 4,
   },
@@ -254,7 +259,7 @@ const styles = StyleSheet.create({
     color: '#fa4616',
   },
   dayNumber: {
-    color: '#ffffff',
+    color: '#1a1a1a',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -262,7 +267,7 @@ const styles = StyleSheet.create({
     color: '#fa4616',
   },
   disabledText: {
-    color: 'rgba(255, 255, 255, 0.3)',
+    color: '#cccccc',
   },
 });
 

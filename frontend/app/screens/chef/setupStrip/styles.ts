@@ -10,11 +10,13 @@ export const styles = StyleSheet.create({
 		backgroundColor: AppColors.background,
 	},
 	pageView: {
+		flexGrow: 1,
 		width: '100%',
 		padding: 10,
-		paddingTop:20,
+		paddingTop: 20,
 		alignItems: 'center',
-		gap:20,
+		justifyContent: 'center',
+		gap: 20,
 	},
 	text: {
 		flex: 1,

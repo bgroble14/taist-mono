@@ -114,7 +114,19 @@ const Cart = () => {
 
                 {chefOrders.map((order, index) => {
                   const menu = menus.find(m => m.id === order.menu_id);
-                  
+
+                  // Get add-on names from order.addons (comma-separated IDs)
+                  const addonNames: string[] = [];
+                  if (order.addons && order.addons.length > 0) {
+                    const addonIds = order.addons.split(',').map(id => parseInt(id.trim()));
+                    addonIds.forEach(id => {
+                      const customization = menu?.customizations?.find(c => c.id === id);
+                      if (customization?.name) {
+                        addonNames.push(customization.name);
+                      }
+                    });
+                  }
+
                   return (
                     <View key={`${order.menu_id}-${index}`} style={styles.cartItem}>
                       <View style={styles.itemInfo}>
@@ -122,6 +134,11 @@ const Cart = () => {
                         <Text style={styles.itemDescription}>
                           {menu?.description}
                         </Text>
+                        {addonNames.length > 0 && (
+                          <Text style={styles.itemAddons}>
+                            Add-ons: {addonNames.join(' & ')}
+                          </Text>
+                        )}
                         {order.notes && order.notes.length > 0 && (
                           <Text style={styles.itemNotes}>Note: {order.notes}</Text>
                         )}

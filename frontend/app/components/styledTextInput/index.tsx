@@ -95,7 +95,7 @@ const StyledTextInput = forwardRef(
         <TextInput
           style={[
             styles.textInput,
-            label != undefined && {paddingTop: 15},
+            label != undefined && {paddingTop: 20},
             textInputStyle,
           ]}
           placeholderTextColor={placeholderTextColor}
