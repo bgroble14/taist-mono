@@ -38,6 +38,7 @@ use App\Services\TwilioService;
 use App\Services\OrderSmsService;
 use Illuminate\Support\Str;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -2950,6 +2951,23 @@ Write only the review text:";
         
         $radius = 50; // 50 miles - production distance
 
+        // PERFORMANCE: Build cache key from search parameters
+        // Round lat/lng to ~1 mile precision to increase cache hits
+        $cacheKey = sprintf(
+            'chef_search:%s:%s:%s:%s:%s',
+            round((float)$user->latitude, 2),
+            round((float)$user->longitude, 2),
+            $request->week_day ?? 'any',
+            $request->time_slot ?? 'any',
+            $request->category_id ?? 'any'
+        );
+
+        // Try to get from cache (5 minute TTL)
+        $cachedData = Cache::get($cacheKey);
+        if ($cachedData !== null) {
+            return response()->json(['success' => 1, 'data' => $cachedData, 'cached' => true]);
+        }
+
         $whereDayTime = "";
         if ($request->week_day == 1) {
             $whereDayTime .= " monday_start != 0 AND monday_end != 0";
@@ -3057,11 +3075,18 @@ Write only the review text:";
             }
         }
 
-	Log::info('Lat/Lng values', [
-    'lat' => $user->latitude,
-    'lng' => $user->longitude,
-    'radius' => $radius,
-]);
+        // PERFORMANCE: Bounding box pre-filter
+        // 1 degree latitude ≈ 69 miles, so we calculate a rough box
+        // This allows MySQL to use the lat/lng index before expensive Haversine calculation
+        $userLat = (float) $user->latitude;
+        $userLng = (float) $user->longitude;
+        $latDelta = $radius / 69;  // degrees latitude per mile
+        $lngDelta = $radius / (69 * cos(deg2rad($userLat)));  // degrees longitude (varies by latitude)
+
+        $minLat = $userLat - $latDelta;
+        $maxLat = $userLat + $latDelta;
+        $minLng = $userLng - $lngDelta;
+        $maxLng = $userLng + $lngDelta;
 
         $data = DB::table('tbl_users as u')
             ->leftJoin('tbl_availabilities as a', 'a.user_id', '=', 'u.id')
@@ -3070,16 +3095,20 @@ Write only the review text:";
                 'u.is_pending' => 0,
                 'u.verified' => 1
             ])
+            // PERFORMANCE: Bounding box filter (uses index, eliminates distant chefs quickly)
+            ->whereBetween('u.latitude', [$minLat, $maxLat])
+            ->whereBetween('u.longitude', [$minLng, $maxLng])
             ->whereRaw($whereDayTime)
+            // Precise Haversine calculation for remaining candidates
             ->whereRaw("
             (3959 * acos(cos(radians(?)) * cos(radians(u.latitude)) * cos(radians(u.longitude) - radians(?)) + sin(radians(?)) * sin(radians(u.latitude)))) <= ?
-        ", [$user->latitude, $user->longitude, $user->latitude, $radius])
+        ", [$userLat, $userLng, $userLat, $radius])
             ->select([
                 'u.*',
                 'a.bio as bio',
                 'a.minimum_order_amount as minimum_order_amount',
                 'a.max_order_distance as max_order_distance',
-                DB::raw("(3959 * acos(cos(radians($user->latitude)) * cos(radians(u.latitude)) * cos(radians(u.longitude) - radians($user->longitude)) + sin(radians($user->latitude)) * sin(radians(u.latitude)))) AS distance")
+                DB::raw("(3959 * acos(cos(radians($userLat)) * cos(radians(u.latitude)) * cos(radians(u.longitude) - radians($userLng)) + sin(radians($userLat)) * sin(radians(u.latitude)))) AS distance")
             ])
             ->orderBy('distance', 'asc')
             ->get();
@@ -3189,7 +3218,8 @@ Write only the review text:";
             }));
         }
 
-        // Log::info('checfssss' . $data);
+        // PERFORMANCE: Cache the results for 5 minutes (300 seconds)
+        Cache::put($cacheKey, $data, 300);
 
         return response()->json(['success' => 1, 'data' => $data]);
     }
@@ -3201,9 +3231,20 @@ Write only the review text:";
         else if ($this->_checktaistApiKey($request->header('apiKey')) === -1)
             return response()->json(['success' => 0, 'error' => "Token has been expired."]);
 
-        $data = app(Menus::class)->whereRaw("user_id = '" . $request->user_id . "' AND FIND_IN_SET('" . $request->allergen . "', 'allergens') = 0")->get();
+        // FIXED: Use parameterized queries to prevent SQL injection
+        $data = app(Menus::class)
+            ->where('user_id', $request->user_id)
+            ->whereRaw('FIND_IN_SET(?, allergens) = 0', [$request->allergen])
+            ->get();
+
+        // FIXED: Batch load customizations to avoid N+1 queries
+        $menuIds = $data->pluck('id')->toArray();
+        $customizationsByMenu = !empty($menuIds)
+            ? app(Customizations::class)->whereIn('menu_id', $menuIds)->get()->groupBy('menu_id')
+            : collect();
+
         foreach ($data as &$item) {
-            $item->customizations = app(Customizations::class)->where(['menu_id' => $item->id])->get();
+            $item->customizations = $customizationsByMenu->get($item->id, collect());
         }
 
         return response()->json(['success' => 1, 'data' => $data]);
@@ -3228,9 +3269,23 @@ Write only the review text:";
         else if ($this->_checktaistApiKey($request->header('apiKey')) === -1)
             return response()->json(['success' => 0, 'error' => "Token has been expired."]);
 
-        $data = DB::table('tbl_orders as o')->leftJoin('tbl_reviews as r', 'r.order_id', '=', 'o.id')->where(['o.chef_user_id' => $request->user_id])->where('o.created_at', '>=', $request->start_time)->where('o.created_at', '<', $request->end_time)->select(['o.*', 'r.rating as rating', 'r.review as review', 'r.tip_amount as tip_amount'])->orderBy('o.id', 'DESC')->get();
+        $data = DB::table('tbl_orders as o')
+            ->leftJoin('tbl_reviews as r', 'r.order_id', '=', 'o.id')
+            ->where('o.chef_user_id', $request->user_id)
+            ->where('o.created_at', '>=', $request->start_time)
+            ->where('o.created_at', '<', $request->end_time)
+            ->select(['o.*', 'r.rating as rating', 'r.review as review', 'r.tip_amount as tip_amount'])
+            ->orderBy('o.id', 'DESC')
+            ->get();
+
+        // FIXED: Batch load customizations to avoid N+1 queries
+        $menuIds = $data->pluck('menu_id')->unique()->filter()->toArray();
+        $customizationsByMenu = !empty($menuIds)
+            ? app(Customizations::class)->whereIn('menu_id', $menuIds)->get()->groupBy('menu_id')
+            : collect();
+
         foreach ($data as &$item) {
-            $item->customizations = app(Customizations::class)->where(['menu_id' => $item->menu_id])->get();
+            $item->customizations = $customizationsByMenu->get($item->menu_id, collect());
         }
 
         return response()->json(['success' => 1, 'data' => $data]);
@@ -3243,9 +3298,23 @@ Write only the review text:";
         else if ($this->_checktaistApiKey($request->header('apiKey')) === -1)
             return response()->json(['success' => 0, 'error' => "Token has been expired."]);
 
-        $data = DB::table('tbl_orders as o')->leftJoin('tbl_reviews as r', 'r.order_id', '=', 'o.id')->where(['o.customer_user_id' => $request->user_id])->where('o.created_at', '>=', $request->start_time)->where('o.created_at', '<', $request->end_time)->select(['o.*', 'r.rating as rating', 'r.review as review', 'r.tip_amount as tip_amount'])->orderBy('o.id', 'DESC')->get();
+        $data = DB::table('tbl_orders as o')
+            ->leftJoin('tbl_reviews as r', 'r.order_id', '=', 'o.id')
+            ->where('o.customer_user_id', $request->user_id)
+            ->where('o.created_at', '>=', $request->start_time)
+            ->where('o.created_at', '<', $request->end_time)
+            ->select(['o.*', 'r.rating as rating', 'r.review as review', 'r.tip_amount as tip_amount'])
+            ->orderBy('o.id', 'DESC')
+            ->get();
+
+        // FIXED: Batch load customizations to avoid N+1 queries
+        $menuIds = $data->pluck('menu_id')->unique()->filter()->toArray();
+        $customizationsByMenu = !empty($menuIds)
+            ? app(Customizations::class)->whereIn('menu_id', $menuIds)->get()->groupBy('menu_id')
+            : collect();
+
         foreach ($data as &$item) {
-            $item->customizations = app(Customizations::class)->where(['menu_id' => $item->menu_id])->get();
+            $item->customizations = $customizationsByMenu->get($item->menu_id, collect());
         }
 
         return response()->json(['success' => 1, 'data' => $data]);

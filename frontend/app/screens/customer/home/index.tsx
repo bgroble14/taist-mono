@@ -1,6 +1,5 @@
-import { TextInput } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -13,11 +12,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 
-// NPM
-// import CalendarStrip from 'react-native-calendar-strip';
-
-// Types & Services
-import { IMenu, IReview, IUser } from '../../../types/index';
 
 // Hooks
 import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
@@ -29,7 +23,6 @@ import { AppColors, Spacing } from '../../../../constants/theme';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import { GetSearchChefAPI, GetZipCodes } from '../../../services/api';
-import { Delay } from '../../../utils/functions';
 import { navigate } from '../../../utils/navigation';
 import ChefCard from './components/chefCard';
 import CustomCalendar from './components/customCalendar';
@@ -39,18 +32,13 @@ const Home = () => {
   const self = useAppSelector(x => x.user.user);
   const categories = useAppSelector(x => x.table.categories);
   const zipcodes = useAppSelector(x => x.table.zipcodes);
-  const notificationOrderId = useAppSelector(
-    x => x.device.notification_order_id,
-  );
   const dispatch = useAppDispatch();
 
-  const [searchTerm, onChangeSearchTerm] = useState('');
   const [DAY, onChangeDAY] = useState(moment());
   const [timeSlotId, onChangeTimeSlotId] = useState(0);
   const [categoryId, onChangeCategoryId] = useState(0);
+  // Chef data from API includes menus/reviews attached, so using any
   const [chefs, setChefs] = useState<Array<any>>([]);
-  // const refCalendar = useRef<CalendarStrip>(null);
-  const notification_id = useAppSelector(x => x.device.notification_id);
 
   const isInArea = zipcodes.includes(self.zip ?? '');
   const startDate = moment();
@@ -98,97 +86,75 @@ const Home = () => {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  // Focus effect to reload data when screen comes into focus or notification_id changes
+  // Track the current request to prevent race conditions
+  const requestIdRef = useRef(0);
+  // Track if initial load has happened
+  const hasLoadedRef = useRef(false);
+
+  // Single source of truth for loading chefs data
+  const loadData = useCallback(async (showSpinner = true) => {
+    const currentRequestId = ++requestIdRef.current;
+
+    const week_day = DAY.weekday();
+    const selected_date = DAY.format('YYYY-MM-DD');
+    const category_id = categoryId;
+    const time_slot = timeSlotId;
+    const timezone_gap = moment().utcOffset() / 60;
+
+    if (showSpinner) {
+      dispatch(showLoading());
+    }
+
+    try {
+      const searchChefs = await GetSearchChefAPI(
+        { week_day, selected_date, category_id, time_slot, timezone_gap, user_id: self?.id || -1 },
+        dispatch,
+      );
+
+      // Only update state if this is still the most recent request
+      if (currentRequestId !== requestIdRef.current) {
+        return;
+      }
+
+      if (searchChefs.success == 1) {
+        setChefs(searchChefs.data);
+      } else {
+        setChefs([]);
+      }
+    } finally {
+      // Only hide loading if this is still the most recent request
+      if (currentRequestId === requestIdRef.current && showSpinner) {
+        dispatch(hideLoading());
+      }
+    }
+  }, [DAY, categoryId, timeSlotId, self?.id, dispatch]);
+
+  // Focus effect - refresh zip codes and load data when screen focuses
   useFocusEffect(
     useCallback(() => {
       // TMA-014: Silently refresh zip codes when home screen focuses
-      // This ensures users see new service areas without restarting the app
-      GetZipCodes({}, dispatch).catch(err =>
-        console.log('Failed to refresh zip codes on focus:', err)
-      );
+      GetZipCodes({}, dispatch).catch(() => {});
+
+      // Load data on focus (this handles both initial load and returning to screen)
       loadData();
-    }, [notification_id]),
+      hasLoadedRef.current = true;
+    }, [loadData]),
   );
+
+  // Load data when filters change (but not on initial mount - useFocusEffect handles that)
+  useEffect(() => {
+    if (hasLoadedRef.current) {
+      loadData();
+    }
+  }, [categoryId, timeSlotId, DAY, loadData]);
 
   const onRefresh = async () => {
     setRefreshing(true);
     // TMA-014: Refresh zip codes when user pulls to refresh
-    await GetZipCodes({}, dispatch).catch(err =>
-      console.log('Failed to refresh zip codes on pull-to-refresh:', err)
-    );
-    await loadDatax();
+    await GetZipCodes({}, dispatch).catch(() => {});
+    await loadData(false); // Don't show spinner for pull-to-refresh
     setRefreshing(false);
   };
-
-  const loadDatax = async () => {
-    const week_day = DAY.weekday();
-    const selected_date = DAY.format('YYYY-MM-DD'); // Send actual date
-    const category_id = categoryId;
-    const time_slot = timeSlotId;
-    const timezone_gap = moment().utcOffset() / 60;
-
-    console.log('🔄 REFRESH: Loading chefs...');
-    // No loading indicator for refresh
-    const searchChefs = await GetSearchChefAPI(
-      { week_day, selected_date, category_id, time_slot, timezone_gap, user_id: self?.id || -1 },
-      dispatch,
-    );
-
-    if (searchChefs.success == 1) {
-      console.log('✅ REFRESH SUCCESS:', searchChefs?.data?.length || 0, 'chefs');
-      setChefs(searchChefs.data);
-    } else {
-      console.log('❌ REFRESH FAILED:', searchChefs);
-      setChefs([]);
-    }
-  };
-
-
-
-  const loadData = async () => {
-    const week_day = DAY.weekday();
-    const selected_date = DAY.format('YYYY-MM-DD'); // Send actual date
-    const category_id = categoryId;
-    const time_slot = timeSlotId;
-    const timezone_gap = moment().utcOffset() / 60;
-
-    dispatch(showLoading());
-    const searchChefs = await GetSearchChefAPI(
-      { week_day, selected_date, category_id, time_slot, timezone_gap, user_id: self?.id || -1 },
-      dispatch,
-    );
-
-    dispatch(hideLoading());
-    if (searchChefs.success == 1) {
-      console.log('🔍 SEARCH CHEFS API SUCCESS');
-      console.log('📊 Total chefs returned:', searchChefs?.data?.length || 0);
-      console.log('👨‍🍳 Chefs data:', JSON.stringify(searchChefs?.data, null, 2));
-      setChefs(searchChefs.data);
-    } else {
-      console.log('❌ SEARCH CHEFS API FAILED:', searchChefs);
-      setChefs([]);
-    }
-  };
-
-  // Load data when category, time slot, or day changes
-  const loadDataCallback = useCallback(() => {
-    console.log('Loading data...');
-    loadData();
-  }, [categoryId, timeSlotId, DAY]);
-
-  // Initial load with delay
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      loadDataCallback();
-    }, 2000);
-    
-    return () => clearTimeout(timeout);
-  }, []); // Only run once on mount
-
-  // Load data when dependencies change
-  useEffect(() => {
-    loadData();
-  }, [categoryId, timeSlotId, DAY]);
 
   const handleDayPress = (day: moment.Moment) => {
     onChangeDAY(day);
@@ -206,51 +172,21 @@ const Home = () => {
     else onChangeCategoryId(id);
   };
 
-  const handleChefDetail = (id: any) => {
-    const week_day = DAY.weekday();
+  const handleChefDetail = (id: number) => {
+    const chef = chefs.find(x => x.id === id);
+    if (!chef) return;
 
-    var chef = chefs.find(x => x.id == id);
     navigate.toCustomer.chefDetail({
       chefInfo: chef,
       reviews: chef.reviews,
       menus: chef.menus,
-      weekDay: week_day,
-    });
-  };
-
-  const handleAddToOrder = (
-    item: IMenu,
-    chefInfo: IUser,
-    reviews: Array<IReview>,
-    menus: Array<IMenu>,
-  ) => {
-    navigate.toCustomer.addToOrder({
-      orderMenu: item,
-      chefInfo,
-      reviews,
-      menus,
+      weekDay: DAY.weekday(),
     });
   };
 
   const filteredChefs = useMemo(() => {
-    console.log('🔄 FILTERING CHEFS');
-    console.log('📋 Total chefs before filter:', chefs.length);
-    
-    var filtered = chefs.filter(x => x.menus.length > 0);
-    console.log('📋 Chefs with menus:', filtered.length);
-
-    if (searchTerm != '') {
-      console.log('🔍 Searching for:', searchTerm);
-      filtered = filtered.filter(
-        (x: IUser) =>
-          x.first_name?.includes(searchTerm) || x.last_name?.includes(searchTerm),
-      );
-      console.log('📋 Chefs after search:', filtered.length);
-    }
-
-    console.log('✅ FINAL FILTERED CHEFS COUNT:', filtered.length);
-    return filtered;
-  }, [chefs, searchTerm]);
+    return chefs.filter(x => x.menus.length > 0);
+  }, [chefs]);
 
   return (
     <SafeAreaView style={styles.main}>
@@ -363,11 +299,8 @@ const Home = () => {
                     />
                   );
                 })}
-                {filteredChefs.length == 0 && (
-                  <>
-                    <EmptyListView text="No Chefs" />
-                    {console.log('📭 EMPTY STATE: No chefs to display')}
-                  </>
+                {filteredChefs.length === 0 && (
+                  <EmptyListView text="No Chefs" />
                 )}
               </View>
             </View>
