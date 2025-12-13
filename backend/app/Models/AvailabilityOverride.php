@@ -70,12 +70,18 @@ class AvailabilityOverride extends Model
             return true;
         }
 
-        // Convert time strings to timestamps for comparison
-        $checkTime = strtotime($time);
-        $startTime = strtotime($this->start_time);
-        $endTime = strtotime($this->end_time);
+        // Normalize times to HH:MM format for reliable string comparison
+        $checkTimeNormalized = date('H:i', strtotime($time));
+        $startTimeNormalized = date('H:i', strtotime($this->start_time));
+        $endTimeNormalized = date('H:i', strtotime($this->end_time));
 
-        return $checkTime >= $startTime && $checkTime <= $endTime;
+        // Handle midnight end time (00:00) as end of day
+        if ($endTimeNormalized === '00:00') {
+            $endTimeNormalized = '24:00';
+        }
+
+        // String comparison works correctly for HH:MM format
+        return $checkTimeNormalized >= $startTimeNormalized && $checkTimeNormalized <= $endTimeNormalized;
     }
 
     /**

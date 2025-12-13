@@ -4366,7 +4366,9 @@ Write only the review text:";
             }
             
             $now = now();
-            $orderTime = date('Y-m-d H:i:s', $order->order_date);
+            // Convert Unix timestamp to DateTime for proper comparison
+            $orderTimestamp = is_numeric($order->order_date) ? (int)$order->order_date : strtotime($order->order_date);
+            $orderTime = \Carbon\Carbon::createFromTimestamp($orderTimestamp);
             $diff = $now->diff($orderTime);
 
             if ($diff->days > 1) {
