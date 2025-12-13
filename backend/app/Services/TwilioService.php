@@ -35,8 +35,18 @@ class TwilioService
      */
     public function sendVerificationCode($phoneNumber, $code)
     {
-        // Clean phone number
-        $phone = preg_replace('/\s+/', '', $phoneNumber);
+        // Format phone number to E.164 format (handles parentheses, dashes, etc.)
+        $phone = $this->formatPhoneNumber($phoneNumber);
+
+        if (!$phone) {
+            Log::error('Invalid phone number for verification', [
+                'phone' => $phoneNumber
+            ]);
+            return [
+                'success' => false,
+                'error' => 'Invalid phone number format'
+            ];
+        }
 
         if (!$this->enabled) {
             Log::warning('Twilio credentials not configured. Cannot send SMS verification.', [
