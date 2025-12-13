@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -73,6 +73,9 @@ const Checkout = () => {
   const [paymentMethod, onChangePaymentMethod] = useState<IPayment>({});
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [isLoadingTimes, setIsLoadingTimes] = useState(true);
+
+  // Ref to track current timeslot request and prevent race conditions
+  const currentTimeslotRequestRef = useRef<string | null>(null);
 
   // Discount code state
   const [discountCode, setDiscountCode] = useState<string>('');
@@ -191,6 +194,8 @@ const Checkout = () => {
    * - Checks overrides vs weekly schedule
    * - Applies 3-hour minimum
    * - Filters cancelled days
+   *
+   * Uses request tracking to prevent race conditions when rapidly switching dates.
    */
   const addTimes = async () => {
     if (!chefInfo?.id) {
@@ -202,9 +207,20 @@ const Checkout = () => {
     setIsLoadingTimes(true);
     const selectedDate = DAY.format('YYYY-MM-DD');
 
+    // Generate unique request ID to track this specific request
+    const requestId = `${chefInfo.id}-${selectedDate}-${Date.now()}`;
+    currentTimeslotRequestRef.current = requestId;
+
     try {
       // Call backend endpoint - it returns pre-filtered time slots
       const resp = await GetAvailableTimeslotsAPI(chefInfo.id, selectedDate);
+
+      // Check if this response is still relevant (user may have switched dates)
+      if (currentTimeslotRequestRef.current !== requestId) {
+        console.log('[DEBUG] Ignoring stale timeslot response for date:', selectedDate);
+        return;
+      }
+
       console.log('[DEBUG] addTimes response:', JSON.stringify(resp), 'for date:', selectedDate, 'chefId:', chefInfo.id);
 
       if (resp.success === 1 && resp.data) {
@@ -230,10 +246,16 @@ const Checkout = () => {
         onChangeTimes([]);
       }
     } catch (error) {
-      console.error('[TMA-011] Error fetching timeslots:', error);
-      onChangeTimes([]);
+      // Only handle error if this is still the current request
+      if (currentTimeslotRequestRef.current === requestId) {
+        console.error('[TMA-011] Error fetching timeslots:', error);
+        onChangeTimes([]);
+      }
     } finally {
-      setIsLoadingTimes(false);
+      // Only clear loading if this is still the current request
+      if (currentTimeslotRequestRef.current === requestId) {
+        setIsLoadingTimes(false);
+      }
     }
   };
 
@@ -246,6 +268,7 @@ const Checkout = () => {
   };
 
   const handleDayPress = async (day: moment.Moment) => {
+    setIsLoadingTimes(true); // Show loading immediately for instant feedback
     await Delay(10);
     onChangeDay(day);
   };
