@@ -667,11 +667,6 @@ const styles = StyleSheet.create({
     color: AppColors.primary,
     fontWeight: '600',
   },
-  picker: {
-    width: '100%',
-    height: 216, // iOS standard picker height
-    backgroundColor: 'white',
-  },
 });
 
 export default Profile;
