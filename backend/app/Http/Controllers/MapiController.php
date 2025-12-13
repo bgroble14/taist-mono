@@ -386,6 +386,8 @@ class MapiController extends Controller
             'city' => isset($request->city) ? $request->city : '',
             'state' => isset($request->state) ? $request->state : '',
             'zip' => isset($request->zip) ? $request->zip : '',
+            'latitude' => isset($request->zip) && $request->zip ? $this->_geocodeZipCode($request->zip)['lat'] : null,
+            'longitude' => isset($request->zip) && $request->zip ? $this->_geocodeZipCode($request->zip)['lng'] : null,
             'user_type' => $user_type,
             'is_pending' => isset($request->is_pending) ? $request->is_pending : 0,
             'quiz_completed' => ($user_type == 2) ? 0 : 1, // Chefs start with quiz_completed = 0
@@ -3173,33 +3175,6 @@ Write only the review text:";
         $maxLat = $userLat + $latDelta;
         $minLng = $userLng - $lngDelta;
         $maxLng = $userLng + $lngDelta;
-
-        // Backfill any chefs missing lat/lng by geocoding their zip code
-        $chefsNeedingGeocode = DB::table('tbl_users')
-            ->where('user_type', 2)
-            ->where('is_pending', 0)
-            ->where('verified', 1)
-            ->where(function($query) {
-                $query->whereNull('latitude')
-                    ->orWhereNull('longitude')
-                    ->orWhere('latitude', '')
-                    ->orWhere('longitude', '')
-                    ->orWhere('latitude', 'null')
-                    ->orWhere('longitude', 'null');
-            })
-            ->whereNotNull('zip')
-            ->where('zip', '!=', '')
-            ->where('zip', '!=', 'null')
-            ->select(['id', 'zip'])
-            ->get();
-
-        foreach ($chefsNeedingGeocode as $chef) {
-            $coords = $this->_geocodeZipCode($chef->zip);
-            DB::table('tbl_users')->where('id', $chef->id)->update([
-                'latitude' => $coords['lat'],
-                'longitude' => $coords['lng']
-            ]);
-        }
 
         $data = DB::table('tbl_users as u')
             ->leftJoin('tbl_availabilities as a', 'a.user_id', '=', 'u.id')
