@@ -17,12 +17,18 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
-        if (! $request->expectsJson()) {
-        // echo (strpos($request->getRequestUri(), '/admin/')!==false);exit;
-            // if (strpos($request->getRequestUri(), 'admin') !== false && $request->getRequestUri()!= '/admin/login')
-            if (strpos($request->getRequestUri(), '/admin/') !== false)
-                return route('admin.login');
-            return route('login');
+        // API routes should return null (triggers JSON 401 response)
+        if ($request->expectsJson() || strpos($request->getRequestUri(), '/mapi/') !== false) {
+            return null;
         }
+
+        // Admin routes redirect to admin login
+        if (strpos($request->getRequestUri(), '/admin/') !== false) {
+            return route('admin.login');
+        }
+
+        // Web routes - but 'login' route doesn't exist, so return null
+        // This prevents the RouteNotFoundException
+        return null;
     }
 }

@@ -425,7 +425,8 @@ const Checkout = () => {
       
       // Apply discount code to first order only
       const orderData: IOrder = {
-        ...o, 
+        ...o,
+        address: self.address,
         order_date: order_datetime,
         discount_code: (i === 0 && appliedDiscount) ? appliedDiscount.code : undefined,
       };

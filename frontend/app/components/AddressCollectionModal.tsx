@@ -103,12 +103,20 @@ export const AddressCollectionModal: React.FC<AddressCollectionModalProps> = ({
         return;
       }
 
-      // Use lower accuracy for emulator compatibility
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Low,
-        timeInterval: 5000,
-        distanceInterval: 0,
-      });
+      // Try getLastKnownPositionAsync first (more reliable on emulators)
+      let location = await Location.getLastKnownPositionAsync();
+
+      // If no last known position, try getCurrentPositionAsync with timeout
+      if (!location) {
+        console.log('No last known position, trying getCurrentPositionAsync...');
+        const locationPromise = Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        const timeoutPromise = new Promise<null>((_, reject) =>
+          setTimeout(() => reject(new Error('Location request timed out')), 10000)
+        );
+        location = await Promise.race([locationPromise, timeoutPromise]) as Location.LocationObject;
+      }
 
       console.log('✅ Got location:', location.coords);
 

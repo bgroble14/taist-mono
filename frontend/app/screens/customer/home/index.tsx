@@ -121,9 +121,12 @@ const Home = () => {
       } else {
         setChefs([]);
       }
+    } catch (error) {
+      console.error('Chef search failed:', error);
+      setChefs([]);
     } finally {
-      // Only hide loading if this is still the most recent request
-      if (currentRequestId === requestIdRef.current && showSpinner) {
+      // Always hide loading - multiple hides are harmless, stuck spinner is not
+      if (showSpinner) {
         dispatch(hideLoading());
       }
     }
