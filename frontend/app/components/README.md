@@ -10,6 +10,9 @@ Modal component for displaying drawer-style overlays. Used for side menus and sl
 ### DrawerProvider
 Context provider for managing drawer state across the application. Wraps the app to provide drawer functionality.
 
+### cartIcon
+Shopping cart icon displayed in the customer header. Shows badge with item count when cart has items.
+
 ### emptyListView
 Display component shown when lists have no data. Provides consistent empty state messaging.
 
@@ -36,6 +39,14 @@ Custom toggle switch component for settings and preferences.
 
 ### styledTabButton
 Button component used in tab bars for navigation.
+
+### GoLiveToggle
+Chef availability toggle component displayed in the header. Allows chefs to go "live" (available for orders) or offline. Features:
+- Visual status indicator (green "Live" / gray "Off")
+- Time picker to set availability end time when going live
+- Confirmation modal when going offline
+- Auto-fetches status on mount and screen focus
+- Uses same time picker pattern as availability settings (dayRowComponent)
 
 ### styledTextInput
 Custom text input component with consistent styling, validation, and error states.

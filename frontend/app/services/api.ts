@@ -795,6 +795,26 @@ export const VerifyPhoneAPI = async (phone_number: string) => {
 };
 
 /**
+ * Toggle chef online/offline status
+ */
+export const ToggleOnlineAPI = async (params: {
+  is_online: boolean;
+  online_start?: string;
+  online_until?: string;
+}) => {
+  var response = await POSTAPICALL("toggle_online", params);
+  return response;
+};
+
+/**
+ * Get chef online status
+ */
+export const GetOnlineStatusAPI = async () => {
+  var response = await GETAPICALL("get_online_status", {});
+  return response;
+};
+
+/**
  * Complete chef safety quiz
  */
 export const CompleteChefQuizAPI = async (params: {

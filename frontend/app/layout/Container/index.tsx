@@ -23,6 +23,7 @@ import { useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import DrawerModal from '../../components/DrawerModal';
 import CartIcon from '../../components/cartIcon';
+import GoLiveToggle from '../../components/GoLiveToggle';
 import { useAppSelector } from '../../hooks/useRedux';
 
 interface IProps {
@@ -136,8 +137,10 @@ const Container = ({
 
             <View style={{
               flexDirection:'row',
-              gap: 4
+              gap: 4,
+              alignItems: 'center',
             }}>
+            {isInChefContext && <GoLiveToggle />}
             {isInCustomerContext && <CartIcon />}
             <TouchableOpacity
               onPress={handleMessagePress}
