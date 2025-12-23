@@ -2256,6 +2256,14 @@ Write only the review text:";
 
     public function createOrder(Request $request)
     {
+        Log::info('[ORDER] create_order called', [
+            'chef_id' => $request->chef_user_id,
+            'customer_id' => $request->customer_user_id,
+            'menu_id' => $request->menu_id,
+            'order_date' => $request->order_date,
+            'total_price' => $request->total_price,
+        ]);
+
         if ($this->_checktaistApiKey($request->header('apiKey')) === false)
             return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
 
@@ -4232,6 +4240,10 @@ Write only the review text:";
 
     public function createPaymentIntent(Request $request)
     {
+        Log::info('[PAYMENT] create_payment_intent called', [
+            'order_id' => $request->order_id,
+        ]);
+
         // Validate API Key
         if ($this->_checktaistApiKey($request->header('apiKey')) === false) {
             return response()->json(['success' => 0, 'error' => "Access denied. API key is not valid."]);

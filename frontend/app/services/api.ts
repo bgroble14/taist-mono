@@ -153,9 +153,23 @@ export const POSTAPICALL = async (
     var response = await axios({ url, data, method: "post", headers });
     console.log("<<<API Response", endpoint);
     return JSON.parse(JSON.stringify(response.data));
-  } catch (error) {
-    console.error("<<<API Error", endpoint, data, error);
-    return { success: 0, message: "Some problems occurred. please try again." };
+  } catch (error: any) {
+    console.error("<<<API Error", endpoint, data);
+    const errorDetails = {
+      message: error?.message,
+      code: error?.code,
+      status: error?.response?.status,
+      statusText: error?.response?.statusText,
+      responseData: error?.response?.data,
+    };
+    console.error("Error details:", JSON.stringify(errorDetails, null, 2));
+    // Return actual server error message if available, else generic message
+    const serverMessage = error?.response?.data?.error || error?.response?.data?.message;
+    return {
+      success: 0,
+      message: serverMessage || "Some problems occurred. please try again.",
+      debug: errorDetails
+    };
   } finally {
     // console.log('<<<Finial POST API');
   }
