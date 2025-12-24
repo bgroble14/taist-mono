@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 
 export const userNotFound = 'User not found!';
 export const itsYours = "It's yours!";
@@ -138,6 +138,52 @@ export const getDateStartTime = (date: any) => {
   if (date === undefined || date === null) return 0;
   const formattedString = moment(date).format('YYYY-MM-DD');
   return moment(formattedString).toDate().getTime();
+};
+
+/**
+ * Format date/time in a specific timezone
+ * @param date - Unix timestamp in milliseconds or Date object
+ * @param timezone - IANA timezone identifier (e.g., 'America/Chicago')
+ * @returns Formatted string like "Dec 24, 2024 02:00 PM"
+ */
+export const getFormattedDateTimeInTimezone = (date: any, timezone?: string) => {
+  if (date === undefined || date === null) return '';
+
+  if (timezone) {
+    return moment(date).tz(timezone).format('MMM DD, YYYY hh:mm A');
+  }
+  // Fallback to device timezone if no timezone specified
+  return moment(date).format('MMM DD, YYYY hh:mm A');
+};
+
+/**
+ * Format just the date in a specific timezone
+ * @param date - Unix timestamp in milliseconds or Date object
+ * @param timezone - IANA timezone identifier (e.g., 'America/Chicago')
+ * @returns Formatted string like "Dec 24, 2024"
+ */
+export const getFormattedDateInTimezone = (date: any, timezone?: string) => {
+  if (date === undefined || date === null) return '';
+
+  if (timezone) {
+    return moment(date).tz(timezone).format('MMM DD, YYYY');
+  }
+  return moment(date).format('MMM DD, YYYY');
+};
+
+/**
+ * Format just the time in a specific timezone
+ * @param date - Unix timestamp in milliseconds or Date object
+ * @param timezone - IANA timezone identifier (e.g., 'America/Chicago')
+ * @returns Formatted string like "02:00 PM"
+ */
+export const getFormattedTimeInTimezone = (date: any, timezone?: string) => {
+  if (date === undefined || date === null) return '';
+
+  if (timezone) {
+    return moment(date).tz(timezone).format('hh:mm A');
+  }
+  return moment(date).format('hh:mm A');
 };
 
 export const getArrayFromStringWithBreak = (value: string) => {

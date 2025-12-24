@@ -44,7 +44,7 @@ import { OrderStatus } from '../../../types/status';
 import { GetOrderString } from '../../../utils/functions';
 import { goBack, navigate } from '../../../utils/navigation';
 import { ShowErrorToast, ShowSuccessToast } from '../../../utils/toast';
-import { getFormattedDateTime } from '../../../utils/validations';
+import { getFormattedDateTime, getFormattedDateTimeInTimezone } from '../../../utils/validations';
 import { styles } from './styles';
  
 
@@ -310,14 +310,11 @@ const OrderDetail = () => {
                   {GetOrderString(orderInfo?.id ?? 0)}
                 </Text>
                 <Text style={styles.text} numberOfLines={1}>
-                  {getFormattedDateTime((orderInfo?.order_date ?? 0) * 1000)}
+                  {getFormattedDateTimeInTimezone((orderInfo?.order_date ?? 0) * 1000, orderInfo?.timezone)}
                 </Text>
                 <Text style={styles.text} numberOfLines={1}>
                   {OrderStatus[orderInfo?.status ?? 0]}
                 </Text>
-                {/* <Text style={styles.text} numberOfLines={1}>
-                  {getFormattedDateTime((orderInfo.order_date ?? 0) * 1000)}
-                </Text> */}
               </View>
             </View>
             <View style={styles.line} />

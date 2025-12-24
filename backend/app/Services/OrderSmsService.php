@@ -6,9 +6,8 @@ use App\Listener;
 use App\Models\Orders;
 use App\Models\Menus;
 use App\Services\TwilioService;
+use App\Helpers\TimezoneHelper;
 use Illuminate\Support\Facades\Log;
-use DateTime;
-use DateTimeZone;
 use Exception;
 
 /**
@@ -307,13 +306,14 @@ class OrderSmsService
             return null;
         }
 
-        // Format order date/time
-        $orderDateTime = $this->formatOrderDateTime($order->order_date);
+        // Format order date/time using chef's timezone
+        $orderDateTime = TimezoneHelper::formatForSms((int)$order->order_date, $chef->state);
 
         return [
             'order_id' => $order->id,
             'chef_user_id' => $chef->id,
             'chef_name' => trim($chef->first_name . ' ' . $chef->last_name),
+            'chef_state' => $chef->state,
             'customer_user_id' => $customer->id,
             'customer_name' => trim($customer->first_name) . ' ' . strtoupper(substr($customer->last_name, 0, 1)) . '.',
             'menu_id' => $menu->id,
@@ -323,37 +323,8 @@ class OrderSmsService
             'order_date' => $order->order_date,
             'order_date_formatted' => $orderDateTime['formatted'],
             'order_time' => $orderDateTime['time'],
+            'timezone' => $orderDateTime['timezone'],
         ];
     }
 
-    /**
-     * Format timestamp for SMS display
-     * Converts Unix timestamp to human-readable format
-     *
-     * @param string|int $timestamp - Unix timestamp
-     * @return array ['formatted' => 'Dec 4, 2PM', 'time' => '2:00 PM']
-     */
-    private function formatOrderDateTime($timestamp)
-    {
-        try {
-            $dateTime = new DateTime();
-            $timezone = new DateTimeZone('America/Chicago'); // Central time
-            $dateTime->setTimezone($timezone);
-            $dateTime->setTimestamp((int)$timestamp);
-
-            return [
-                'formatted' => $dateTime->format('M j, gA'), // "Dec 4, 2PM"
-                'time' => $dateTime->format('g:i A'),        // "2:00 PM"
-            ];
-        } catch (Exception $e) {
-            Log::error('Failed to format order date', [
-                'timestamp' => $timestamp,
-                'error' => $e->getMessage()
-            ]);
-            return [
-                'formatted' => 'soon',
-                'time' => 'soon',
-            ];
-        }
-    }
 }

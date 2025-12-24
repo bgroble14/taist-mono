@@ -9,6 +9,7 @@ export default interface OrderInterface {
   address?: string;
   order_date?: number;
   order_time?: string;
+  timezone?: string; // IANA timezone identifier (e.g., 'America/Chicago') based on chef's location
   status?: number; //1: Requested, 2:Accepted, 3:Completed, 4:Cancelled, 5:Rejected, 6:Expired
   notes?: string;
   rating?: number;

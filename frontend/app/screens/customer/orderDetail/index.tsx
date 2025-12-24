@@ -42,7 +42,12 @@ import {
 import { OrderStatus } from '../../../types/status';
 import { GetOrderString, getImageURL } from '../../../utils/functions';
 import { ShowErrorToast, ShowSuccessToast } from '../../../utils/toast';
-import { getFormattedDate, getFormattedDateTime } from '../../../utils/validations';
+import {
+  getFormattedDate,
+  getFormattedDateTime,
+  getFormattedDateInTimezone,
+  getFormattedDateTimeInTimezone
+} from '../../../utils/validations';
 import { styles } from './styles';
 
 const OrderDetail = () => {
@@ -276,7 +281,7 @@ console.log("order detail useeffect....");
     <SafeAreaView style={styles.main}>
       <Container
         backMode
-        title={getFormattedDate((orderInfo?.order_date ?? 0) * 1000)}>
+        title={getFormattedDateInTimezone((orderInfo?.order_date ?? 0) * 1000, orderInfo?.timezone)}>
         <ScrollView contentContainerStyle={styles.pageView}>
           <View style={{ alignItems: 'center' }}>
             <StyledProfileImage url={getImageURL(chefInfo?.photo)} size={160} />
@@ -305,14 +310,11 @@ console.log("order detail useeffect....");
                   {GetOrderString(orderInfo?.id ?? 0)}
                 </Text>
                 <Text style={styles.text} numberOfLines={1}>
-                  {getFormattedDateTime((orderInfo?.order_date ?? 0) * 1000)}
+                  {getFormattedDateTimeInTimezone((orderInfo?.order_date ?? 0) * 1000, orderInfo?.timezone)}
                 </Text>
                 <Text style={styles.text} numberOfLines={1}>
                   {OrderStatus[orderInfo?.status ?? 0]}
                 </Text>
-                {/* <Text style={styles.text} numberOfLines={1}>
-                  {getFormattedDateTime((orderInfo.order_date ?? 0) * 1000)}
-                </Text> */}
               </View>
             </View>
             {orderInfo?.status === 1 && timeRemaining !== null && (

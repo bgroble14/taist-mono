@@ -36,6 +36,7 @@ use App\Notifications\OrderRejectedNotification;
 use App\Notifications\ChefOnTheWayNotification;
 use App\Services\TwilioService;
 use App\Services\OrderSmsService;
+use App\Helpers\TimezoneHelper;
 use Illuminate\Support\Str;
 use Exception;
 use Illuminate\Support\Facades\Cache;
@@ -2249,6 +2250,9 @@ Write only the review text:";
             if ($data->status == 1 && $data->acceptance_deadline) {
                 $data->deadline_info = $data->getDeadlineInfo();
             }
+
+            // Add timezone based on chef's location for consistent time display
+            $data->timezone = TimezoneHelper::getTimezoneForState($data->chef->state ?? null);
         }
 
         return response()->json(['success' => 1, 'data' => $data]);
@@ -3707,16 +3711,19 @@ Write only the review text:";
 
             $menu = app(Menus::class)->where(['id' => $order->menu_id])->first();
 
-            $orderDateTime = new \DateTime();
-            $timezone = new \DateTimeZone('America/Chicago');
-            $orderDateTime->setTimezone($timezone);
-            $orderDateTime->setTimestamp(floor($order->order_date));
+            // Get chef for timezone lookup
+            $chef = app(Listener::class)->where(['id' => $order->chef_user_id])->first();
+            $formattedOrderDate = TimezoneHelper::formatForState(
+                (int)$order->order_date,
+                $chef->state ?? null,
+                'M d, Y h:i A'
+            );
 
             $msg = "";
             $msg .= "<p>Hi " . $user->first_name . ",</p>";
             $msg .= "<p>Here is your Taist receipt.</p><br>";
             $msg .= "<p>Order ID: <b>ORDER" . sprintf('%07d', $order->id) . "</b></p>";
-            $msg .= "<p>Order Date: <b>" . $orderDateTime->format('M d, Y h:i A') . "</b></p>";
+            $msg .= "<p>Order Date: <b>" . $formattedOrderDate . "</b></p>";
             $msg .= "<p>Order Item: <b>" . $menu->title . "</b></p>";
             $msg .= "<p>Order Quantity: <b>" . $order->amount . "</b></p>";
             $msg .= "<p>Order Total: <b>$" . number_format($order->total_price, 2, '.', ',') . "</b></p>";
