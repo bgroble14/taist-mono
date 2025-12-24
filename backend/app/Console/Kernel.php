@@ -24,10 +24,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Process expired orders every 5 minutes
-        // Checks for orders that exceeded 1-hour acceptance deadline and issues automatic refunds
+        // Process expired orders every 30 minutes
+        // Checks for orders that exceeded 30-minute acceptance deadline and issues automatic refunds
         $schedule->command('orders:process-expired')
-                 ->everyFiveMinutes()
+                 ->everyThirtyMinutes()
                  ->withoutOverlapping()
                  ->runInBackground();
 

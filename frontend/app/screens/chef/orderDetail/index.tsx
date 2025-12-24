@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   Linking,
@@ -66,6 +67,8 @@ const OrderDetail = () => {
   const [menu, setMenu] = useState<IMenu>({});
   const [imageIndex, onChangeImageIndex] = useState(0);
   const [reviewText, onChangeReviewText] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
   useEffect(() => {
     loadData(orderId || orderInfoFromParams?.id);
@@ -78,7 +81,15 @@ const OrderDetail = () => {
       setOrderInfo(resp.data);
       setCustomerInfo(resp.data.customer);
       setMenu(resp.data.menu);
+
+      // Update time remaining if order is in requested status
+      if (resp.data.status === 1 && resp.data.deadline_info) {
+        setTimeRemaining(resp.data.deadline_info.seconds_remaining);
+      } else {
+        setTimeRemaining(null);
+      }
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -88,10 +99,38 @@ const OrderDetail = () => {
     }
   }, [orderInfo]);
 
+  // Countdown timer for acceptance deadline
+  useEffect(() => {
+    if (timeRemaining === null || timeRemaining <= 0) {
+      return;
+    }
+
+    const countdownInterval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev === null || prev <= 0) {
+          clearInterval(countdownInterval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(countdownInterval);
+  }, [timeRemaining]);
+
   const handleScrollIndexChange = (e: any) => {
     const { nativeEvent } = e;
     const index = Math.round(nativeEvent.contentOffset.x / (screenWidth - 20));
     onChangeImageIndex(index);
+  };
+
+  const formatTimeRemaining = (seconds: number): string => {
+    if (seconds <= 0) {
+      return 'Expired';
+    }
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleStatus = async (status: number) => {
@@ -130,6 +169,16 @@ const OrderDetail = () => {
 
     const resp = await UpdateOrderStatusAPI(params, dispatch);
     dispatch(hideLoading());
+
+    // Handle error response (e.g., expired order)
+    if (resp.success !== 1) {
+      ShowErrorToast(resp.error || 'Failed to update order status');
+      // If order expired, navigate back
+      if (resp.error?.includes('expired')) {
+        goBack();
+      }
+      return;
+    }
 
     ShowSuccessToast(
       resp.data?.status == 2
@@ -191,6 +240,18 @@ const OrderDetail = () => {
       }
     }
   });
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.main}>
+        <Container backMode title="">
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#fa4616" />
+          </View>
+        </Container>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.main}>
@@ -390,6 +451,26 @@ const OrderDetail = () => {
               <>
                 <Text style={styles.title}>Pending Order </Text>
                 <View style={[styles.card, { alignItems: 'center' }]}>
+                  {/* Countdown timer for status 1 (Requested) */}
+                  {orderInfo?.status === 1 && timeRemaining !== null && (
+                    <View style={{ width: '100%', alignItems: 'center', paddingBottom: 15 }}>
+                      <Text style={[styles.text, { fontWeight: '600', marginBottom: 5 }]}>
+                        Time to Accept
+                      </Text>
+                      <Text style={[styles.text, {
+                        fontSize: 24,
+                        fontWeight: 'bold',
+                        color: timeRemaining <= 300 ? '#ff4444' : '#4CAF50'
+                      }]}>
+                        {formatTimeRemaining(timeRemaining)}
+                      </Text>
+                      {timeRemaining <= 0 && (
+                        <Text style={[styles.text, { fontSize: 12, color: '#ff4444', marginTop: 5 }]}>
+                          Order expired - customer will be refunded
+                        </Text>
+                      )}
+                    </View>
+                  )}
                   <View style={{ flexDirection: 'row', gap: 10, width: '100%' }}>
                     {orderInfo?.status == 1 && (
                       <StyledButton

@@ -1,6 +1,7 @@
 import { FAB, TextInput } from '@react-native-material/core';
 import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Linking,
   SafeAreaView,
@@ -61,6 +62,7 @@ const OrderDetail = () => {
   const [tipAmount, onChangeTipAmount] = useState(0);
   const [paymentMethod, onChangePaymentMethod] = useState<IPayment>();
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     console.log(params);
@@ -118,6 +120,7 @@ console.log("order detail useeffect....");
         setTimeRemaining(null);
       }
     }
+    setIsLoading(false);
   };
 
   const getPaymentMethod = async () => {
@@ -256,6 +259,18 @@ console.log("order detail useeffect....");
       }
     }
   });
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.main}>
+        <Container backMode title="">
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#fa4616" />
+          </View>
+        </Container>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.main}>

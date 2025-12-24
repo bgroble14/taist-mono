@@ -3336,7 +3336,8 @@ Write only the review text:";
                 ->keyBy('chef_id');
 
             $dataArray = $data instanceof \Illuminate\Support\Collection ? $data->all() : $data;
-            $data = array_values(array_filter($dataArray, function($chef) use ($dateString, $checkTime, $overrides) {
+            $today = date('Y-m-d');
+            $data = array_values(array_filter($dataArray, function($chef) use ($dateString, $checkTime, $overrides, $today) {
                 $override = $overrides->get($chef->id);
 
                 if ($override) {
@@ -3344,7 +3345,12 @@ Write only the review text:";
                     return $override->isAvailableAt($checkTime);
                 }
 
-                // No override - chef is available based on weekly schedule (already filtered by main query)
+                // Today with no override = NOT available (chef must toggle on)
+                if ($dateString === $today) {
+                    return false;
+                }
+
+                // Tomorrow+ without override - use weekly schedule (already filtered by main query)
                 return true;
             }));
         }
@@ -3618,7 +3624,22 @@ Write only the review text:";
             return response()->json(['success' => 0, 'error' => "Access denied. Api key is not valid."]);
 
         $user = $this->_authUser();
-        
+
+        // Get order first to check expiration before allowing acceptance
+        $order = app(Orders::class)->where(['id' => $id])->first();
+
+        if (!$order) {
+            return response()->json(['success' => 0, 'error' => 'Order not found']);
+        }
+
+        // Block acceptance of expired orders
+        if ($request->status == 2 && $order->isExpired()) {
+            return response()->json([
+                'success' => 0,
+                'error' => 'This order has expired and can no longer be accepted. The customer has been automatically refunded.'
+            ]);
+        }
+
         $ary = [
             'updated_at' => now(),
         ];
