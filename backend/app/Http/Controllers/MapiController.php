@@ -3407,7 +3407,10 @@ Write only the review text:";
             return response()->json(['success' => 0, 'error' => "Token has been expired."]);
 
         $data = DB::table('tbl_orders as o')
-            ->leftJoin('tbl_reviews as r', 'r.order_id', '=', 'o.id')
+            ->leftJoin('tbl_reviews as r', function($join) {
+                $join->on('r.order_id', '=', 'o.id')
+                     ->where('r.source', '=', 'authentic');
+            })
             ->where('o.chef_user_id', $request->user_id)
             ->where('o.created_at', '>=', $request->start_time)
             ->where('o.created_at', '<', $request->end_time)
@@ -3436,7 +3439,10 @@ Write only the review text:";
             return response()->json(['success' => 0, 'error' => "Token has been expired."]);
 
         $data = DB::table('tbl_orders as o')
-            ->leftJoin('tbl_reviews as r', 'r.order_id', '=', 'o.id')
+            ->leftJoin('tbl_reviews as r', function($join) {
+                $join->on('r.order_id', '=', 'o.id')
+                     ->where('r.source', '=', 'authentic');
+            })
             ->where('o.customer_user_id', $request->user_id)
             ->where('o.created_at', '>=', $request->start_time)
             ->where('o.created_at', '<', $request->end_time)
