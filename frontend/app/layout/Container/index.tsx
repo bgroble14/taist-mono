@@ -51,11 +51,11 @@ const Container = ({
   const [openDrawer, setOpenDrawer] = useState(false);
   const [showDrawerModal, setShowDrawerModal] = useState(false);
 
-  // Check if we're in a chef context
-  const isInChefContext = segments.some(segment => segment.includes('chef'));
-  
-  // Check if we're in a customer context
-  const isInCustomerContext = segments.some(segment => segment.includes('customer'));
+  // Check if we're in a chef context (exact match to avoid matching "chefDetail" etc.)
+  const isInChefContext = segments.some(segment => segment === 'chef');
+
+  // Check if we're in a customer context (exact match to avoid false positives)
+  const isInCustomerContext = segments.some(segment => segment === 'customer');
   
   // Check if we're in a tab context (within chef/(tabs) or customer/(tabs))
   const isInTabContext = segments.some(segment => String(segment).includes('(tabs)'));
