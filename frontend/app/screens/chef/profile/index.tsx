@@ -14,7 +14,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import DatePicker from 'react-native-date-picker';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCheck, faClock } from '@fortawesome/free-solid-svg-icons';
 
@@ -491,11 +490,15 @@ const Profile = () => {
                   <Text style={styles.modalDone}>Done</Text>
                 </Pressable>
               </View>
-              <DatePicker
-                date={tempTime}
-                onDateChange={(date) => setTempTime(date)}
+              <DateTimePicker
                 mode="time"
-                theme="light"
+                display="spinner"
+                value={tempTime}
+                onChange={(event, date) => {
+                  if (date) setTempTime(date);
+                }}
+                themeVariant="light"
+                textColor="#000000"
               />
             </Pressable>
           </Pressable>
