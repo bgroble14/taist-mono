@@ -67,6 +67,7 @@ const KeyboardAwareScrollView = forwardRef<ScrollView, KeyboardAwareScrollViewPr
         contentContainerStyle={contentContainerStyle}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
         {...scrollViewProps}
       >
         {children}
@@ -89,6 +90,7 @@ const KeyboardAwareScrollView = forwardRef<ScrollView, KeyboardAwareScrollViewPr
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
         {...scrollViewProps}
       >
         {children}

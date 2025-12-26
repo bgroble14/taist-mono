@@ -112,7 +112,7 @@ const BackgroundCheck = () => {
   return (
     <SafeAreaView style={styles.main}>
       <Container backMode title="Background Check">
-        <ScrollView contentContainerStyle={styles.pageView}>
+        <ScrollView contentContainerStyle={styles.pageView} nestedScrollEnabled={true}>
           <View style={styles.vcenter}>
             <StyledTextInput
               label="First Name "

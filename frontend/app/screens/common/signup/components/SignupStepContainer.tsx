@@ -23,6 +23,7 @@ export const SignupStepContainer: React.FC<SignupStepContainerProps> = ({
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
       >
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
