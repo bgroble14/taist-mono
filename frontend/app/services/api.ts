@@ -336,11 +336,20 @@ export const GetSearchChefAPI = async (
     params
   );
   if (response.success == 1 && dispatch) {
-    response.data.map((item: any, index: number) => {
-      dispatch(addOrUpdateUsers([item]));
-      dispatch(addOrUpdateMenus(item.menus));
-      dispatch(addOrUpdateReviews(item.reviews));
-    });
+    // Batch all data first, then dispatch once per type (3 dispatches instead of 30+)
+    const allUsers = response.data;
+    const allMenus = response.data.flatMap((chef: any) => chef.menus || []);
+    const allReviews = response.data.flatMap((chef: any) => chef.reviews || []);
+
+    if (allUsers.length > 0) {
+      dispatch(addOrUpdateUsers(allUsers));
+    }
+    if (allMenus.length > 0) {
+      dispatch(addOrUpdateMenus(allMenus));
+    }
+    if (allReviews.length > 0) {
+      dispatch(addOrUpdateReviews(allReviews));
+    }
   }
   return response;
 };

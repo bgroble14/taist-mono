@@ -2286,10 +2286,10 @@ However, if backend response time exceeds 3 seconds regularly, consider prioriti
 
 ### Phase 1: Immediate UX Fix (Day 1)
 
-| Task | File | Lines | Time |
-|------|------|-------|------|
-| Fix spinner timing | home/index.tsx | 104-131 | 1 hr |
-| Batch Redux dispatches | api.ts | 338-344 | 30 min |
+| Task | File | Lines | Time | Status |
+|------|------|-------|------|--------|
+| Fix spinner timing | home/index.tsx | 104-131 | 1 hr | ⏳ Pending |
+| Batch Redux dispatches | api.ts | 338-353 | 30 min | ✅ **Done** |
 
 **Expected result:** Spinner stays visible until content ready
 
@@ -2358,15 +2358,15 @@ Re-measure and document improvement in percentage.
 
 ## Summary
 
-| Issue | Severity | Fix Time | Impact |
-|-------|----------|----------|--------|
-| Spinner timing | Critical | 1 hr | Eliminates blank screen |
-| N+1 Redux dispatches | High | 30 min | 70% faster state updates |
-| Non-memoized components | High | 45 min | 50% fewer re-renders |
-| Image loading | High | 1.5 hrs | 60% faster image display |
-| Inline functions | Medium | 30 min | Enables memo benefits |
-| List keys | Low | 15 min | Prevents subtle bugs |
-| Backend API | High | 3-4 hrs | 3-5x faster API |
+| Issue | Severity | Fix Time | Impact | Status |
+|-------|----------|----------|--------|--------|
+| Spinner timing | Critical | 1 hr | Eliminates blank screen | ⏳ Pending |
+| N+1 Redux dispatches | High | 30 min | 70% faster state updates | ✅ **Done** |
+| Non-memoized components | High | 45 min | 50% fewer re-renders | ⏳ Pending |
+| Image loading | High | 1.5 hrs | 60% faster image display | ⏳ Pending |
+| Inline functions | Medium | 30 min | Enables memo benefits | ⏳ Pending |
+| List keys | Low | 15 min | Prevents subtle bugs | ⏳ Pending |
+| Backend API | High | 3-4 hrs | 3-5x faster API | ⏳ Pending |
 
 **Total frontend fixes:** ~4-5 hours
 **Expected improvement:** From 2-5 seconds to 0.5-1.5 seconds perceived load time
