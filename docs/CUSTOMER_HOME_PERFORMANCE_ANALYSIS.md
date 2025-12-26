@@ -945,9 +945,17 @@ This fix alone isn't huge, but combined with React.memo on ChefCard (Issue #4), 
 
 ---
 
-## Issue #4: Non-Memoized Components
+## Issue #4: Non-Memoized Components ✅ COMPLETED
 
-### Problem
+> **Status:** Implemented on 2025-12-26
+>
+> **Changes Made:**
+> - Wrapped `ChefCard` in `React.memo` with custom `arePropsEqual` comparison function
+> - Wrapped `ChefMenuItem` in `React.memo` with custom comparison function
+> - Added `useMemo` for customization calculation in `ChefMenuItem`
+> - Custom comparisons check IDs and array lengths (cheap) rather than deep object comparison
+
+### Problem (RESOLVED)
 
 Neither `ChefCard` nor `ChefMenuItem` are wrapped in `React.memo`, causing unnecessary re-renders when parent state changes. This means every time the parent component updates (filter changes, scroll, etc.), ALL child components re-execute their entire function body, even if their props haven't changed.
 
@@ -1336,6 +1344,12 @@ Once adopted, manual `React.memo`, `useMemo`, and `useCallback` calls become unn
 - **Issue #7 (List Keys):** Stable keys help React reconciliation with memoized components
 
 These fixes are most effective when done together.
+
+### Status: COMPLETED ✓
+
+Implemented on 2025-12-26. Changes made:
+- `chefCard.tsx`: Added `memo` import, wrapped export with `memo(ChefCard, arePropsEqual)` using custom comparison
+- `chefMenuItem.tsx`: Added `memo` and `useMemo` imports, wrapped export with `memo()`, memoized customization calculations
 
 ---
 
@@ -2334,7 +2348,7 @@ However, if backend response time exceeds 3 seconds regularly, consider prioriti
 
 | Task | File | Lines | Time | Status |
 |------|------|-------|------|--------|
-| Memoize ChefCard | chefCard.tsx | all | 30 min | ⏳ Pending |
+| Memoize ChefCard | chefCard.tsx | all | 30 min | ✅ **Done** |
 | Memoize rating calculation | chefCard.tsx | 34-37 | 15 min | ✅ **Done** |
 | Fix inline function props | home/index.tsx | 293-304 | 30 min | ✅ **Done** |
 | Fix list keys | home/index.tsx, chefCard.tsx | various | 15 min | ✅ **Done** |
@@ -2399,7 +2413,7 @@ Re-measure and document improvement in percentage.
 |-------|----------|----------|--------|--------|
 | Spinner timing | Critical | 1 hr | Eliminates blank screen | ⏳ Pending |
 | N+1 Redux dispatches | High | 30 min | 70% faster state updates | ✅ **Done** |
-| Non-memoized components | High | 45 min | 50% fewer re-renders | ⏳ Pending |
+| Non-memoized components | High | 45 min | 50% fewer re-renders | ✅ **Done** |
 | Image loading | High | 1.5 hrs | 60% faster image display | ✅ **Done** |
 | Inline functions | Medium | 30 min | Enables memo benefits | ✅ **Done** |
 | List keys | Low | 15 min | Prevents subtle bugs | ✅ **Done** |

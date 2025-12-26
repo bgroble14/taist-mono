@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { IMenu, IMenuCustomization, IReview, IUser } from '../../../../types/index';
 import { styles } from '../styles';
@@ -16,14 +16,19 @@ const ChefMenuItem = ({
   chefInfo,
   onNavigate,
 }: Props) => {
-  const customizations: Array<IMenuCustomization> =
-    item.customizations ?? [];
-  var price_customizations = 0;
-  var names_customizations: Array<string> = [];
-  customizations.map((c, idx) => {
-    price_customizations += c.upcharge_price ?? 0;
-    names_customizations.push(c.name ?? '');
-  });
+  // Memoize customization calculations - only recalculates when item.customizations changes
+  const { price_customizations, names_customizations } = useMemo(() => {
+    const customizations: Array<IMenuCustomization> = item.customizations ?? [];
+    let price = 0;
+    const names: string[] = [];
+
+    customizations.forEach((c) => {
+      price += c.upcharge_price ?? 0;
+      names.push(c.name ?? '');
+    });
+
+    return { price_customizations: price, names_customizations: names };
+  }, [item.customizations]);
 
   // Stable callback - navigates to chef detail (same as tapping chef card)
   const handlePress = useCallback(() => {
@@ -60,4 +65,11 @@ const ChefMenuItem = ({
   );
 };
 
-export default ChefMenuItem;
+// Custom comparison - only re-render if menu item ID or chef ID changes
+export default memo(ChefMenuItem, (prevProps, nextProps) => {
+  return (
+    prevProps.item.id === nextProps.item.id &&
+    prevProps.chefInfo.id === nextProps.chefInfo.id &&
+    prevProps.onNavigate === nextProps.onNavigate
+  );
+});

@@ -1,6 +1,6 @@
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StarRatingDisplay } from 'react-native-star-rating-widget';
 import StyledProfileImage from '../../../../components/styledProfileImage';
@@ -105,4 +105,16 @@ const ChefCard = ({
   );
 };
 
-export default ChefCard;
+// Custom comparison function for React.memo
+// Compares by chef ID, data lengths, and callback reference
+// This avoids deep comparison while ensuring meaningful changes trigger re-renders
+const arePropsEqual = (prevProps: Props, nextProps: Props): boolean => {
+  return (
+    prevProps.chefInfo.id === nextProps.chefInfo.id &&
+    prevProps.reviews.length === nextProps.reviews.length &&
+    prevProps.menus.length === nextProps.menus.length &&
+    prevProps.onNavigate === nextProps.onNavigate
+  );
+};
+
+export default memo(ChefCard, arePropsEqual);
