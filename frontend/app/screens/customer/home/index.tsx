@@ -1,4 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { Image as ExpoImage } from 'expo-image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
@@ -24,6 +25,7 @@ import { AppColors, Spacing } from '../../../../constants/theme';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import { GetSearchChefAPI, GetZipCodes } from '../../../services/api';
+import { getImageURL } from '../../../utils/functions';
 import { navigate } from '../../../utils/navigation';
 import ChefCard from './components/chefCard';
 import CustomCalendar from './components/customCalendar';
@@ -172,6 +174,22 @@ const Home = () => {
       return () => task.cancel();
     }
   }, [isDataLoaded, dispatch]);
+
+  // Prefetch first few chef profile images for faster display
+  useEffect(() => {
+    if (chefs.length > 0) {
+      // Prefetch first 5 visible chef images
+      const imagesToPrefetch = chefs
+        .slice(0, 5)
+        .map(chef => chef.photo ? getImageURL(chef.photo) : null)
+        .filter((url): url is string => url !== null);
+
+      if (imagesToPrefetch.length > 0) {
+        ExpoImage.prefetch(imagesToPrefetch, { cachePolicy: 'memory-disk' })
+          .catch(err => console.warn('Image prefetch failed:', err));
+      }
+    }
+  }, [chefs]);
 
   const onRefresh = async () => {
     setRefreshing(true);

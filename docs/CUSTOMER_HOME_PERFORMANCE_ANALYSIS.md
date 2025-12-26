@@ -1331,9 +1331,17 @@ These fixes are most effective when done together.
 
 ---
 
-## Issue #5: Sequential Image Loading Without Caching
+## Issue #5: Sequential Image Loading Without Caching ✅ COMPLETED
 
-### Problem
+> **Status:** Implemented on 2025-12-26
+>
+> **Changes Made:**
+> - Updated `StyledProfileImage` with `cachePolicy="memory-disk"`, blurhash placeholder, 200ms transition
+> - Removed unnecessary `useState` and custom overlay component
+> - Added `useMemo` for style calculation
+> - Added image prefetching for first 5 chefs in `home/index.tsx`
+
+### Problem (RESOLVED)
 
 Profile images load sequentially without caching configuration, causing slow visual appearance and repeated network requests. The current implementation uses a custom placeholder overlay instead of expo-image's built-in features, missing out on performance optimizations.
 
@@ -1635,13 +1643,13 @@ Then use it in frontend:
 
 ### Testing Checklist
 
-- [ ] Images load with blurhash placeholder visible first
-- [ ] Images fade in smoothly (200ms transition)
-- [ ] Return visits load images instantly (from cache)
+- [x] Images load with blurhash placeholder visible first
+- [x] Images fade in smoothly (200ms transition)
+- [x] Return visits load images instantly (from cache)
 - [ ] Memory usage doesn't grow unboundedly (check with Profiler)
 - [ ] No network requests for cached images (check Network tab)
-- [ ] Fallback shows when no URL provided
-- [ ] Different sizes work correctly
+- [x] Fallback shows when no URL provided
+- [x] Different sizes work correctly
 
 ### Impact
 
@@ -2363,7 +2371,7 @@ Re-measure and document improvement in percentage.
 | Spinner timing | Critical | 1 hr | Eliminates blank screen | ⏳ Pending |
 | N+1 Redux dispatches | High | 30 min | 70% faster state updates | ✅ **Done** |
 | Non-memoized components | High | 45 min | 50% fewer re-renders | ⏳ Pending |
-| Image loading | High | 1.5 hrs | 60% faster image display | ⏳ Pending |
+| Image loading | High | 1.5 hrs | 60% faster image display | ✅ **Done** |
 | Inline functions | Medium | 30 min | Enables memo benefits | ⏳ Pending |
 | List keys | Low | 15 min | Prevents subtle bugs | ⏳ Pending |
 | Backend API | High | 3-4 hrs | 3-5x faster API | ⏳ Pending |
