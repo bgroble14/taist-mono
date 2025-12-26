@@ -134,6 +134,9 @@ const Splash = () => {
       } else {
         // Login failed - account deleted, password changed, etc.
         console.log('Auto-login failed: Account no longer valid, clearing stored data');
+        // Clear Redux state first (removes in-memory user data)
+        dispatch({ type: 'USER_LOGOUT' });
+        // Then clear persisted storage
         await ClearStorage();
         setSplash(false);
         return false;
