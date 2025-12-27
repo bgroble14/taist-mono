@@ -105,13 +105,15 @@ export const navigate = {
       reviews: any[];
       menus: any[];
       weekDay: number;
+      selectedDate: string;  // "YYYY-MM-DD" format
     }) => router.push({
       pathname: '/screens/customer/(tabs)/(home)/chefDetail',
-      params: { 
+      params: {
         chefInfo: JSON.stringify(params.chefInfo),
         reviews: JSON.stringify(params.reviews),
         menus: JSON.stringify(params.menus),
-        weekDay: params.weekDay.toString()
+        weekDay: params.weekDay.toString(),
+        selectedDate: params.selectedDate
       }
     } as any),
     addToOrder: (params: {
@@ -140,13 +142,15 @@ export const navigate = {
       chefInfo: IUser;
       weekDay: number;
       chefProfile: any;
+      selectedDate?: string;  // Optional for backward compatibility with Cart
     }) => router.push({
       pathname: '/screens/customer/(tabs)/(home)/checkout',
-      params: { 
+      params: {
         orders: JSON.stringify(params.orders),
         chefInfo: JSON.stringify(params.chefInfo),
         weekDay: params.weekDay.toString(),
-        chefProfile: JSON.stringify(params.chefProfile)
+        chefProfile: JSON.stringify(params.chefProfile),
+        selectedDate: params.selectedDate || ''
       }
     } as any),
     creditCard: (handleAddPaymentCard?: (details: any) => Promise<void>) => {

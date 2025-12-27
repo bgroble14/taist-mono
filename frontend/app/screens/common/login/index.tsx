@@ -106,9 +106,8 @@ const Login = () => {
         {/* Password Input */}
         <View style={styles.inputWrapper}>
           <Text style={styles.inputLabel}>Password</Text>
-          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/* @ts-ignore */}
           <TextInput
+            // @ts-expect-error - TextInput from @react-native-material/core doesn't have ref in types but works at runtime
             ref={passwordInputRef as any}
             style={styles.formFields}
             inputStyle={styles.formInputFields}

@@ -25,6 +25,7 @@ const Cart = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const orders = useAppSelector(x => x.customer.orders);
+  const selectedDate = useAppSelector(x => x.customer.selectedDate);
   const menus = useAppSelector(x => x.table.menus);
   const users = useAppSelector(x => x.table.users);
 
@@ -73,6 +74,7 @@ const Cart = () => {
           orders: JSON.stringify(chefOrders),
           weekDay: new Date().getDay().toString(),
           chefProfile: JSON.stringify(chefProfile),
+          selectedDate: selectedDate || '',
         }
       });
     } catch (error) {
@@ -86,6 +88,7 @@ const Cart = () => {
           orders: JSON.stringify(chefOrders),
           weekDay: new Date().getDay().toString(),
           chefProfile: JSON.stringify({}),
+          selectedDate: selectedDate || '',
         }
       });
     }

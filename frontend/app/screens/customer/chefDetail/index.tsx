@@ -58,6 +58,7 @@ const ChefDetail = () => {
   const reviews: Array<IReview> = JSON.parse(params.reviews as string);
   const menus: Array<IMenu> = JSON.parse(params.menus as string);
   const weekDay: number = parseInt(params.weekDay as string);
+  const selectedDate: string = (params.selectedDate as string) || '';
   // const timeSlot: {start: number; end: number} = route.params?.timeSlot;
 
   useEffect(() => {
@@ -121,6 +122,7 @@ const ChefDetail = () => {
         orders: JSON.stringify(chefOrders),
         weekDay: weekDay.toString(),
         chefProfile: JSON.stringify(chefProfile),
+        selectedDate: selectedDate,
       }
     });
   };

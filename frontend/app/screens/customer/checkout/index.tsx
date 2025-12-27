@@ -33,7 +33,7 @@ import StyledTabButton from '../../../components/styledTabButton';
 import { AddressCollectionModal } from '../../../components/AddressCollectionModal';
 import DiscountCodeInput from '../../../components/DiscountCodeInput';
 import Container from '../../../layout/Container';
-import { removeCustomerOrders } from '../../../reducers/customerSlice';
+import { removeCustomerOrders, setSelectedDate } from '../../../reducers/customerSlice';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
 import {
   AddPaymentMethodAPI,
@@ -65,6 +65,7 @@ const Checkout = () => {
   const chefInfo: IUser = params.chefInfo ? JSON.parse(params.chefInfo as string) : {};
   const weekDay: number = params.weekDay ? parseInt(params.weekDay as string) : 0;
   const chefProfile: IChefProfile = params.chefProfile ? JSON.parse(params.chefProfile as string) : {};
+  const selectedDateParam: string = (params.selectedDate as string) || '';
 
   const [DAY, onChangeDay] = useState(moment());
   const [times, onChangeTimes] = useState<Array<any>>([]);
@@ -155,7 +156,23 @@ const Checkout = () => {
       }
       return today; // Fallback
     };
-    onChangeDay(findFirstWorkingDay());
+
+    // Use passed date if valid, otherwise find first working day
+    const initializeDate = () => {
+      if (selectedDateParam) {
+        const passedDate = moment(selectedDateParam, 'YYYY-MM-DD');
+        // Validate: date is valid, not in past, and chef works that day
+        if (passedDate.isValid() &&
+            passedDate.isSameOrAfter(moment().startOf('day'), 'day') &&
+            chefWorkingDays.includes(passedDate.weekday())) {
+          console.log('[CHECKOUT] Using passed selectedDate:', selectedDateParam);
+          return passedDate;
+        }
+        console.log('[CHECKOUT] Passed date invalid or chef unavailable, using fallback');
+      }
+      return findFirstWorkingDay();
+    };
+    onChangeDay(initializeDate());
 
     // Check if user has address, if not show modal
     if (!self.address || !self.city || !self.state || !self.zip) {
@@ -452,6 +469,7 @@ const Checkout = () => {
     dispatch(hideLoading());
     if (isCreateSuccess) {
       dispatch(removeCustomerOrders(chefInfo.id ?? 0));
+      dispatch(setSelectedDate(null));  // Clear date after successful order
       goBack();
       navigate.toCustomer.orders();
     }

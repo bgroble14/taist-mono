@@ -117,9 +117,8 @@ const Forgot = () => {
           ) : (
             <View>
               {/* TextInput from @react-native-material/core has different props than RN TextInput */}
-              {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-              {/* @ts-ignore */}
               <TextInput
+                // @ts-expect-error - ref prop not in types but works at runtime
                 ref={codeInputRef as any}
                 style={styles.formFields}
                 inputStyle={styles.formInputFields}
@@ -137,9 +136,8 @@ const Forgot = () => {
                 }}
                 blurOnSubmit={false}
               />
-              {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-              {/* @ts-ignore */}
               <TextInput
+                // @ts-expect-error - ref prop not in types but works at runtime
                 ref={passwordInputRef as any}
                 style={styles.formFields}
                 inputStyle={styles.formInputFields}
@@ -157,9 +155,8 @@ const Forgot = () => {
                 }}
                 blurOnSubmit={false}
               />
-              {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-              {/* @ts-ignore */}
               <TextInput
+                // @ts-expect-error - ref prop not in types but works at runtime
                 ref={confirmPasswordInputRef as any}
                 style={styles.formFields}
                 inputStyle={styles.formInputFields}

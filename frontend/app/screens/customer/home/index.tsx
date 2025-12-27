@@ -24,6 +24,7 @@ import EmptyListView from '../../../components/emptyListView/emptyListView';
 import { AppColors, Spacing } from '../../../../constants/theme';
 import Container from '../../../layout/Container';
 import { hideLoading, showLoading } from '../../../reducers/loadingSlice';
+import { setSelectedDate } from '../../../reducers/customerSlice';
 import { GetSearchChefAPI, GetZipCodes } from '../../../services/api';
 import { getImageURL } from '../../../utils/functions';
 import { navigate } from '../../../utils/navigation';
@@ -201,6 +202,8 @@ const Home = () => {
 
   const handleDayPress = (day: moment.Moment) => {
     onChangeDAY(day);
+    // Save selected date to Redux for Cart flow
+    dispatch(setSelectedDate(day.format('YYYY-MM-DD')));
     // useEffect on line 187-189 will trigger loadData() automatically
     // Removed duplicate loadData() call that was causing race condition
   };
@@ -224,6 +227,7 @@ const Home = () => {
       reviews: chef.reviews,
       menus: chef.menus,
       weekDay: DAY.weekday(),
+      selectedDate: DAY.format('YYYY-MM-DD'),
     });
   };
 
