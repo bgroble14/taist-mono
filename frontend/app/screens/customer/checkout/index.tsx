@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -533,9 +532,15 @@ const Checkout = () => {
   };
 
   return (
-    <SafeAreaView style={styles.main}>
-      <Container>
-        <ScrollView style={{flex: 1}} contentContainerStyle={styles.pageView}>
+    <Container>
+      <ScrollView
+        style={{flex: 1}}
+        contentContainerStyle={styles.pageView}
+        nestedScrollEnabled={true}
+        keyboardShouldPersistTaps="handled"
+        bounces={true}
+        showsVerticalScrollIndicator={true}
+      >
           <View style={styles.heading}>
             <Pressable onPress={() => goBack()}>
               <FontAwesomeIcon icon={faAngleLeft} size={24} color="#1a1a1a" />
@@ -762,7 +767,6 @@ const Checkout = () => {
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </Container>
 
       {/* Address Collection Modal */}
       <AddressCollectionModal
@@ -775,7 +779,7 @@ const Checkout = () => {
           // goBack();
         }}
       />
-    </SafeAreaView>
+    </Container>
   );
 };
 
