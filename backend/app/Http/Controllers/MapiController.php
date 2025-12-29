@@ -369,7 +369,11 @@ class MapiController extends Controller
             $ext = strtolower($aname[count($aname) - 1]);
             $ext = $_FILES['photo']['type'] == 'image/png' ? 'png' : 'jpg';
             $photo = "user_photo_" . time() . "." . $ext;
-            move_uploaded_file($_FILES["photo"]["tmp_name"], 'assets/uploads/images/' . $photo);
+            $uploadDir = 'assets/uploads/images/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            move_uploaded_file($_FILES["photo"]["tmp_name"], $uploadDir . $photo);
             $this->resizeImage($photo, $ext == 'png');
         }
 
@@ -2935,7 +2939,11 @@ Write only the review text:";
             $ext = strtolower($aname[count($aname) - 1]);
             $ext = $_FILES['photo']['type'] == 'image/png' ? 'png' : 'jpg';
             $photo = "user_photo_" . time() . "." . $ext;
-            move_uploaded_file($_FILES["photo"]["tmp_name"], 'assets/uploads/images/' . $photo);
+            $uploadDir = 'assets/uploads/images/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            move_uploaded_file($_FILES["photo"]["tmp_name"], $uploadDir . $photo);
             $this->resizeImage($photo, $ext == 'png');
         }
 
