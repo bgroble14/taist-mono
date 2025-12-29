@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { View, ViewStyle } from 'react-native';
 import styles from './styles';
 
@@ -7,46 +7,66 @@ type Props = {
   url?: string;
   containerStyle?: ViewStyle;
   size?: number;
+  priority?: 'low' | 'normal' | 'high';
 };
 
-const StyledProfileImage = (props: Props) => {
-  //https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80
+const StyledProfileImage = ({
+  url,
+  containerStyle,
+  size,
+  priority = 'normal',
+}: Props) => {
   const [isLoaded, setLoaded] = useState(false);
-  var style = {...styles.img};
-  if (props.size) {
-    style = {
-      ...style,
-      width: props.size,
-      height: props.size,
-      borderRadius: props.size,
+  const [hasError, setHasError] = useState(false);
+
+  // Memoize style to prevent recreating on every render
+  const imageStyle = useMemo(() => {
+    if (!size) return styles.img;
+    return {
+      ...styles.img,
+      width: size,
+      height: size,
+      borderRadius: size,
     };
-  }
+  }, [size]);
 
-  const handleLoadStart = () => {
+  const handleLoadStart = useCallback(() => {
     setLoaded(false);
-  };
+    setHasError(false);
+  }, []);
 
-  const handleLoad = () => {
+  const handleLoad = useCallback(() => {
     setLoaded(true);
-  };
+  }, []);
 
-  const handleLoadEnd = () => {};
+  const handleError = useCallback(() => {
+    setHasError(true);
+  }, []);
+
+  // Show placeholder if: no URL, still loading, or error loading
+  const showPlaceholder = !url || !isLoaded || hasError;
 
   return (
-    <View style={[styles.container, props.containerStyle]}>
-      <Image
-        style={style}
-        source={{uri: props.url}}
-        onLoadStart={handleLoadStart}
-        onLoad={handleLoad}
-        onLoadEnd={handleLoadEnd}
-      />
-      {!isLoaded && (
-        <View style={styles.overlay}>
+    <View style={[styles.container, containerStyle]}>
+      {url && !hasError && (
+        <Image
+          style={imageStyle}
+          source={{ uri: url }}
+          onLoadStart={handleLoadStart}
+          onLoad={handleLoad}
+          onError={handleError}
+          cachePolicy="memory-disk"
+          priority={priority}
+          contentFit="cover"
+          transition={200}
+        />
+      )}
+      {showPlaceholder && (
+        <View style={[styles.overlay, size && { width: size, height: size, borderRadius: size }]}>
           <Image
             source={require('../../assets/icons/Icon_Profile.png')}
             style={styles.imgPlaceholder}
-            resizeMode={'contain'}
+            contentFit="contain"
           />
         </View>
       )}

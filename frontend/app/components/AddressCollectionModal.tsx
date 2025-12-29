@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, Pressable, StyleSheet, Platform } from 'react-native';
+import { View, Text, Modal, Pressable, StyleSheet, Platform, ScrollView } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleDown, faClose, faSearch, faLocationArrow } from '@fortawesome/free-solid-svg-icons';
 import { SelectList } from 'react-native-dropdown-select-list';
@@ -195,94 +195,102 @@ export const AddressCollectionModal: React.FC<AddressCollectionModalProps> = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Complete Your Profile</Text>
-            <Text style={styles.modalSubtitle}>
-              We need your name and delivery address to complete your order
-            </Text>
-          </View>
-
-          <View style={styles.formContent}>
-            <StyledTextInput
-              label="First Name"
-              placeholder="John"
-              value={firstName}
-              onChangeText={setFirstName}
-              autoCapitalize="words"
-              autoComplete="name-given"
-            />
-
-            <StyledTextInput
-              label="Last Name"
-              placeholder="Doe"
-              value={lastName}
-              onChangeText={setLastName}
-              autoCapitalize="words"
-              autoComplete="name-family"
-            />
-
-            <View style={styles.locationButtonWrapper}>
-              <Pressable 
-                style={styles.locationButton} 
-                onPress={handleUseCurrentLocation}
-                disabled={isGettingLocation}
-              >
-                <FontAwesomeIcon icon={faLocationArrow} size={20} color={AppColors.primary} />
-                <Text style={styles.locationButtonText}>
-                  {isGettingLocation ? 'Getting location...' : 'Use Current Location'}
-                </Text>
-              </Pressable>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
+          >
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Complete Your Profile</Text>
+              <Text style={styles.modalSubtitle}>
+                We need your name and delivery address to complete your order
+              </Text>
             </View>
 
-            <StyledTextInput
-              label="Street Address"
-              placeholder="123 Main St"
-              value={address}
-              onChangeText={setAddress}
-            />
+            <View style={styles.formContent}>
+              <StyledTextInput
+                label="First Name"
+                placeholder="John"
+                value={firstName}
+                onChangeText={setFirstName}
+                autoCapitalize="words"
+                autoComplete="name-given"
+              />
 
-            <StyledTextInput
-              label="City"
-              placeholder="City"
-              value={city}
-              onChangeText={setCity}
-            />
+              <StyledTextInput
+                label="Last Name"
+                placeholder="Doe"
+                value={lastName}
+                onChangeText={setLastName}
+                autoCapitalize="words"
+                autoComplete="name-family"
+              />
 
-            <SelectList
-              setSelected={(key: string) => {
-                const opt = statesData.find(x => x.key === key);
-                if (opt) setState(opt.value);
-              }}
-              data={statesData}
-              save={'key'}
-              placeholder={state || 'Select State'}
-              searchPlaceholder="Search"
-              boxStyles={styles.dropdownBox}
-              inputStyles={styles.dropdownInput}
-              dropdownStyles={styles.dropdown}
-              dropdownTextStyles={styles.dropdownText}
-              dropdownProps={{ nestedScrollEnabled: true }}
-              arrowicon={<FontAwesomeIcon icon={faAngleDown} size={20} color="#666666" />}
-              searchicon={<FontAwesomeIcon icon={faSearch} size={15} color="#666666" />}
-              closeicon={<FontAwesomeIcon icon={faClose} size={15} color="#666666" />}
-            />
+              <View style={styles.locationButtonWrapper}>
+                <Pressable
+                  style={styles.locationButton}
+                  onPress={handleUseCurrentLocation}
+                  disabled={isGettingLocation}
+                >
+                  <FontAwesomeIcon icon={faLocationArrow} size={20} color={AppColors.primary} />
+                  <Text style={styles.locationButtonText}>
+                    {isGettingLocation ? 'Getting location...' : 'Use Current Location'}
+                  </Text>
+                </Pressable>
+              </View>
 
-            <StyledTextInput
-              label="ZIP Code"
-              placeholder="12345"
-              value={zip}
-              onChangeText={setZip}
-              keyboardType="number-pad"
-              maxLength={10}
-            />
-          </View>
+              <StyledTextInput
+                label="Street Address"
+                placeholder="123 Main St"
+                value={address}
+                onChangeText={setAddress}
+              />
 
-          <View style={styles.buttonContainer}>
-            <StyledButton title="Save & Continue" onPress={validateAndSave} />
-            <Pressable onPress={onCancel} style={styles.cancelButton}>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </Pressable>
-          </View>
+              <StyledTextInput
+                label="City"
+                placeholder="City"
+                value={city}
+                onChangeText={setCity}
+              />
+
+              <SelectList
+                setSelected={(key: string) => {
+                  const opt = statesData.find(x => x.key === key);
+                  if (opt) setState(opt.value);
+                }}
+                data={statesData}
+                save={'key'}
+                placeholder={state || 'Select State'}
+                searchPlaceholder="Search"
+                boxStyles={styles.dropdownBox}
+                inputStyles={styles.dropdownInput}
+                dropdownStyles={styles.dropdown}
+                dropdownTextStyles={styles.dropdownText}
+                dropdownProps={{ nestedScrollEnabled: true }}
+                arrowicon={<FontAwesomeIcon icon={faAngleDown} size={20} color="#666666" />}
+                searchicon={<FontAwesomeIcon icon={faSearch} size={15} color="#666666" />}
+                closeicon={<FontAwesomeIcon icon={faClose} size={15} color="#666666" />}
+              />
+
+              <StyledTextInput
+                label="ZIP Code"
+                placeholder="12345"
+                value={zip}
+                onChangeText={setZip}
+                keyboardType="number-pad"
+                maxLength={10}
+              />
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <StyledButton title="Save & Continue" onPress={validateAndSave} />
+              <Pressable onPress={onCancel} style={styles.cancelButton}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
         </View>
       </View>
     </Modal>
