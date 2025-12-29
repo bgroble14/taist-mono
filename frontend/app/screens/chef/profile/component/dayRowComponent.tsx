@@ -190,6 +190,8 @@ export const DayRowComponent = ({day, onDayChanged}: Props) => {
                 mode="time"
                 display="spinner"
                 value={displayStartTime}
+                minimumDate={new Date(2030, 0, 15, 0, 0, 0)}
+                maximumDate={new Date(2030, 0, 15, 23, 59, 59)}
                 onChange={onStartTimeChange}
               />
             </View>
@@ -201,6 +203,8 @@ export const DayRowComponent = ({day, onDayChanged}: Props) => {
             mode="time"
             display="default"
             value={displayStartTime}
+            minimumDate={new Date(2030, 0, 15, 0, 0, 0)}
+            maximumDate={new Date(2030, 0, 15, 23, 59, 59)}
             onChange={onStartTimeChange}
           />
         )
@@ -252,6 +256,8 @@ export const DayRowComponent = ({day, onDayChanged}: Props) => {
                 mode="time"
                 display="spinner"
                 value={displayEndTime}
+                minimumDate={new Date(2030, 0, 15, 0, 0, 0)}
+                maximumDate={new Date(2030, 0, 15, 23, 59, 59)}
                 onChange={onEndTimeChange}
               />
             </View>
@@ -263,6 +269,8 @@ export const DayRowComponent = ({day, onDayChanged}: Props) => {
             mode="time"
             display="default"
             value={displayEndTime}
+            minimumDate={new Date(2030, 0, 15, 0, 0, 0)}
+            maximumDate={new Date(2030, 0, 15, 23, 59, 59)}
             onChange={onEndTimeChange}
           />
         )

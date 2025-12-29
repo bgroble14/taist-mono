@@ -497,6 +497,8 @@ const Profile = () => {
                 mode="time"
                 display="spinner"
                 value={tempTime}
+                minimumDate={new Date(2030, 0, 15, 0, 0, 0)}
+                maximumDate={new Date(2030, 0, 15, 23, 59, 59)}
                 onChange={(event, date) => {
                   if (date) setTempTime(date);
                 }}
@@ -512,6 +514,8 @@ const Profile = () => {
           mode="time"
           display="default"
           value={tempTime}
+          minimumDate={new Date(2030, 0, 15, 0, 0, 0)}
+          maximumDate={new Date(2030, 0, 15, 23, 59, 59)}
           onChange={handleTimeChange}
         />
       )}

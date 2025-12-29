@@ -535,7 +535,7 @@ const Checkout = () => {
   return (
     <SafeAreaView style={styles.main}>
       <Container>
-        <ScrollView contentContainerStyle={styles.pageView}>
+        <ScrollView style={{flex: 1}} contentContainerStyle={styles.pageView}>
           <View style={styles.heading}>
             <Pressable onPress={() => goBack()}>
               <FontAwesomeIcon icon={faAngleLeft} size={24} color="#1a1a1a" />

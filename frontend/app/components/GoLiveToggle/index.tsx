@@ -283,6 +283,8 @@ const GoLiveToggle: React.FC = () => {
                 mode="time"
                 display="spinner"
                 value={displayTime}
+                minimumDate={new Date(2030, 0, 15, 0, 0, 0)}
+                maximumDate={new Date(2030, 0, 15, 23, 59, 59)}
                 onChange={onTimeChange}
               />
             </View>
@@ -294,6 +296,8 @@ const GoLiveToggle: React.FC = () => {
             mode="time"
             display="default"
             value={displayTime}
+            minimumDate={new Date(2030, 0, 15, 0, 0, 0)}
+            maximumDate={new Date(2030, 0, 15, 23, 59, 59)}
             onChange={onTimeChange}
           />
         )
