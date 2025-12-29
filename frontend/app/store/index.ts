@@ -13,6 +13,7 @@ import userReducer from '../reducers/userSlice';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
+  blacklist: ['loading', 'homeLoaer'], // Don't persist loading states - they should always start as false
 };
 
 const appReducer = combineReducers({
