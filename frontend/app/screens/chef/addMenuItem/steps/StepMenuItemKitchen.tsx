@@ -25,10 +25,10 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
   const { width } = useWindowDimensions();
 
   // Calculate appliance item width based on screen size
-  // Aim for 3 columns on wider screens, 2 on narrow screens
-  const horizontalPadding = Spacing.lg * 2; // Container padding
+  // Use 2 columns on screens < 400px to ensure text fits (especially "Microwave", "Charcoal Grill")
+  const horizontalPadding = Spacing.xl * 2; // Container padding (MenuItemStepContainer uses Spacing.xl)
   const gap = Spacing.md;
-  const numColumns = width < 360 ? 2 : 3;
+  const numColumns = width < 400 ? 2 : 3;
   const applianceItemWidth = Math.floor((width - horizontalPadding - (gap * (numColumns - 1))) / numColumns);
 
   // Parse appliance IDs from string or array
@@ -135,8 +135,9 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
                     styles.applianceText,
                     isSelected && styles.applianceTextSelected,
                   ]}
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}
                 >
                   {appliance.name}
                 </Text>
@@ -236,6 +237,8 @@ const styles = StyleSheet.create({
     color: AppColors.textSecondary,
     textAlign: 'center',
     fontWeight: '500',
+    flexShrink: 0,
+    width: '100%',
   },
   applianceTextSelected: {
     color: AppColors.textOnPrimary,
@@ -250,25 +253,27 @@ const styles = StyleSheet.create({
   },
   tab: {
     backgroundColor: AppColors.primary,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     borderRadius: 20,
-    minWidth: 60,
     alignItems: 'center',
+    justifyContent: 'center',
     marginRight: Spacing.sm,
     marginTop: Spacing.sm,
+    flexShrink: 0,
   },
   tabDisabled: {
     backgroundColor: AppColors.surface,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: AppColors.border,
-    minWidth: 60,
     alignItems: 'center',
+    justifyContent: 'center',
     marginRight: Spacing.sm,
     marginTop: Spacing.sm,
+    flexShrink: 0,
   },
   tabText: {
     color: AppColors.white,
@@ -277,6 +282,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     includeFontPadding: false,
     textAlignVertical: 'center',
+    flexShrink: 0,
   },
   tabDisabledText: {
     color: AppColors.textSecondary,
@@ -284,6 +290,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     includeFontPadding: false,
     textAlignVertical: 'center',
+    flexShrink: 0,
   },
   buttonContainer: {
     gap: Spacing.md,
