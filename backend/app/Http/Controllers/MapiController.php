@@ -921,7 +921,7 @@ class MapiController extends Controller
 
         if ($override) {
             // Override exists - use it
-            if ($override->is_cancelled) {
+            if ($override->isCancelled()) {
                 // Day is cancelled - no slots available
                 return response()->json([
                     'success' => 1,
@@ -932,6 +932,15 @@ class MapiController extends Controller
             $startTime = $override->start_time ? date('H:i', strtotime($override->start_time)) : null;
             $endTime = $override->end_time ? date('H:i', strtotime($override->end_time)) : null;
         } else {
+            // Today with no override = NOT available (chef must toggle on)
+            // This matches the logic in isAvailableForOrder() for consistency
+            if ($isRequestedDateToday) {
+                return response()->json([
+                    'success' => 1,
+                    'data' => []
+                ]);
+            }
+
             // No override - get weekly schedule (single query)
             $availability = \App\Models\Availabilities::where('user_id', $chefId)->first();
 
