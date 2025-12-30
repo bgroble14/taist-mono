@@ -22,10 +22,17 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-  missingImg: {
-    width: '80%',
-    height: 240,
-    resizeMode: 'contain',
+  missingImgLeft: {
+    width: '45%',
+    aspectRatio: 1,
+    borderRadius: 10,
+    resizeMode: 'cover',
+  },
+  missingImgRight: {
+    width: '45%',
+    aspectRatio: 1,
+    borderRadius: 100,
+    resizeMode: 'cover',
   },
   missingSubheading: {
     fontSize: 18,

@@ -65,20 +65,28 @@ const Menu = () => {
 
   const emptyListComponent = ({onPress}: any) => {
     return (
-      <View style={{flex: 1, width: '100%', alignItems: 'center', gap: 30}}>
+      <View style={{flex: 1, width: '100%', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 20}}>
         <Text style={styles.missingHeading}>
           Display UNLIMITED items on your menu{' '}
         </Text>
-        <Image
-          style={styles.missingImg}
-          source={require('../../../assets/images/unlimit.webp')}
-        />
-        <Text style={styles.missingSubheading}>
-          Tap below to create your very first menu item{' '}
-        </Text>
-        <TouchableOpacity style={GlobalStyles.btn} onPress={onPress}>
-          <Text style={GlobalStyles.btnTxt}>ADD </Text>
-        </TouchableOpacity>
+        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between', paddingHorizontal: 10, alignItems: 'flex-end'}}>
+          <Image
+            style={styles.missingImgLeft}
+            source={require('../../../assets/images/2.png')}
+          />
+          <Image
+            style={[styles.missingImgRight, {marginBottom: 60}]}
+            source={require('../../../assets/images/1.png')}
+          />
+        </View>
+        <View style={{alignItems: 'center', gap: 20}}>
+          <Text style={styles.missingSubheading}>
+            Tap below to create your very first menu item{' '}
+          </Text>
+          <TouchableOpacity style={GlobalStyles.btn} onPress={onPress}>
+            <Text style={GlobalStyles.btnTxt}>ADD </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
