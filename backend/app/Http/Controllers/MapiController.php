@@ -3736,6 +3736,18 @@ Write only the review text:";
 
             $menu = app(Menus::class)->where(['id' => $order->menu_id])->first();
 
+            // Get customizations for the order
+            $customizationNames = [];
+            if ($order->addons) {
+                $addonIds = array_filter(explode(',', $order->addons));
+                if (!empty($addonIds)) {
+                    $customizations = app(Customizations::class)->whereIn('id', $addonIds)->get();
+                    foreach ($customizations as $c) {
+                        $customizationNames[] = $c->name;
+                    }
+                }
+            }
+
             // Get chef for timezone lookup
             $chef = app(Listener::class)->where(['id' => $order->chef_user_id])->first();
             $formattedOrderDate = TimezoneHelper::formatForState(
@@ -3750,10 +3762,15 @@ Write only the review text:";
             $msg .= "<p>Order ID: <b>ORDER" . sprintf('%07d', $order->id) . "</b></p>";
             $msg .= "<p>Order Date: <b>" . $formattedOrderDate . "</b></p>";
             $msg .= "<p>Order Item: <b>" . $menu->title . "</b></p>";
+            if (!empty($customizationNames)) {
+                $msg .= "<p>Add-ons: <b>" . implode(', ', $customizationNames) . "</b></p>";
+            }
             $msg .= "<p>Order Quantity: <b>" . $order->amount . "</b></p>";
             $msg .= "<p>Order Total: <b>$" . number_format($order->total_price, 2, '.', ',') . "</b></p>";
-            $msg .= "<p>Order Note: <b>" . $order->notes . "</b></p><br>";
-            $msg .= "<p>Thank You! <div>- The Taist Team</div></p>";
+            if ($order->notes) {
+                $msg .= "<p>Special Instructions: <b>" . $order->notes . "</b></p>";
+            }
+            $msg .= "<br><p>Thank You! <div>- The Taist Team</div></p>";
             $msg .= "<p><img alt='Taist logo' src='http://18.216.154.184/assets/uploads/images/logo-2.png' /></p>";
 
             $emailResponse = $this->_sendEmail($user->email, "Taist - Order Receipt", $msg);
