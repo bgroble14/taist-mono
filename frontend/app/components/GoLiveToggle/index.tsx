@@ -197,19 +197,15 @@ const GoLiveToggle: React.FC = () => {
       return;
     }
 
-    // On iOS, handle spinner mode events
+    // On iOS with spinner mode, just update temp time as user scrolls
+    // The Done button (handleConfirmTimePicker) handles the actual confirmation
     if (Platform.OS === 'ios') {
-      if (event.type === 'set') {
-        // User confirmed the time
-        handleGoOnline(currentDate);
-        setTempTime(null);
-        setShowTimePicker(false);
-      } else if (event.type === 'dismissed') {
+      if (event.type === 'dismissed') {
         // User cancelled
         setTempTime(null);
         setShowTimePicker(false);
       } else if (selectedDate) {
-        // For spinner mode, update temp time as user scrolls
+        // Update temp time as user scrolls the spinner
         setTempTime(selectedDate);
       }
     }
@@ -322,7 +318,7 @@ const GoLiveToggle: React.FC = () => {
           >
             <Text style={styles.confirmTitle}>Go Offline?</Text>
             <Text style={styles.confirmMessage}>
-              You will stop appearing as available to customers.
+              You will stop appearing as available to customers for the rest of today.
             </Text>
             <View style={styles.confirmButtons}>
               <TouchableOpacity
