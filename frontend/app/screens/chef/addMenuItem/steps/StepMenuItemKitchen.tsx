@@ -5,7 +5,6 @@ import { AppColors, Spacing } from '../../../../../constants/theme';
 import { IMenu } from '../../../../types/index';
 import { ShowErrorToast } from '../../../../utils/toast';
 import StyledButton from '../../../../components/styledButton';
-import { getImageURL } from '../../../../utils/functions';
 import { APPLIANCES } from '../../../../constants/appliances';
 
 interface StepMenuItemKitchenProps {
@@ -121,7 +120,7 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
               >
                 {appliance.image && appliance.image.trim() !== '' && !hasImageError ? (
                   <Image
-                    source={{ uri: getImageURL(appliance.image) }}
+                    source={{ uri: appliance.image }}
                     style={styles.applianceImg}
                     onError={() => setImageErrors(prev => ({...prev, [appliance.id]: true}))}
                   />

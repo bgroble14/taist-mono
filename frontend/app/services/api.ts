@@ -46,6 +46,7 @@ const getEnvironmentUrls = () => {
       return {
         BASE_URL: `http://${localHost}:8000/mapi/`,
         Photo_URL: `http://${localHost}:8000/assets/uploads/images/`,
+        Static_URL: `http://${localHost}:8000/assets/images/`,
         HTML_URL: `http://${localHost}:8000/assets/uploads/html/`,
       };
     
@@ -55,6 +56,7 @@ const getEnvironmentUrls = () => {
     return {
       BASE_URL: 'https://taist-mono-staging.up.railway.app/mapi/',
       Photo_URL: 'https://taist-mono-staging.up.railway.app/assets/uploads/images/',
+      Static_URL: 'https://taist-mono-staging.up.railway.app/assets/images/',
       HTML_URL: 'https://taist-mono-staging.up.railway.app/assets/uploads/html/',
     };
     
@@ -64,6 +66,7 @@ const getEnvironmentUrls = () => {
     return {
       BASE_URL: 'https://taist.codeupscale.com/mapi/',
       Photo_URL: 'https://taist.codeupscale.com/assets/uploads/images/',
+      Static_URL: 'https://taist.codeupscale.com/assets/images/',
       HTML_URL: 'https://taist.codeupscale.com/assets/uploads/html/',
     };
   }
@@ -73,6 +76,7 @@ const environmentUrls = getEnvironmentUrls();
 
 export const BASE_URL = environmentUrls.BASE_URL;
 export const Photo_URL = environmentUrls.Photo_URL;
+export const Static_URL = environmentUrls.Static_URL;
 export const HTML_URL = environmentUrls.HTML_URL;
 
 // Log current environment for debugging
