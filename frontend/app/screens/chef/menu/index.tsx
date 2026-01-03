@@ -69,13 +69,13 @@ const Menu = () => {
         <Text style={styles.missingHeading}>
           Display UNLIMITED items on your menu{' '}
         </Text>
-        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between', paddingHorizontal: 10, alignItems: 'flex-end'}}>
+        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'flex-end', marginHorizontal: -10}}>
           <Image
-            style={styles.missingImgLeft}
+            style={[styles.missingImgLeft, {marginLeft: -10}]}
             source={require('../../../assets/images/2.png')}
           />
           <Image
-            style={[styles.missingImgRight, {marginBottom: 60}]}
+            style={[styles.missingImgRight, {marginBottom: 60, marginRight: -10}]}
             source={require('../../../assets/images/1.png')}
           />
         </View>

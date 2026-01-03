@@ -23,15 +23,15 @@ export const styles = StyleSheet.create({
     marginTop: 20,
   },
   missingImgLeft: {
-    width: '45%',
-    aspectRatio: 1,
+    width: '55%',
+    aspectRatio: 0.85,
     borderRadius: 10,
     resizeMode: 'cover',
   },
   missingImgRight: {
-    width: '45%',
+    width: '55%',
     aspectRatio: 1,
-    borderRadius: 100,
+    borderRadius: 150,
     resizeMode: 'cover',
   },
   missingSubheading: {
