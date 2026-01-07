@@ -190,7 +190,9 @@ class Listener extends Authenticatable
         $endTimeForComparison = ($scheduledEndTime === '00:00') ? '24:00' : $scheduledEndTime;
 
         // Compare time strings (HH:MM format)
-        $isAvailable = $time >= $scheduledStartTime && $time <= $endTimeForComparison;
+        // Note: End time is EXCLUSIVE - chef is available UNTIL end time, not AT it
+        // See docs/features/chef-availability-system.md for details on switching to inclusive
+        $isAvailable = $time >= $scheduledStartTime && $time < $endTimeForComparison;
         \Log::debug("[TIMESLOTS] Time {$time} available: " . ($isAvailable ? 'yes' : 'no'));
 
         return $isAvailable;

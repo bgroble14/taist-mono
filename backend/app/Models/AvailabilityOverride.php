@@ -81,7 +81,9 @@ class AvailabilityOverride extends Model
         }
 
         // String comparison works correctly for HH:MM format
-        return $checkTimeNormalized >= $startTimeNormalized && $checkTimeNormalized <= $endTimeNormalized;
+        // Note: End time is EXCLUSIVE - chef is available UNTIL end time, not AT it
+        // See docs/features/chef-availability-system.md for details on switching to inclusive
+        return $checkTimeNormalized >= $startTimeNormalized && $checkTimeNormalized < $endTimeNormalized;
     }
 
     /**

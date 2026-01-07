@@ -174,6 +174,35 @@ Stores the recurring weekly schedule. Each day has start/end time fields:
 
 ---
 
+## Time Window Semantics
+
+### End Time is EXCLUSIVE
+
+When a chef sets availability from `start_time` to `end_time`:
+- **Start time is INCLUSIVE**: Chef is available starting AT the start time
+- **End time is EXCLUSIVE**: Chef is available UNTIL the end time (not AT it)
+
+**Example:** Availability `9:00pm-11:00pm` means:
+- 9:00pm, 9:30pm, 10:00pm, 10:30pm - available
+- 11:00pm - NOT available (window closes)
+
+If a chef wants to accept orders AT 11pm, they should set end time to `11:30pm`.
+
+### Code Locations
+
+This behavior is controlled by comparison operators (`<` for exclusive) in:
+
+| File | Method | What it controls |
+|------|--------|------------------|
+| `Listener.php:195` | `hasScheduleForDateTime()` | Weekly schedule validation |
+| `AvailabilityOverride.php:86` | `isAvailableAt()` | Override validation |
+| `MapiController.php:997` | `getAvailableTimeslots()` | Time slot generation |
+| `MapiController.php:3158-3259` | `getSearchChefs()` | Home screen chef filtering |
+
+**To switch to INCLUSIVE end times:** Change all `<` operators to `<=` in these locations.
+
+---
+
 ## 24-Hour Confirmation Reminders
 
 Chefs receive reminders 24 hours before their scheduled availability to confirm/modify/cancel.
