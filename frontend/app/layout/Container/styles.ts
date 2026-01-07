@@ -38,6 +38,8 @@ export const styles = StyleSheet.create({
     left: 0,
     justifyContent: 'center',
     alignItems: 'center',
+    // Ensure logo renders behind header buttons (fixes Android overlap)
+    zIndex: -1,
   },
   logo: {
     width: 80,
@@ -71,5 +73,7 @@ export const styles = StyleSheet.create({
   },
   button: {
     padding: 10,
+    // Ensure buttons render above the logo container
+    zIndex: 1,
   },
 });

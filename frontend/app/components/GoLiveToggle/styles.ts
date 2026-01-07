@@ -10,6 +10,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 16,
     gap: 4,
+    // Ensure toggle renders above the logo container (fixes Android overlap)
+    zIndex: 1,
   },
   containerLive: {
     backgroundColor: '#e8f5e9',
