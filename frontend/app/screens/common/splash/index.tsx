@@ -10,6 +10,7 @@ import * as SplashScreen from 'expo-splash-screen';
 // Hooks
 import { useAppDispatch } from '../../../hooks/useRedux';
 import { setUser } from '../../../reducers/userSlice';
+import { updateMenus } from '../../../reducers/tableSlice';
 
 import { navigate } from '@/app/utils/navigation';
 import { check, openSettings, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
@@ -118,6 +119,8 @@ const Splash = () => {
           quiz_completed: 1,
           verified: 1,
         }));
+        // Clear menus to show empty state
+        dispatch(updateMenus([]));
       } else if (DEV_USER_TYPE === 'customer') {
         dispatch(setUser({
           id: 999,
