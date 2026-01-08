@@ -83,8 +83,11 @@ export const StepMenuItemCategories: React.FC<StepMenuItemCategoriesProps> = ({
                 key={`category_${idx}`}
                 onPress={() => handleCategoryPress(category.id ?? 0)}
               >
-                <Text style={isSelected ? styles.tabText : styles.tabDisabledText}>
-                  {category.name}
+                <Text
+                  style={isSelected ? styles.tabText : styles.tabDisabledText}
+                  textBreakStrategy="simple"
+                >
+                  {category.name}{' '}
                 </Text>
               </TouchableOpacity>
             );
@@ -165,6 +168,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     marginRight: Spacing.sm,
     marginTop: Spacing.sm,
+    flexShrink: 0,
   },
   tabDisabled: {
     backgroundColor: AppColors.surface,
@@ -175,6 +179,7 @@ const styles = StyleSheet.create({
     borderColor: AppColors.border,
     marginRight: Spacing.sm,
     marginTop: Spacing.sm,
+    flexShrink: 0,
   },
   tabText: {
     color: AppColors.white,
@@ -182,12 +187,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     includeFontPadding: false,
     textAlignVertical: 'center',
+    flexShrink: 0,
   },
   tabDisabledText: {
     color: AppColors.textSecondary,
     fontSize: 15,
     includeFontPadding: false,
     textAlignVertical: 'center',
+    flexShrink: 0,
   },
   newCategorySection: {
     gap: Spacing.md,
