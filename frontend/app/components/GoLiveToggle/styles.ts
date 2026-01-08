@@ -48,6 +48,14 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'flex-end',
   },
+  // Backdrop for dismissing modal when tapping outside content
+  modalBackdrop: {
+    flex: 1,
+  },
+  // Disabled text style for loading state
+  disabledText: {
+    opacity: 0.5,
+  },
   timePickerModalContent: {
     backgroundColor: 'white',
     borderTopLeftRadius: 20,

@@ -2,11 +2,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Modal,
   Platform,
   Pressable,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -80,6 +82,19 @@ const GoLiveToggle: React.FC = () => {
 
   // Get chef profile from Redux for weekly schedule
   const chefProfile = useSelector((state: RootState) => state.chef.profile);
+
+  // Helper function to reset all go-live related state
+  // Used to ensure consistent cleanup across all exit paths
+  const resetGoLiveState = () => {
+    setSelectedDay(null);
+    setStartTime(null);
+    setEndTime(null);
+    setShowTimeConfirm(false);
+    setShowDayPicker(false);
+    setShowTimePicker(false);
+    setEditingTime(null);
+    setTempTime(null);
+  };
 
   // Get weekly schedule for a specific day
   const getScheduleForDay = (day: 'today' | 'tomorrow') => {
@@ -263,10 +278,7 @@ const GoLiveToggle: React.FC = () => {
 
   // Cancel entire flow
   const handleCancelFlow = () => {
-    setShowTimeConfirm(false);
-    setSelectedDay(null);
-    setStartTime(null);
-    setEndTime(null);
+    resetGoLiveState();
   };
 
   // Confirm and go live
@@ -274,7 +286,7 @@ const GoLiveToggle: React.FC = () => {
     if (!selectedDay || !startTime || !endTime) return;
 
     setLoading(true);
-    setShowTimeConfirm(false);
+    // Don't close modal yet - wait for API response
 
     try {
       const overrideDate = selectedDay === 'today'
@@ -302,17 +314,20 @@ const GoLiveToggle: React.FC = () => {
         }
         const dayLabel = selectedDay === 'today' ? 'today' : 'tomorrow';
         ShowSuccessToast(`You're set to be live ${dayLabel}!`);
+
+        // Success - close modal and reset all state
+        resetGoLiveState();
       } else {
+        // Failure - keep modal open so user can retry
         ShowErrorToast(response.error || 'Failed to go online');
       }
     } catch (error) {
+      // Error - keep modal open so user can retry
       console.error('Error going online:', error);
       ShowErrorToast('Failed to go online');
     } finally {
       setLoading(false);
-      setSelectedDay(null);
-      setStartTime(null);
-      setEndTime(null);
+      // Don't clear state in finally - only clear on success
     }
   };
 
@@ -340,6 +355,8 @@ const GoLiveToggle: React.FC = () => {
       ShowErrorToast('Failed to go offline');
     } finally {
       setLoading(false);
+      // Always reset go-live state to prevent stale data on next toggle
+      resetGoLiveState();
     }
   };
 
@@ -432,23 +449,29 @@ const GoLiveToggle: React.FC = () => {
         animationType="slide"
         onRequestClose={handleCancelFlow}
       >
-        <Pressable
-          style={styles.timePickerModalOverlay}
-          onPress={handleCancelFlow}
-        >
-          <View
-            style={styles.timeConfirmContent}
-            onStartShouldSetResponder={() => true}
-          >
+        <View style={styles.timePickerModalOverlay}>
+          {/* Backdrop - tapping here dismisses the modal */}
+          <TouchableWithoutFeedback onPress={handleCancelFlow}>
+            <View style={styles.modalBackdrop} />
+          </TouchableWithoutFeedback>
+
+          {/* Content - touches work normally on children */}
+          <View style={styles.timeConfirmContent}>
             <View style={styles.timePickerModalHeader}>
-              <Pressable onPress={handleCancelFlow}>
-                <Text style={styles.timePickerModalCancel}>Cancel</Text>
+              <Pressable onPress={handleCancelFlow} disabled={loading}>
+                <Text style={[styles.timePickerModalCancel, loading && styles.disabledText]}>
+                  Cancel
+                </Text>
               </Pressable>
               <Text style={styles.timePickerModalTitle}>
                 {selectedDay === 'today' ? "Today's" : "Tomorrow's"} Hours
               </Text>
-              <Pressable onPress={handleConfirmGoLive}>
-                <Text style={styles.timePickerModalDone}>Confirm</Text>
+              <Pressable onPress={handleConfirmGoLive} disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#C75B12" />
+                ) : (
+                  <Text style={styles.timePickerModalDone}>Confirm</Text>
+                )}
               </Pressable>
             </View>
 
@@ -456,6 +479,7 @@ const GoLiveToggle: React.FC = () => {
               <TouchableOpacity
                 style={styles.timeBlock}
                 onPress={() => handleTimePress('start')}
+                disabled={loading}
               >
                 <Text style={styles.timeLabel}>Start</Text>
                 <Text style={styles.timeValue}>{formatDisplayTime(startTime)}</Text>
@@ -466,6 +490,7 @@ const GoLiveToggle: React.FC = () => {
               <TouchableOpacity
                 style={styles.timeBlock}
                 onPress={() => handleTimePress('end')}
+                disabled={loading}
               >
                 <Text style={styles.timeLabel}>End</Text>
                 <Text style={styles.timeValue}>{formatDisplayTime(endTime)}</Text>
@@ -474,7 +499,7 @@ const GoLiveToggle: React.FC = () => {
 
             <Text style={styles.timeHint}>Tap times to adjust</Text>
           </View>
-        </Pressable>
+        </View>
       </Modal>
 
       {/* Time Picker Modal (for editing individual time) */}
