@@ -132,8 +132,10 @@ const GoLiveToggle: React.FC = () => {
 
         if (todayOverride && todayOverride.end_time) {
           // Check if current time is still within the override window
+          // Times are stored in HH:mm format in the user's local timezone
           const now = moment();
-          const endTimeMoment = moment(todayOverride.end_time, 'HH:mm');
+          // Parse end_time as today's date with that time (in local timezone)
+          const endTimeMoment = moment(`${today} ${todayOverride.end_time}`, 'YYYY-MM-DD HH:mm');
 
           if (now.isBefore(endTimeMoment)) {
             setIsOnline(true);
