@@ -30,8 +30,8 @@ export const styles = StyleSheet.create({
   },
   missingImgRight: {
     width: '55%',
-    aspectRatio: 1,
-    borderRadius: 150,
+    aspectRatio: 0.85,
+    borderRadius: 10,
     resizeMode: 'cover',
   },
   missingSubheading: {
