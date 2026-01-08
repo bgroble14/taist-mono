@@ -228,22 +228,14 @@ class ChefConfirmationReminderService
                 continue; // Already confirmed/modified/cancelled
             }
 
-            // Check if we're within the reminder window (around 24 hours before)
-            // We want to send at roughly the same time today as their scheduled start tomorrow
-            $tomorrowStartDateTime = strtotime($tomorrowDate . ' ' . $scheduledStart);
-            $reminderTime = $tomorrowStartDateTime - (24 * 60 * 60); // 24 hours before
-            $now = time();
-
-            // Send reminder if we're within 30 minutes of the reminder time
-            // This gives a wider window for cron job execution
-            if (abs($now - $reminderTime) <= 1800) { // 30 minute window
-                $remindersToSend[] = [
-                    'chef_id' => $chef->id,
-                    'tomorrow_date' => $tomorrowDate,
-                    'scheduled_start' => $scheduledStart,
-                    'scheduled_end' => $scheduledEnd,
-                ];
-            }
+            // Send reminder anytime today for chefs scheduled tomorrow
+            // The 12-hour cooldown in sendConfirmationReminder() prevents duplicate sends
+            $remindersToSend[] = [
+                'chef_id' => $chef->id,
+                'tomorrow_date' => $tomorrowDate,
+                'scheduled_start' => $scheduledStart,
+                'scheduled_end' => $scheduledEnd,
+            ];
         }
 
         return $remindersToSend;
