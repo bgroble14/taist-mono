@@ -42,7 +42,7 @@ class ChefOnTheWayNotification extends Notification
     {
         return [
             'title' => 'Your chef is on the way!',
-            'body' => 'Your chef is on the way to deliver your order!',
+            'body' => 'Your chef will arrive soon.',
             'image' => $notifiable->photo ?? 'N/A',
             'fcm_token' => $notifiable->fcm_token,
             'user_id' => $notifiable->id,
@@ -61,11 +61,11 @@ class ChefOnTheWayNotification extends Notification
     {
         return [
             'title' => 'Your chef is on the way!',
-            'body' => 'Your chef is on the way to deliver your order!',
+            'body' => 'Your chef will arrive soon.',
             'data' => [
                 'order_id' => (string)$this->order->id,
                 'role' => 'user',
-                'body' => 'Your chef is on the way to deliver your order!',
+                'body' => 'Your chef will arrive soon.',
             ],
         ];
     }

@@ -42,7 +42,7 @@ class OrderReadyNotification extends Notification
     {
         return [
             'title' => 'Order Ready',
-            'body' => 'Your order is ready for pickup!',
+            'body' => 'Review your chef to tell them how they did!',
             'image' => $notifiable->photo ?? 'N/A',
             'fcm_token' => $notifiable->fcm_token,
             'user_id' => $notifiable->id,
@@ -61,11 +61,11 @@ class OrderReadyNotification extends Notification
     {
         return [
             'title' => 'Order Ready',
-            'body' => 'Your order is ready for pickup!',
+            'body' => 'Review your chef to tell them how they did!',
             'data' => [
                 'order_id' => (string)$this->order->id,
                 'role' => 'user',
-                'body' => 'Your order is ready for pickup!',
+                'body' => 'Review your chef to tell them how they did!',
             ],
         ];
     }
