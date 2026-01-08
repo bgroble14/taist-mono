@@ -189,4 +189,69 @@ class TimezoneHelper
     {
         return self::$defaultTimezone;
     }
+
+    /**
+     * Check if a timezone string is valid
+     *
+     * @param string|null $timezone IANA timezone identifier (e.g., 'America/Chicago')
+     * @return bool
+     */
+    public static function isValidTimezone(?string $timezone): bool
+    {
+        if (empty($timezone)) {
+            return false;
+        }
+
+        try {
+            new DateTimeZone($timezone);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get today's date (YYYY-MM-DD) in a specific timezone
+     *
+     * @param string|null $timezone IANA timezone identifier (e.g., 'America/Chicago')
+     *                              If invalid or null, falls back to default timezone
+     * @return string Date in YYYY-MM-DD format
+     */
+    public static function getTodayInTimezone(?string $timezone): string
+    {
+        $tz = self::isValidTimezone($timezone) ? $timezone : self::$defaultTimezone;
+
+        try {
+            $dateTime = new DateTime('now', new DateTimeZone($tz));
+            return $dateTime->format('Y-m-d');
+        } catch (Exception $e) {
+            Log::error('TimezoneHelper::getTodayInTimezone failed', [
+                'timezone' => $timezone,
+                'error' => $e->getMessage()
+            ]);
+            // Ultimate fallback - use server timezone
+            return date('Y-m-d');
+        }
+    }
+
+    /**
+     * Get current timestamp in a specific timezone
+     *
+     * @param string|null $timezone IANA timezone identifier
+     * @return DateTime
+     */
+    public static function getNowInTimezone(?string $timezone): DateTime
+    {
+        $tz = self::isValidTimezone($timezone) ? $timezone : self::$defaultTimezone;
+
+        try {
+            return new DateTime('now', new DateTimeZone($tz));
+        } catch (Exception $e) {
+            Log::error('TimezoneHelper::getNowInTimezone failed', [
+                'timezone' => $timezone,
+                'error' => $e->getMessage()
+            ]);
+            return new DateTime('now', new DateTimeZone(self::$defaultTimezone));
+        }
+    }
 }

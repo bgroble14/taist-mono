@@ -680,24 +680,40 @@ class MapiController extends Controller
             ]);
         }
 
-        // Validate date is within 0-36 hours from now (per requirements)
-        $now = time();
-        $maxTime = $now + (36 * 60 * 60); // 36 hours from now
-        $overrideDateStart = strtotime($overrideDate . ' 00:00:00');
-        $overrideDateEnd = strtotime($overrideDate . ' 23:59:59');
+        // Get client timezone (for validation in their local time)
+        $clientTimezone = $request->input('timezone');
+        $timezone = \App\Helpers\TimezoneHelper::isValidTimezone($clientTimezone)
+            ? $clientTimezone
+            : \App\Helpers\TimezoneHelper::getDefaultTimezone();
 
-        if ($overrideDateEnd < $now) {
-            return response()->json([
-                'success' => 0,
-                'error' => 'Cannot set override for past dates'
-            ]);
-        }
+        // Get "today" and "tomorrow" in client's timezone for validation
+        $clientToday = \App\Helpers\TimezoneHelper::getTodayInTimezone($timezone);
+        $clientNow = \App\Helpers\TimezoneHelper::getNowInTimezone($timezone);
+        $clientTomorrow = (clone $clientNow)->modify('+1 day')->format('Y-m-d');
 
-        if ($overrideDateStart > $maxTime) {
-            return response()->json([
-                'success' => 0,
-                'error' => 'Can only set overrides for dates within next 36 hours (today/tomorrow)'
-            ]);
+        // Validate date is today or tomorrow in client's timezone
+        if ($overrideDate !== $clientToday && $overrideDate !== $clientTomorrow) {
+            // Also check if it's "yesterday" in UTC but still "today" for them (edge case)
+            // or allow if within reasonable range (36 hours from their now)
+            $overrideDateObj = new \DateTime($overrideDate, new \DateTimeZone($timezone));
+            $clientNowReset = \App\Helpers\TimezoneHelper::getNowInTimezone($timezone);
+            $maxDate = $clientNowReset->modify('+36 hours');
+
+            if ($overrideDateObj > $maxDate) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Can only set overrides for today or tomorrow'
+                ]);
+            }
+
+            // Check if date is in the past (before today in client timezone)
+            $todayStart = new \DateTime($clientToday, new \DateTimeZone($timezone));
+            if ($overrideDateObj < $todayStart) {
+                return response()->json([
+                    'success' => 0,
+                    'error' => 'Cannot set override for past dates'
+                ]);
+            }
         }
 
         $startTime = $request->input('start_time');
@@ -902,8 +918,9 @@ class MapiController extends Controller
         $now = time();
         $minimumOrderTime = $now + (3 * 60 * 60);
 
-        // Check if the requested date is today
-        $todayDateOnly = date('Y-m-d', $now);
+        // Use client timezone to determine if requested date is "today"
+        $clientTimezone = $request->input('timezone');
+        $todayDateOnly = \App\Helpers\TimezoneHelper::getTodayInTimezone($clientTimezone);
         $requestedDateOnly = date('Y-m-d', $dateTimestamp);
         $isRequestedDateToday = ($requestedDateOnly === $todayDateOnly);
 
@@ -3389,7 +3406,9 @@ Write only the review text:";
                 ->keyBy('chef_id');
 
             $dataArray = $data instanceof \Illuminate\Support\Collection ? $data->all() : $data;
-            $today = date('Y-m-d');
+            // Use client timezone to determine "today" (for Go Live requirement)
+            $clientTimezone = $request->input('timezone');
+            $today = \App\Helpers\TimezoneHelper::getTodayInTimezone($clientTimezone);
             $data = array_values(array_filter($dataArray, function($chef) use ($dateString, $checkTime, $overrides, $today) {
                 $override = $overrides->get($chef->id);
 

@@ -31,6 +31,15 @@ const getPickerBaseDate = () => {
 // Day name mapping for weekly schedule lookup
 const DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saterday'] as const;
 
+// Get device timezone (IANA format, e.g., 'America/Chicago')
+const getDeviceTimezone = (): string => {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  } catch {
+    return 'America/Chicago'; // Fallback
+  }
+};
+
 // Helper to parse time value from chef profile (can be HH:MM string or timestamp)
 const parseTimeValue = (value: string | number | undefined): { hours: number; minutes: number } | null => {
   if (!value || value === '' || value === 0) return null;
@@ -283,6 +292,7 @@ const GoLiveToggle: React.FC = () => {
         end_time: endTimeStr,
         status: 'confirmed',
         source: 'manual_toggle',
+        timezone: getDeviceTimezone(),
       });
 
       if (response.success === 1) {

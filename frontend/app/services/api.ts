@@ -331,6 +331,7 @@ export const GetSearchChefAPI = async (
     category_id?: number;
     time_slot?: number;
     timezone_gap?: number;
+    timezone?: string; // IANA timezone (e.g., 'America/Chicago')
     user_id: number;
   },
   dispatch?: any
@@ -837,6 +838,7 @@ export const SetAvailabilityOverrideAPI = async (params: {
   end_time?: string;
   status?: string;
   source?: string;
+  timezone?: string;
 }) => {
   var response = await POSTAPICALL("set_availability_override", params);
   return response;
@@ -894,11 +896,15 @@ export const CompleteChefQuizAPI = async (params: {
  */
 export const GetAvailableTimeslotsAPI = async (
   chef_id: number,
-  date: string
+  date: string,
+  timezone?: string
 ) => {
+  // Get device timezone if not provided
+  const tz = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   const response = await GETAPICALL('get_available_timeslots', {
     chef_id,
     date,
+    timezone: tz,
   });
   return response;
 };

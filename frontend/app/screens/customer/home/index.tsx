@@ -104,6 +104,8 @@ const Home = () => {
     const category_id = categoryId;
     const time_slot = timeSlotId;
     const timezone_gap = moment().utcOffset() / 60;
+    // Get device timezone (IANA format) for accurate "today" comparison on backend
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     if (showSpinner) {
       setIsDataLoaded(false);
@@ -112,7 +114,7 @@ const Home = () => {
 
     try {
       const searchChefs = await GetSearchChefAPI(
-        { week_day, selected_date, category_id, time_slot, timezone_gap, user_id: self?.id || -1 },
+        { week_day, selected_date, category_id, time_slot, timezone_gap, timezone, user_id: self?.id || -1 },
         dispatch,
       );
 
