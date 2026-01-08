@@ -3301,15 +3301,16 @@ Write only the review text:";
             ->whereRaw('CAST(u.longitude AS DECIMAL(10,6)) BETWEEN ? AND ?', [$minLng, $maxLng])
             ->whereRaw($whereDayTime)
             // Precise Haversine calculation for remaining candidates
+            // Use LEAST/GREATEST to clamp acos input to [-1,1] to avoid NULL from floating point precision issues
             ->whereRaw("
-            (3959 * acos(cos(radians(?)) * cos(radians(u.latitude)) * cos(radians(u.longitude) - radians(?)) + sin(radians(?)) * sin(radians(u.latitude)))) <= ?
+            (3959 * acos(LEAST(1, GREATEST(-1, cos(radians(?)) * cos(radians(u.latitude)) * cos(radians(u.longitude) - radians(?)) + sin(radians(?)) * sin(radians(u.latitude)))))) <= ?
         ", [$userLat, $userLng, $userLat, $radius])
             ->select([
                 'u.*',
                 'a.bio as bio',
                 'a.minimum_order_amount as minimum_order_amount',
                 'a.max_order_distance as max_order_distance',
-                DB::raw("(3959 * acos(cos(radians($userLat)) * cos(radians(u.latitude)) * cos(radians(u.longitude) - radians($userLng)) + sin(radians($userLat)) * sin(radians(u.latitude)))) AS distance")
+                DB::raw("(3959 * acos(LEAST(1, GREATEST(-1, cos(radians($userLat)) * cos(radians(u.latitude)) * cos(radians(u.longitude) - radians($userLng)) + sin(radians($userLat)) * sin(radians(u.latitude)))))) AS distance")
             ])
             ->orderBy('distance', 'asc')
             ->get();
