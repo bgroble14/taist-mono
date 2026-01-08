@@ -1,5 +1,5 @@
 import { FAB, TextInput } from '@react-native-material/core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -68,6 +68,7 @@ const OrderDetail = () => {
   const [paymentMethod, onChangePaymentMethod] = useState<IPayment>();
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     console.log(params);
@@ -284,11 +285,36 @@ console.log("order detail useeffect....");
       <Container
         backMode
         title={getFormattedDateInTimezone((orderInfo?.order_date ?? 0) * 1000, orderInfo?.timezone)}>
-        <ScrollView contentContainerStyle={styles.pageView}>
+        <ScrollView ref={scrollViewRef} contentContainerStyle={styles.pageView}>
           <View style={{ alignItems: 'center' }}>
             <StyledProfileImage url={getImageURL(chefInfo?.photo)} size={160} />
             <Text style={styles.chefName}>{`${chefInfo?.first_name} `}</Text>
           </View>
+
+          {orderInfo?.status == 3 && (
+            <TouchableOpacity
+              style={{
+                width: '100%',
+                backgroundColor: '#fa4616',
+                borderRadius: 12,
+                padding: 16,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+              onPress={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+            >
+              <View>
+                <Text style={{ color: '#ffffff', fontSize: 18, fontWeight: '700' }}>
+                  Leave a Tip & Review
+                </Text>
+                <Text style={{ color: '#ffffff', fontSize: 14, opacity: 0.9 }}>
+                  Thank {chefInfo?.first_name} for your meal
+                </Text>
+              </View>
+              <FontAwesomeIcon icon={faAngleRight} size={24} color="#ffffff" />
+            </TouchableOpacity>
+          )}
 
           <Text style={styles.title}>Order Details</Text>
           <View style={styles.card}>
