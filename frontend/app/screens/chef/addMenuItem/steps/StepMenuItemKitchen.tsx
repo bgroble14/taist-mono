@@ -162,8 +162,9 @@ export const StepMenuItemKitchen: React.FC<StepMenuItemKitchenProps> = ({
               >
                 <Text
                   style={isSelected ? styles.tabText : styles.tabDisabledText}
+                  textBreakStrategy="simple"
                 >
-                  {ct.value}
+                  {ct.value}{' '}
                 </Text>
               </TouchableOpacity>
             );
