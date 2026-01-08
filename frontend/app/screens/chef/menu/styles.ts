@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
   },
   missingImgLeft: {
     width: '55%',
-    aspectRatio: 0.85,
+    aspectRatio: 0.7,
     borderRadius: 10,
     resizeMode: 'cover',
   },
