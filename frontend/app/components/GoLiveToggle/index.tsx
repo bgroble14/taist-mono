@@ -714,7 +714,7 @@ const GoLiveToggle: React.FC = () => {
                   styles.changeHoursButtonText,
                   isOnline && styles.changeHoursButtonTextSet,
                 ]}>
-                  {isOnline ? 'Change\nToday ✓' : 'Change\nToday'}
+                  Change{'\n'}<Text style={styles.changeHoursButtonTextBold}>Today</Text>
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -731,7 +731,7 @@ const GoLiveToggle: React.FC = () => {
                   styles.changeHoursButtonText,
                   hasTomorrowOverride && styles.changeHoursButtonTextSet,
                 ]}>
-                  {hasTomorrowOverride ? 'Change\nTomorrow ✓' : 'Change\nTomorrow'}
+                  Change{'\n'}<Text style={styles.changeHoursButtonTextBold}>Tomorrow</Text>
                 </Text>
               </TouchableOpacity>
             </View>
