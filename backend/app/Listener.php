@@ -161,6 +161,10 @@ class Listener extends Authenticatable
         // Handle both Unix timestamp and date string
         $timestamp = is_numeric($dateTime) ? (int)$dateTime : strtotime($dateTime);
         $dayOfWeek = strtolower(date('l', $timestamp));
+        // Database column is misspelled as "saterday" - map to match
+        if ($dayOfWeek === 'saturday') {
+            $dayOfWeek = 'saterday';
+        }
 
         // Get the chef's availability record
         $availability = \App\Models\Availabilities::where('user_id', $this->id)->first();
@@ -242,6 +246,11 @@ class Listener extends Authenticatable
      */
     private function hasScheduleForDay($dayOfWeek)
     {
+        // Database column is misspelled as "saterday" - map to match
+        if ($dayOfWeek === 'saturday') {
+            $dayOfWeek = 'saterday';
+        }
+
         // Get the chef's availability record
         $availability = \App\Models\Availabilities::where('user_id', $this->id)->first();
 
