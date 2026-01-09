@@ -272,6 +272,16 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: AppColors.textSecondary,
     textAlign: 'center',
+    paddingBottom: Spacing.md,
+  },
+  notAvailableButton: {
+    paddingVertical: Spacing.md,
     paddingBottom: Spacing.lg,
+    alignItems: 'center',
+  },
+  notAvailableButtonText: {
+    fontSize: 15,
+    color: AppColors.textSecondary,
+    fontWeight: '500',
   },
 });

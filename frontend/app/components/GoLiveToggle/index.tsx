@@ -394,6 +394,43 @@ const GoLiveToggle: React.FC = () => {
     }
   };
 
+  // Mark day as not available (from time confirmation modal)
+  const handleNotAvailable = async () => {
+    if (!selectedDay) return;
+
+    setLoading(true);
+    try {
+      const overrideDate = selectedDay === 'today'
+        ? moment().format('YYYY-MM-DD')
+        : moment().add(1, 'day').format('YYYY-MM-DD');
+
+      const response = await SetAvailabilityOverrideAPI({
+        override_date: overrideDate,
+        status: 'cancelled',
+        source: 'manual_toggle',
+      });
+
+      if (response.success === 1) {
+        if (selectedDay === 'today') {
+          setIsOnline(false);
+        }
+        if (selectedDay === 'tomorrow') {
+          setHasTomorrowOverride(false);
+        }
+        const dayLabel = selectedDay === 'today' ? 'today' : 'tomorrow';
+        ShowSuccessToast(`Marked as not available ${dayLabel}`);
+        resetGoLiveState();
+      } else {
+        ShowErrorToast(response.error || 'Failed to update availability');
+      }
+    } catch (error) {
+      console.error('Error setting not available:', error);
+      ShowErrorToast('Failed to update availability');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Format time for display
   const formatDisplayTime = (date: Date | null) => {
     if (!date) return '--:--';
@@ -566,6 +603,14 @@ const GoLiveToggle: React.FC = () => {
                 </View>
 
                 <Text style={styles.timeHint}>Tap times to adjust</Text>
+
+                <TouchableOpacity
+                  style={styles.notAvailableButton}
+                  onPress={handleNotAvailable}
+                  disabled={loading}
+                >
+                  <Text style={styles.notAvailableButtonText}>Not Available</Text>
+                </TouchableOpacity>
               </>
             )}
           </View>
