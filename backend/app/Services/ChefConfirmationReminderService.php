@@ -87,7 +87,7 @@ class ChefConfirmationReminderService
         $timeRange = date('g:i A', strtotime($scheduledStart)) . ' - ' . date('g:i A', strtotime($scheduledEnd));
 
         $title = "Confirm tomorrow's availability";
-        $body = "You're scheduled for {$tomorrowFormatted} from {$timeRange}. Tap the Live/Off button to check in.";
+        $body = "You're scheduled for {$tomorrowFormatted} from {$timeRange}. Tap the Live/Off button to check in and receive same-day orders.";
 
         $sent = false;
 
@@ -168,7 +168,7 @@ class ChefConfirmationReminderService
      */
     private function sendSmsReminder($chef, $tomorrowFormatted, $timeRange)
     {
-        $message = "Taist: You're scheduled {$tomorrowFormatted}, {$timeRange}. Open app and tap Live/Off button to check in.";
+        $message = "Taist: You're scheduled {$tomorrowFormatted}, {$timeRange}. Tap Live/Off button to check in - required for same-day orders.";
 
         $result = $this->twilioService->sendSMS(
             $chef->phone,
