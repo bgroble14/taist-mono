@@ -686,3 +686,197 @@ Verify `SendOrderReminders` finds orders correctly using `order_timestamp`.
 **Simple rule:**
 - Human-readable stuff → use strings
 - Computer scheduling stuff → use timestamp
+
+---
+
+## Additional DateTime Areas (Beyond Orders)
+
+### Area 1: Home Screen Chef Filtering (`getSearchChefs`)
+
+**File:** `backend/app/Http/Controllers/MapiController.php` (lines 3128-3480)
+
+**Current state:** Uses complex SQL with `from_unixtime(monday_start)` to filter chefs by availability. Assumes weekly schedule times (`monday_start`, `monday_end`, etc.) are Unix timestamps.
+
+**Problem:** Frontend NOW sends "HH:mm" strings when saving weekly schedule! The SQL would break for new chefs.
+
+**Example SQL (line 3189):**
+```sql
+HOUR(convert_tz(from_unixtime(monday_start), '+00:00', time_format(...)))
+```
+
+This expects `monday_start` to be a Unix timestamp like `1704110400`, but new data is `"09:00"`.
+
+**Impact:** HIGH - Home screen filtering is broken for chefs with string-format availability.
+
+**Fix needed:** Rewrite `getSearchChefs` to handle string time format:
+```sql
+-- Instead of from_unixtime(), parse time directly
+HOUR(monday_start) >= 5 AND HOUR(monday_start) < 11
+-- Or with string format:
+TIME(monday_start) >= '05:00' AND TIME(monday_start) < '11:00'
+```
+
+---
+
+### Area 2: Chef Weekly Schedule (tbl_availabilities)
+
+**Files:**
+- `frontend/app/screens/chef/profile/index.tsx` (line 336-341)
+- `backend/database/taist-schema.sql` (line 219-232)
+
+**Database schema:**
+```sql
+CREATE TABLE `tbl_availabilities` (
+  `monday_start` varchar(50) DEFAULT NULL,  -- Can be "09:00" or "1704110400"
+  `monday_end` varchar(50) DEFAULT NULL,
+  -- ... same for all days
+);
+```
+
+**Frontend (NEW format - line 336-341):**
+```typescript
+const getTimeString = (date: Date | undefined): string => {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;  // Returns "09:00"
+};
+```
+
+**Problem:** Mixed data in database - old chefs have timestamps, new chefs have "HH:mm" strings.
+
+**Impact:** MEDIUM - Frontend handles both formats (see `parseTimeValue` in GoLiveToggle), but backend SQL doesn't.
+
+---
+
+### Area 3: GoLiveToggle / Availability Overrides (ALREADY CORRECT)
+
+**Files:**
+- `frontend/app/components/GoLiveToggle/index.tsx`
+- `backend/app/Models/AvailabilityOverride.php`
+
+**Status:** Already using string format correctly:
+- `override_date`: "YYYY-MM-DD" string
+- `start_time`: "HH:mm" string
+- `end_time`: "HH:mm" string
+
+**No changes needed.**
+
+---
+
+### Area 4: Confirmation Reminders (MOSTLY CORRECT)
+
+**Files:**
+- `backend/app/Services/ChefConfirmationReminderService.php`
+- `backend/app/Console/Commands/SendConfirmationReminders.php`
+
+**Status:** Uses chef's timezone correctly via `TimezoneHelper::getTimezoneForState()`.
+
+**Potential issue (line 246):**
+```php
+$tomorrowStart = Carbon::parse("$tomorrowDate $scheduledStart", $chefTimezone);
+```
+
+This works if `$scheduledStart` is "14:00" but may fail if it's a timestamp like "1704110400".
+
+**Fix needed:** Add format detection like frontend does:
+```php
+// Handle both formats
+if (is_numeric($scheduledStart)) {
+    $startTime = date('H:i', (int)$scheduledStart);
+} else {
+    $startTime = $scheduledStart;  // Already "HH:mm"
+}
+```
+
+---
+
+## Phase 6: Weekly Schedule String Conversion (NEW)
+
+This is a separate but related effort to convert chef weekly schedules from timestamps to strings.
+
+### Task 6.1: Update getSearchChefs SQL
+
+**File:** `backend/app/Http/Controllers/MapiController.php`
+
+The massive SQL query (lines 3184-3288) needs to handle string time format:
+
+**Option A:** Detect format and branch SQL
+```php
+// Check first chef's format to determine query type
+$sampleChef = Availabilities::whereNotNull('monday_start')->first();
+$useStringFormat = !is_numeric($sampleChef->monday_start ?? '0');
+```
+
+**Option B:** Normalize all data to strings first (recommended)
+- Run migration to convert all timestamp times to "HH:mm" strings
+- Then simplify SQL to assume string format
+
+### Task 6.2: Migrate Weekly Schedule Data
+
+**File to create:** `backend/database/migrations/XXXX_convert_availability_times_to_strings.php`
+
+```php
+public function up()
+{
+    // Convert all timestamp times to HH:mm strings
+    $availabilities = Availabilities::all();
+    foreach ($availabilities as $avail) {
+        foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saterday', 'sunday'] as $day) {
+            $startField = "{$day}_start";
+            $endField = "{$day}_end";
+
+            if ($avail->$startField && is_numeric($avail->$startField)) {
+                $avail->$startField = date('H:i', (int)$avail->$startField);
+            }
+            if ($avail->$endField && is_numeric($avail->$endField)) {
+                $avail->$endField = date('H:i', (int)$avail->$endField);
+            }
+        }
+        $avail->save();
+    }
+}
+```
+
+### Task 6.3: Simplify getSearchChefs SQL
+
+After migration, replace complex `from_unixtime` SQL with simple string comparison:
+
+```php
+// Old (100+ characters per line):
+$whereDayTime .= " AND HOUR(convert_tz(from_unixtime(monday_start), '+00:00', ...)) >= 5";
+
+// New (simple string comparison):
+$whereDayTime .= " AND TIME(monday_start) >= '05:00' AND TIME(monday_start) < '11:00'";
+```
+
+### Task 6.4: Update ChefConfirmationReminderService
+
+Add format detection to handle both legacy timestamps and new strings.
+
+---
+
+## Complete Task Summary
+
+### Order DateTime (Phase 1-5)
+| Task | Status | Priority |
+|------|--------|----------|
+| Add order_date_new, order_time, order_timezone, order_timestamp columns | Pending | High |
+| Backfill existing orders | Pending | High |
+| Update createOrder API | Pending | High |
+| Update isAvailableForOrder | Pending | High |
+| Update SendOrderReminders | Pending | High |
+| Update frontend checkout | Pending | High |
+
+### Weekly Schedule (Phase 6)
+| Task | Status | Priority |
+|------|--------|----------|
+| Migrate availability times to strings | Pending | Medium |
+| Update getSearchChefs SQL | Pending | Medium |
+| Update ChefConfirmationReminderService | Pending | Low |
+
+### Already Correct (No Changes Needed)
+| Area | Status |
+|------|--------|
+| GoLiveToggle / Availability Overrides | Correct |
+| Frontend weekly schedule saving | Correct |
+| TimezoneHelper | Correct |
