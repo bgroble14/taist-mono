@@ -2380,13 +2380,19 @@ Write only the review text:";
             return response()->json(['success' => 0, 'error' => 'Chef not found']);
         }
 
+        // Get client timezone to match timeslots API logic
+        $clientTimezone = $request->input('timezone');
+
         // Use the override-aware availability check
-        if (!$chef->isAvailableForOrder($orderDate)) {
+        if (!$chef->isAvailableForOrder($orderDate, $clientTimezone)) {
             $orderTime = date('H:i', $orderTimestamp);
             $dayOfWeek = date('l', $orderTimestamp);
+            $clientToday = \App\Helpers\TimezoneHelper::getTodayInTimezone($clientTimezone);
             \Log::warning("[CHEF_UNAVAILABLE] Chef {$chef->id} not available for order. " .
                 "Requested: {$orderDateOnly} ({$dayOfWeek}) at {$orderTime}, " .
-                "Today: {$todayDateOnly}, " .
+                "Today (client TZ): {$clientToday}, " .
+                "Today (UTC): {$todayDateOnly}, " .
+                "Client TZ: " . ($clientTimezone ?: 'null') . ", " .
                 "Raw orderDate: {$orderDate}");
             return response()->json([
                 'success' => 0,

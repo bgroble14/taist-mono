@@ -113,7 +113,7 @@ class Listener extends Authenticatable
      * @param string $orderDate The order date/time
      * @return bool
      */
-    public function isAvailableForOrder($orderDate)
+    public function isAvailableForOrder($orderDate, $timezone = null)
     {
         // Handle both Unix timestamp (number) and date string formats
         $orderTimestamp = is_numeric($orderDate) ? (int)$orderDate : strtotime($orderDate);
@@ -125,7 +125,9 @@ class Listener extends Authenticatable
 
         $orderDateOnly = date('Y-m-d', $orderTimestamp);
         $orderTime = date('H:i', $orderTimestamp);
-        $today = date('Y-m-d');
+
+        // Use client timezone to determine "today" (matches getAvailableTimeslots logic)
+        $today = \App\Helpers\TimezoneHelper::getTodayInTimezone($timezone);
 
         // Check for override first
         $override = \App\Models\AvailabilityOverride::forChef($this->id)
