@@ -105,7 +105,7 @@ const Cart = () => {
           <EmptyListView
             img={require('../../../assets/images/orders_empty.png')}
             title="Your cart is empty"
-            subTitle="Add items from chefs to get started"
+            subTitle="Add items from a chef to fill your cart."
           />
         </Container>
       </SafeAreaView>
