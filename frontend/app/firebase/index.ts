@@ -20,6 +20,11 @@ const isChefActivationNotification = (remoteMessage: any): boolean => {
   return title === "Chef Account Activated";
 };
 
+// Helper function to check if notification is availability confirmation reminder
+const isAvailabilityConfirmationNotification = (remoteMessage: any): boolean => {
+  return remoteMessage?.data?.type === 'availability_confirmation';
+};
+
 // Helper function to refresh user data from the server
 // Called when chef receives activation notification to immediately update UI
 const refreshUserData = async () => {
@@ -352,6 +357,13 @@ export const firebaseActions = () => {
 // Helper function to handle notification navigation
 const handleNotificationNavigation = (remoteMessage: any) => {
   try {
+    // Handle availability confirmation notifications - navigate to chef home
+    if (isAvailabilityConfirmationNotification(remoteMessage)) {
+      console.log('>>>Availability confirmation notification - navigating to chef home>>>', JSON.stringify(remoteMessage));
+      navigate.toChef.home();
+      return;
+    }
+
     if (remoteMessage?.data?.role == 'chef') {
       const body = remoteMessage.data?.body;
       const parsedBody = (() => {
@@ -367,7 +379,7 @@ const handleNotificationNavigation = (remoteMessage: any) => {
           return body; // Return the original body if parsing fails
         }
       })();
-      
+
       console.log('>>>Chef Role notification navigation>>>', JSON.stringify(remoteMessage));
       navigate.toChef.orderDetailFromNotification({
         orderId: (remoteMessage?.data?.order_id || '0').toString(),
