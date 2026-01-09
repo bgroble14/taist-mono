@@ -6,8 +6,10 @@ use App\Listener;
 use App\Models\Availabilities;
 use App\Models\AvailabilityOverride;
 use App\Notification;
+use App\Helpers\TimezoneHelper;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Carbon\Carbon;
 use Exception;
 
 /**
@@ -191,11 +193,6 @@ class ChefConfirmationReminderService
      */
     public function findChefsNeedingReminders()
     {
-        $currentTime = now();
-        $tomorrow = $currentTime->copy()->addDay();
-        $tomorrowDate = $tomorrow->format('Y-m-d');
-        $tomorrowDayOfWeek = strtolower($tomorrow->format('l')); // monday, tuesday, etc.
-
         // Get all availabilities
         $availabilities = app(Availabilities::class)->get();
 
@@ -208,9 +205,17 @@ class ChefConfirmationReminderService
                 continue;
             }
 
-            // Check if they have availability for tomorrow in their weekly schedule
-            $startField = $tomorrowDayOfWeek . '_start';
-            $endField = $tomorrowDayOfWeek . '_end';
+            // Get chef's timezone based on their state
+            $chefTimezone = TimezoneHelper::getTimezoneForState($chef->state);
+            $chefNow = new Carbon('now', $chefTimezone);
+            $chefTomorrow = $chefNow->copy()->addDay();
+            $tomorrowDate = $chefTomorrow->format('Y-m-d');
+            $tomorrowDayOfWeek = strtolower($chefTomorrow->format('l')); // monday, tuesday, etc.
+
+            // Handle typo in database column name (saterday instead of saturday)
+            $dayField = ($tomorrowDayOfWeek === 'saturday') ? 'saterday' : $tomorrowDayOfWeek;
+            $startField = $dayField . '_start';
+            $endField = $dayField . '_end';
 
             $scheduledStart = $availability->$startField;
             $scheduledEnd = $availability->$endField;
@@ -229,14 +234,14 @@ class ChefConfirmationReminderService
             }
 
             // Check if we're within the reminder window (around 24 hours before)
-            // We want to send at roughly the same time today as their scheduled start tomorrow
-            $tomorrowStartDateTime = strtotime($tomorrowDate . ' ' . $scheduledStart);
-            $reminderTime = $tomorrowStartDateTime - (24 * 60 * 60); // 24 hours before
-            $now = time();
+            // Calculate in chef's local timezone
+            $tomorrowStart = Carbon::parse("$tomorrowDate $scheduledStart", $chefTimezone);
+            $reminderTime = $tomorrowStart->copy()->subDay();
+            $diffSeconds = abs($chefNow->timestamp - $reminderTime->timestamp);
 
             // Send reminder if we're within 30 minutes of the reminder time
             // This gives a wider window for cron job execution
-            if (abs($now - $reminderTime) <= 1800) { // 30 minute window
+            if ($diffSeconds <= 1800) { // 30 minute window
                 $remindersToSend[] = [
                     'chef_id' => $chef->id,
                     'tomorrow_date' => $tomorrowDate,
