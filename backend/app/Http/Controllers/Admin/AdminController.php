@@ -24,6 +24,7 @@ use App\Models\Transactions;
 use App\Models\Zipcodes;
 use App\Models\DiscountCodes;
 use App\Models\DiscountCodeUsage;
+use App\Models\AvailabilityOverride;
 use Kreait\Laravel\Firebase\Facades\Firebase;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Exception\FirebaseException;
@@ -96,8 +97,17 @@ class AdminController extends Controller
         $data['title'] = "Taist - Admin Panel";
         $user = $this->guard()->user();
         $data['user'] = $user;
-        //$data['chefs'] = app(Listener::class)->where(['user_type'=>2, 'is_pending'=>0])->get();
-        $data['chefs'] = app(Listener::class)->where(['user_type'=>2])->with('availability')->get();
+
+        $today = date('Y-m-d');
+        $tomorrow = date('Y-m-d', strtotime('+1 day'));
+
+        $data['chefs'] = app(Listener::class)
+            ->where(['user_type'=>2])
+            ->with(['availability', 'availabilityOverrides' => function($query) use ($today, $tomorrow) {
+                $query->whereIn('override_date', [$today, $tomorrow])
+                      ->orderBy('override_date');
+            }])
+            ->get();
 
         return view("admin.chefs", $data);
     }

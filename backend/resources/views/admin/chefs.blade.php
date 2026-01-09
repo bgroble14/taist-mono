@@ -28,6 +28,7 @@
                   <th>Last Name</th>
                   <th>Status</th>
                   <th>Weekly Availability</th>
+                  <th>Live Overrides</th>
                   <th>Photo</th>
                   <th>Phone</th>
                   <th>Birthday</th>
@@ -91,6 +92,30 @@
                         }
                         ?>
                      </td>
+                     <td style="font-size: 11px; white-space: nowrap;">
+                        <?php
+                        $overrides = $a->availabilityOverrides;
+                        $today = date('Y-m-d');
+                        $tomorrow = date('Y-m-d', strtotime('+1 day'));
+                        if ($overrides && count($overrides) > 0) {
+                           $parts = [];
+                           foreach ($overrides as $override) {
+                              $dateLabel = $override->override_date->format('Y-m-d') === $today ? 'Today' : 'Tomorrow';
+                              if ($override->status === 'cancelled') {
+                                 $parts[] = "<span style='color:#dc3545'><b>{$dateLabel}</b>: Off</span>";
+                              } else {
+                                 $startTime = date('g:ia', strtotime($override->start_time));
+                                 $endTime = date('g:ia', strtotime($override->end_time));
+                                 $statusColor = $override->status === 'confirmed' ? '#28a745' : '#ffc107';
+                                 $parts[] = "<span style='color:{$statusColor}'><b>{$dateLabel}</b>: {$startTime}-{$endTime}</span>";
+                              }
+                           }
+                           echo implode('<br>', $parts);
+                        } else {
+                           echo '<span style="color:#999">None</span>';
+                        }
+                        ?>
+                     </td>
                      <td><?php echo isset($a['photo']) && $a['photo'] != '' ? '<img src="/assets/uploads/images/'.$a['photo'].'" width="80">' : '';?></td>
                      <td><?php echo $a['phone'];?></td>
                      <td class="date" date="<?php echo $a['birthday'];?>"></td>
@@ -128,6 +153,7 @@
                   <th>Last Name</th>
                   <th>Status</th>
                   <th>Weekly Availability</th>
+                  <th>Live Overrides</th>
                   <th>Photo</th>
                   <th>Phone</th>
                   <th>Birthday</th>
