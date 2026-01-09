@@ -96,14 +96,10 @@
                      <td style="font-size: 11px; white-space: nowrap;">
                         <?php
                         $overrides = $a->availabilityOverrides;
-                        $tz = new \DateTimeZone('America/Los_Angeles');
-                        $now = new \DateTime('now', $tz);
-                        $today = $now->format('Y-m-d');
-                        $tomorrow = (clone $now)->modify('+1 day')->format('Y-m-d');
                         if ($overrides && count($overrides) > 0) {
                            $parts = [];
                            foreach ($overrides as $override) {
-                              $dateLabel = $override->override_date->format('Y-m-d') === $today ? 'Today' : 'Tomorrow';
+                              $dateLabel = $override->override_date->format('M j');
                               if ($override->status === 'cancelled') {
                                  $parts[] = "<span style='color:#dc3545'><b>{$dateLabel}</b>: Off</span>";
                               } else {
