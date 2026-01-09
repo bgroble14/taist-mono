@@ -83,6 +83,10 @@ const GoLiveToggle: React.FC = () => {
   // Tomorrow status indicator
   const [hasTomorrowOverride, setHasTomorrowOverride] = useState(false);
 
+  // Store existing override data for pre-populating times
+  const [todayOverrideData, setTodayOverrideData] = useState<{ start_time?: string; end_time?: string } | null>(null);
+  const [tomorrowOverrideData, setTomorrowOverrideData] = useState<{ start_time?: string; end_time?: string } | null>(null);
+
   // Get chef profile from Redux for weekly schedule
   const chefProfile = useSelector((state: RootState) => state.chef.profile);
 
@@ -156,6 +160,10 @@ const GoLiveToggle: React.FC = () => {
           (o: any) => o.override_date === tomorrow && o.status !== 'cancelled'
         );
         setHasTomorrowOverride(!!tomorrowOverride);
+
+        // Store override data for pre-populating times
+        setTodayOverrideData(todayOverride ? { start_time: todayOverride.start_time, end_time: todayOverride.end_time } : null);
+        setTomorrowOverrideData(tomorrowOverride ? { start_time: tomorrowOverride.start_time, end_time: tomorrowOverride.end_time } : null);
       }
     } catch (error) {
       console.error('Error fetching availability status:', error);
@@ -188,10 +196,30 @@ const GoLiveToggle: React.FC = () => {
     setSelectedDay(day);
     setShowDayPicker(false);
 
-    // Get schedule for selected day and pre-fill times
-    const schedule = getScheduleForDay(day);
-
     const baseDate = getPickerBaseDate();
+
+    // Check for existing override times first
+    const existingOverride = day === 'today' ? todayOverrideData : tomorrowOverrideData;
+    if (existingOverride?.start_time && existingOverride?.end_time) {
+      const existingStart = parseTimeValue(existingOverride.start_time);
+      const existingEnd = parseTimeValue(existingOverride.end_time);
+
+      if (existingStart && existingEnd) {
+        const startDate = new Date(baseDate.getTime());
+        startDate.setHours(existingStart.hours, existingStart.minutes, 0, 0);
+
+        const endDate = new Date(baseDate.getTime());
+        endDate.setHours(existingEnd.hours, existingEnd.minutes, 0, 0);
+
+        setStartTime(startDate);
+        setEndTime(endDate);
+        setShowTimeConfirm(true);
+        return;
+      }
+    }
+
+    // Fall back to weekly schedule
+    const schedule = getScheduleForDay(day);
 
     if (schedule.start && schedule.end) {
       // Pre-fill with weekly schedule times
@@ -345,6 +373,10 @@ const GoLiveToggle: React.FC = () => {
         // Only show as "Live" if this is for today
         if (selectedDay === 'today') {
           setIsOnline(true);
+          setTodayOverrideData({ start_time: startTimeStr, end_time: endTimeStr });
+        } else {
+          setHasTomorrowOverride(true);
+          setTomorrowOverrideData({ start_time: startTimeStr, end_time: endTimeStr });
         }
         const dayLabel = selectedDay === 'today' ? 'today' : 'tomorrow';
         ShowSuccessToast(`You're set to be live ${dayLabel}!`);
@@ -380,6 +412,7 @@ const GoLiveToggle: React.FC = () => {
 
       if (response.success === 1) {
         setIsOnline(false);
+        setTodayOverrideData(null);
         ShowSuccessToast('You are now offline');
       } else {
         ShowErrorToast(response.error || 'Failed to go offline');
@@ -413,9 +446,11 @@ const GoLiveToggle: React.FC = () => {
       if (response.success === 1) {
         if (selectedDay === 'today') {
           setIsOnline(false);
+          setTodayOverrideData(null);
         }
         if (selectedDay === 'tomorrow') {
           setHasTomorrowOverride(false);
+          setTomorrowOverrideData(null);
         }
         const dayLabel = selectedDay === 'today' ? 'today' : 'tomorrow';
         ShowSuccessToast(`Marked as not available ${dayLabel}`);
