@@ -1,5 +1,5 @@
 $(function() {	
-    var table = $('#table').DataTable({});
+    var table = $('#table').DataTable({ order: [[0, 'desc']] });
     $('#table').on('click', 'tbody tr', function (e) {
         e.currentTarget.classList.toggle('selected');
     });

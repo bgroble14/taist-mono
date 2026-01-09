@@ -1,5 +1,5 @@
 $(function() {
-    var table = $('#table').DataTable({});
+    var table = $('#table').DataTable({ order: [[0, 'desc']] });
 
     // Default filter to show only "Requested" categories
     table.column(4).search('Requested').draw();

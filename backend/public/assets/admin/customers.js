@@ -1,5 +1,6 @@
 $(function() {	
     var table = $('#table').DataTable({
+        order: [[0, 'desc']],
         initComplete: function () {
             this.api()
                 .columns()

@@ -1,5 +1,5 @@
 $(function() {	
-    $('#table').DataTable({});
+    $('#table').DataTable({ order: [[0, 'desc']] });
     $('#table').on( 'page.dt', function (e) {
         tableEvent()
     });
