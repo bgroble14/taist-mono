@@ -51,8 +51,10 @@ $availability = \App\Models\Availabilities::where('user_id', $chef->id)->first()
 if ($availability) {
     $dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     $dayName = $dayNames[$tomorrowWeekday];
-    $startField = $dayName . '_start';
-    $endField = $dayName . '_end';
+    // Handle typo in database column name (saterday instead of saturday)
+    $dbDayName = ($dayName === 'saturday') ? 'saterday' : $dayName;
+    $startField = $dbDayName . '_start';
+    $endField = $dbDayName . '_end';
 
     $weeklyStart = $availability->$startField;
     $weeklyEnd = $availability->$endField;

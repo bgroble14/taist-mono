@@ -45,8 +45,10 @@ if ($availability) {
     $days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
     foreach ($days as $index => $day) {
-        $startField = $day . '_start';
-        $endField = $day . '_end';
+        // Handle typo in database column name (saterday instead of saturday)
+        $dbDay = ($day === 'saturday') ? 'saterday' : $day;
+        $startField = $dbDay . '_start';
+        $endField = $dbDay . '_end';
 
         $start = $availability->$startField;
         $end = $availability->$endField;
