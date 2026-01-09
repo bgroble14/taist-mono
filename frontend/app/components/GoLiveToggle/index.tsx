@@ -688,7 +688,7 @@ const GoLiveToggle: React.FC = () => {
             style={styles.onlineOptionsContent}
             onStartShouldSetResponder={() => true}
           >
-            <Text style={styles.confirmTitle}>Availability Options</Text>
+            <Text style={styles.confirmTitle}>Same-Day Availability</Text>
 
             {/* Go Offline - Primary CTA */}
             <TouchableOpacity
@@ -714,7 +714,7 @@ const GoLiveToggle: React.FC = () => {
                   styles.changeHoursButtonText,
                   isOnline && styles.changeHoursButtonTextSet,
                 ]}>
-                  {isOnline ? 'Change Today ✓' : 'Change Today'}
+                  {isOnline ? 'Today ✓' : 'Today'}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -731,7 +731,7 @@ const GoLiveToggle: React.FC = () => {
                   styles.changeHoursButtonText,
                   hasTomorrowOverride && styles.changeHoursButtonTextSet,
                 ]}>
-                  {hasTomorrowOverride ? 'Change Tomorrow ✓' : 'Change Tomorrow'}
+                  {hasTomorrowOverride ? 'Tomorrow ✓' : 'Tomorrow'}
                 </Text>
               </TouchableOpacity>
             </View>

@@ -183,6 +183,7 @@ export const styles = StyleSheet.create({
     color: AppColors.text,
     fontSize: 14,
     fontWeight: '500',
+    textAlign: 'center',
   },
   changeHoursButtonTextBold: {
     fontWeight: '800',
