@@ -40,11 +40,9 @@ class Kernel extends ConsoleKernel
 
         // TMA-011 REVISED: Send chef availability confirmation reminders
         // Sends 24-hour reminders to chefs to confirm/modify/cancel tomorrow's scheduled hours
-        // Note: Not running in background so logs appear in scheduler console
         $schedule->command('chef:send-confirmation-reminders')
                  ->everyFifteenMinutes()
-                 ->withoutOverlapping()
-                 ->appendOutputTo('php://stdout');
+                 ->withoutOverlapping();
 
         // TMA-011 REVISED: Clean up old availability overrides
         // Removes override records older than 7 days to keep database clean
