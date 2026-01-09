@@ -223,9 +223,10 @@ export const styles = StyleSheet.create({
   },
   dayButtonText: {
     color: 'white',
+    fontSize: 17,
   },
   dayButtonTextBold: {
-    fontWeight: '800',
+    fontWeight: '700',
   },
   dayButtonSet: {
     backgroundColor: '#e8f5e9',

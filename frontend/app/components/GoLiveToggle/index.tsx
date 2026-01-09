@@ -531,8 +531,8 @@ const GoLiveToggle: React.FC = () => {
                 style={[styles.confirmButton, styles.dayButton]}
                 onPress={() => handleDaySelect('today')}
               >
-                <Text style={[styles.confirmButtonText, styles.dayButtonText]}>
-                  Go Live <Text style={styles.dayButtonTextBold}>Today</Text>
+                <Text style={[styles.confirmButtonText, styles.dayButtonText, styles.dayButtonTextBold]}>
+                  Today
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -544,9 +544,10 @@ const GoLiveToggle: React.FC = () => {
               >
                 <Text style={[
                   styles.confirmButtonText,
+                  styles.dayButtonTextBold,
                   hasTomorrowOverride ? styles.dayButtonTextSet : styles.dayButtonText,
                 ]}>
-                  {hasTomorrowOverride ? <><Text style={styles.dayButtonTextBold}>Tomorrow</Text> ✓</> : <>Go Live <Text style={styles.dayButtonTextBold}>Tomorrow</Text></>}
+                  {hasTomorrowOverride ? 'Tomorrow ✓' : 'Tomorrow'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -706,7 +707,7 @@ const GoLiveToggle: React.FC = () => {
                   handleDaySelect('today');
                 }}
               >
-                <Text style={styles.changeHoursButtonText}>Change <Text style={styles.changeHoursButtonTextBold}>Today</Text></Text>
+                <Text style={styles.changeHoursButtonText}>Change Today</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -722,7 +723,7 @@ const GoLiveToggle: React.FC = () => {
                   styles.changeHoursButtonText,
                   hasTomorrowOverride && styles.changeHoursButtonTextSet,
                 ]}>
-                  {hasTomorrowOverride ? <><Text style={styles.changeHoursButtonTextBold}>Tomorrow</Text> ✓</> : <>Go Live <Text style={styles.changeHoursButtonTextBold}>Tomorrow</Text></>}
+                  {hasTomorrowOverride ? 'Tomorrow ✓' : 'Set Tomorrow'}
                 </Text>
               </TouchableOpacity>
             </View>
