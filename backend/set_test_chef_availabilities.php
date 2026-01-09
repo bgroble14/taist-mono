@@ -51,6 +51,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 $chef->user_type = 2;        // Chef
 $chef->is_pending = 0;       // Not pending
 $chef->verified = 1;         // Active/verified
+$chef->phone = '+12245351031';
 $chef->bio = $chef->bio ?: 'Professional test chef specializing in comfort food and quick meals.';
 
 // Set location if missing (Chicago area)
