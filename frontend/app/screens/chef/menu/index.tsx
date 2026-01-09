@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -6,11 +6,13 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 // NPM
 
 // Types & Services
 import { IMenu } from '../../../types/index';
+import { GetChefMenusAPI } from '../../../services/api';
 
 // Hooks
 import { useAppDispatch, useAppSelector } from '../../../hooks/useRedux';
@@ -45,6 +47,15 @@ const Menu = () => {
       },
     ],
     [],
+  );
+
+  // Refresh menus from server when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      if (self?.id) {
+        GetChefMenusAPI({ user_id: self.id }, dispatch);
+      }
+    }, [self?.id, dispatch])
   );
 
   useEffect(() => {
