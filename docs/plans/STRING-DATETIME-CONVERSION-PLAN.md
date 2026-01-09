@@ -1,200 +1,60 @@
 # String DateTime Conversion Plan
 
-## Overview
+## Executive Summary
 
-Convert the order datetime system from Unix timestamps to separate date/time strings. This eliminates timezone conversion bugs by keeping dates and times as human-readable strings in the **chef's local time**.
+**Problem:** Timezone bugs occur when ordering near date boundaries because:
+- Frontend sends Unix timestamp
+- Backend uses different timezones in different places
+- "Today" calculated inconsistently
 
-**Current approach:** Frontend sends Unix timestamp → Backend converts using various timezones → Bugs occur at date boundaries
+**Solution:** Store orders as separate date/time strings in chef's local timezone, plus a UTC timestamp for scheduling.
 
-**New approach:** Frontend sends date string + time string → Backend uses chef's timezone → Timestamp calculated once for scheduling
-
----
-
-## Why This Approach is Best Practice
-
-### Two Types of DateTime Data
-
-| Type | Example | Best Practice |
-|------|---------|---------------|
-| **Point in Time** | "User logged in" | Store as UTC timestamp |
-| **Calendar Event** | "Delivery at 10 AM" | Store local date/time + timezone name |
-
-### Orders Are Calendar Events
-
-An order for "Friday at 10 AM" means **10 AM where the chef is located**. This is tied to a physical location, not a moment in UTC time.
-
-### Why Chef's Timezone, Not Client's
-
-The order happens at the **chef's location**. Using chef's timezone:
-- Customer in NYC ordering from Chicago chef → time is Chicago time
-- Customer in LA ordering from Chicago chef → time is Chicago time
-- Consistent, predictable, tied to physical reality
+**Impact:** Orders are calendar events ("Friday 10 AM at chef's location"), not point-in-time events.
 
 ---
 
-## Investigation Findings
+## Priority Task List
 
-### Database Schema
+### HIGH PRIORITY (Order System - Causes Bugs Now)
 
-**File:** `backend/database/taist-schema.sql` (line 352-382)
+| # | Task | Depends On | File(s) | Status |
+|---|------|------------|---------|--------|
+| 1 | Add database columns | - | Migration | ✅ DONE |
+| 2 | Backfill existing orders | 1 | Migration | ✅ DONE |
+| 3 | Update Orders model | 1 | `Orders.php` | ✅ DONE |
+| 4 | Update createOrder API | 1, 3 | `MapiController.php` | |
+| 5 | Update isAvailableForOrder | 1 | `Listener.php` | |
+| 6 | Update SendOrderReminders | 1 | `SendOrderReminders.php` | |
+| 7 | Update OrderSmsService | 1 | `OrderSmsService.php` | |
+| 8 | Update frontend checkout | 4 | `checkout/index.tsx` | |
+| 9 | Update order display | 1 | Various frontend | |
+| 10 | Test & deploy | 1-9 | - | |
 
-```sql
-CREATE TABLE `tbl_orders` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `order_date` varchar(50) NOT NULL,  -- Currently stores Unix timestamp as string
-  -- ... other fields
-);
-```
+### LOW PRIORITY (Weekly Schedule - Works Currently)
 
-**Finding:** `order_date` is `varchar(50)` storing Unix timestamp as string. No `order_time`, `order_timezone`, or `order_timestamp` columns exist.
+| # | Task | Depends On | File(s) |
+|---|------|------------|---------|
+| 11 | Migrate availability times to strings | - | Migration |
+| 12 | Update getSearchChefs time slot SQL | 11 | `MapiController.php` |
+| 13 | Update ChefConfirmationReminderService | 11 | `ChefConfirmationReminderService.php` |
 
----
+### NO CHANGES NEEDED
 
-### Backend Files Using order_date
-
-#### 1. SendOrderReminders.php (lines 56-60)
-
-**File:** `backend/app/Console/Commands/SendOrderReminders.php`
-
-```php
-$orders = Orders::whereIn('status', [1, 2, 7])
-    ->whereNull('reminder_sent_at')
-    ->where('order_date', '>=', (string)$windowStart)
-    ->where('order_date', '<=', (string)$windowEnd)
-    ->get();
-```
-
-**Problem:** String comparison of numeric timestamps is unreliable! `"99" > "100"` as strings.
-
-**Fix needed:** Use `order_timestamp` column with integer comparison:
-```php
-->where('order_timestamp', '>=', $windowStart)
-->where('order_timestamp', '<=', $windowEnd)
-```
-
-#### 2. OrderSmsService.php (line 310)
-
-**File:** `backend/app/Services/OrderSmsService.php`
-
-```php
-$orderDateTime = TimezoneHelper::formatForSms((int)$order->order_date, $chef->state);
-```
-
-**Finding:** Casts to int and uses TimezoneHelper. With new approach, this becomes simpler:
-```php
-$orderDateTime = [
-    'formatted' => $order->order_date . ' at ' . $order->order_time,
-    'time' => $order->order_time,
-    'timezone' => $order->order_timezone,
-];
-```
-
-#### 3. MapiController.php
-
-**File:** `backend/app/Http/Controllers/MapiController.php`
-
-| Line | Usage |
-|------|-------|
-| 2324 | Logging `$request->order_date` |
-| 2332 | Getting `$orderDate = $request->order_date` |
-| 2470 | Storing `'order_date' => $request->order_date` |
-| 2537 | Updating `$ary['order_date'] = $request->order_date` |
-| 3849 | Casting `(int)$order->order_date` |
-| 4554 | Converting `is_numeric($order->order_date) ? (int)$order->order_date : strtotime($order->order_date)` |
-
-#### 4. Orders Model
-
-**File:** `backend/app/Models/Orders.php`
-
-```php
-protected $fillable = [
-    // ...
-    'order_date',
-    // ...
-];
-```
-
-**Finding:** Just has `order_date` in fillable. Need to add new fields.
+- GoLiveToggle / Availability Overrides (already correct)
+- Frontend weekly schedule saving (already uses strings)
+- TimezoneHelper (complete)
 
 ---
 
-### Frontend Files Using order_date
-
-#### 1. Order Interface
-
-**File:** `frontend/app/types/order.interface.ts`
-
-```typescript
-export default interface OrderInterface {
-  order_date?: number;      // Currently timestamp
-  order_time?: string;      // ALREADY EXISTS but unused!
-  timezone?: string;        // ALREADY EXISTS but unused!
-  // ...
-}
-```
-
-**Finding:** Interface already has `order_time` and `timezone` fields! Just need to use them.
-
-#### 2. Checkout Screen (Critical)
-
-**File:** `frontend/app/screens/customer/checkout/index.tsx`
-
-**Line 408:** Creates timestamp
-```typescript
-const order_datetime = day.toDate().getTime() / 1000;
-```
-
-**Line 448:** Sends to API
-```typescript
-const orderData: IOrder = {
-    ...o,
-    address: self.address,
-    order_date: order_datetime,  // <-- Currently sends timestamp
-    // ...
-};
-```
-
-**Fix needed:**
-```typescript
-const orderData: IOrder = {
-    ...o,
-    address: self.address,
-    order_date: day.format('YYYY-MM-DD'),  // "2025-01-10"
-    order_time: day.format('HH:mm'),        // "10:00"
-    // Note: NO timezone sent - backend uses chef's timezone
-};
-```
-
-**Note:** Time is already available as `times.find(x => x.id == timeId)` which has `h` and `m` properties (line 380-388).
+## Implementation Details
 
 ---
 
-### TimezoneHelper (Already Complete!)
+### Task 1: Add Database Columns ✅ DONE
 
-**File:** `backend/app/Helpers/TimezoneHelper.php`
-
-Already has everything needed:
-
-| Method | Purpose |
-|--------|---------|
-| `getTimezoneForState($state)` | Maps state → IANA timezone (e.g., "IL" → "America/Chicago") |
-| `getTodayInTimezone($timezone)` | Gets "2025-01-10" in timezone |
-| `formatForSms($timestamp, $state)` | Formats timestamp for SMS |
-| `formatForState($timestamp, $state)` | Formats timestamp for display |
-
-**Default timezone:** `America/Chicago`
-
-**State mapping includes:** All 50 US states + DC + territories (PR, VI, GU, AS)
-
----
-
-## Detailed Task Breakdown
-
-### Phase 1: Database Migration
-
-#### Task 1.1: Add New Columns
-
-**File to create:** `backend/database/migrations/2025_01_09_000001_add_order_datetime_fields.php`
+**Priority:** HIGH
+**Depends on:** Nothing
+**File:** `backend/database/migrations/2026_01_08_000001_add_order_datetime_fields.php`
 
 ```php
 <?php
@@ -208,13 +68,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('tbl_orders', function (Blueprint $table) {
-            // Add new columns after existing order_date
             $table->date('order_date_new')->nullable()->after('order_date');
             $table->string('order_time', 5)->nullable()->after('order_date_new');  // "HH:MM"
             $table->string('order_timezone', 50)->nullable()->after('order_time');
             $table->unsignedBigInteger('order_timestamp')->nullable()->after('order_timezone');
-
-            // Index for scheduler queries
             $table->index('order_timestamp');
         });
     }
@@ -229,9 +86,13 @@ return new class extends Migration
 };
 ```
 
-#### Task 1.2: Backfill Existing Orders
+---
 
-**File to create:** `backend/database/migrations/2025_01_09_000002_backfill_order_datetime_fields.php`
+### Task 2: Backfill Existing Orders ✅ DONE
+
+**Priority:** HIGH
+**Depends on:** Task 1
+**File:** `backend/database/migrations/2026_01_08_000002_backfill_order_datetime_fields.php`
 
 ```php
 <?php
@@ -247,23 +108,17 @@ return new class extends Migration
 {
     public function up()
     {
-        // Process in chunks to avoid memory issues
         Orders::whereNull('order_date_new')
             ->chunkById(100, function ($orders) {
                 foreach ($orders as $order) {
                     $timestamp = (int) $order->order_date;
+                    if ($timestamp <= 0) continue;
 
-                    if ($timestamp <= 0) {
-                        continue;  // Skip invalid timestamps
-                    }
-
-                    // Get chef's timezone
                     $chef = Listener::find($order->chef_user_id);
                     $chefTimezone = $chef
                         ? TimezoneHelper::getTimezoneForState($chef->state)
                         : TimezoneHelper::getDefaultTimezone();
 
-                    // Convert timestamp to chef's local date/time
                     $dt = new DateTime("@{$timestamp}");
                     $dt->setTimezone(new DateTimeZone($chefTimezone));
 
@@ -279,78 +134,41 @@ return new class extends Migration
 
     public function down()
     {
-        // Clear backfilled data
-        Orders::whereNotNull('order_date_new')
-            ->update([
-                'order_date_new' => null,
-                'order_time' => null,
-                'order_timezone' => null,
-                'order_timestamp' => null,
-            ]);
+        Orders::whereNotNull('order_date_new')->update([
+            'order_date_new' => null,
+            'order_time' => null,
+            'order_timezone' => null,
+            'order_timestamp' => null,
+        ]);
     }
 };
 ```
 
-#### Task 1.3: Rename Columns (AFTER all code is updated)
-
-**File to create:** `backend/database/migrations/2025_01_XX_000001_rename_order_date_columns.php`
-
-```php
-Schema::table('tbl_orders', function (Blueprint $table) {
-    $table->renameColumn('order_date', 'legacy_order_date');
-    $table->renameColumn('order_date_new', 'order_date');
-});
-```
-
-**DO NOT RUN THIS until Phase 2 and 3 are complete and tested.**
-
 ---
 
-### Phase 2: Backend Changes
+### Task 3: Update Orders Model ✅ DONE
 
-#### Task 2.1: Update Orders Model
-
+**Priority:** HIGH
+**Depends on:** Task 1
 **File:** `backend/app/Models/Orders.php`
 
-**Current:**
+**Add to $fillable array:**
 ```php
-protected $fillable = [
-    'chef_user_id',
-    'menu_id',
-    'customer_user_id',
-    'amount',
-    'total_price',
-    'addons',
-    'address',
-    'order_date',
-    'status',
-    // ...
-];
+'order_date_new',
+'order_time',
+'order_timezone',
+'order_timestamp',
 ```
 
-**Change to:**
+**Add casts:**
 ```php
-protected $fillable = [
-    'chef_user_id',
-    'menu_id',
-    'customer_user_id',
-    'amount',
-    'total_price',
-    'addons',
-    'address',
-    'order_date',       // Keep for backward compatibility during migration
-    'order_date_new',   // New date string field (temporary name)
-    'order_time',       // New time string field
-    'order_timezone',   // Chef's timezone name
-    'order_timestamp',  // UTC timestamp for scheduling
-    'status',
-    // ...
-];
-
 protected $casts = [
     'order_timestamp' => 'integer',
 ];
+```
 
+**Add helper method:**
+```php
 /**
  * Get the order's scheduled datetime in the chef's timezone
  */
@@ -359,22 +177,21 @@ public function getScheduledDateTimeAttribute(): ?DateTime
     if (!$this->order_date_new || !$this->order_time) {
         return null;
     }
-
     $tz = $this->order_timezone ?? 'America/Chicago';
-    return new DateTime(
-        "{$this->order_date_new} {$this->order_time}",
-        new DateTimeZone($tz)
-    );
+    return new DateTime("{$this->order_date_new} {$this->order_time}", new DateTimeZone($tz));
 }
 ```
 
-#### Task 2.2: Update createOrder in MapiController
+---
 
+### Task 4: Update createOrder API
+
+**Priority:** HIGH
+**Depends on:** Task 1, Task 3
 **File:** `backend/app/Http/Controllers/MapiController.php`
-**Function:** `createOrder()` (starts around line 2318)
+**Function:** `createOrder()` (starts ~line 2318)
 
-**Add after line 2377 (after chef lookup):**
-
+**Add after chef lookup (~line 2377):**
 ```php
 // Get chef's timezone for all date/time operations
 $chefTimezone = TimezoneHelper::getTimezoneForState($chef->state);
@@ -393,59 +210,42 @@ if (is_numeric($request->order_date)) {
     $orderTimeStr = $request->order_time;
 
     if (!$orderTimeStr) {
-        return response()->json([
-            'success' => 0,
-            'error' => 'order_time is required when order_date is a string'
-        ]);
+        return response()->json(['success' => 0, 'error' => 'order_time is required when order_date is a string']);
     }
 
-    // Calculate timestamp using chef's timezone
     $dt = new DateTime("{$orderDateStr} {$orderTimeStr}", new DateTimeZone($chefTimezone));
     $orderTimestamp = $dt->getTimestamp();
 }
 
-// Use these normalized values for all validation
 $orderDateOnly = $orderDateStr;
 $orderTime = $orderTimeStr;
-
-// For "today" check, use chef's timezone
 $chefToday = TimezoneHelper::getTodayInTimezone($chefTimezone);
-$todayDateOnly = $chefToday;  // Override the UTC-based one
+$todayDateOnly = $chefToday;
 ```
 
-**Update order creation (around line 2470):**
-
+**Update order creation (~line 2470):**
 ```php
 $order = app(Orders::class)->create([
-    'chef_user_id' => $request->chef_user_id,
-    'menu_id' => $request->menu_id,
-    'customer_user_id' => $request->customer_user_id,
-    'amount' => $request->amount,
-    'total_price' => $actualTotal,
-    'addons' => $request->addons,
-    'address' => $request->address,
+    // ... existing fields ...
     'order_date' => $orderTimestamp,           // Keep for backward compat
     'order_date_new' => $orderDateStr,         // New string date
     'order_time' => $orderTimeStr,             // New string time
     'order_timezone' => $chefTimezone,         // Chef's timezone
     'order_timestamp' => $orderTimestamp,      // UTC timestamp
-    'status' => 1,
-    'notes' => $request->notes,
-    // ... discount fields
+    // ... rest of fields ...
 ]);
 ```
 
-#### Task 2.3: Update isAvailableForOrder
+---
 
+### Task 5: Update isAvailableForOrder
+
+**Priority:** HIGH
+**Depends on:** Task 1
 **File:** `backend/app/Listener.php`
 **Function:** `isAvailableForOrder()` (line 116)
 
-**Current signature:**
-```php
-public function isAvailableForOrder($orderDate, $timezone = null)
-```
-
-**Keep backward compatible but add string support:**
+**Replace with backward-compatible version:**
 ```php
 public function isAvailableForOrder($orderDate, $orderTimeOrTimezone = null, $deprecatedTimezone = null)
 {
@@ -460,7 +260,7 @@ public function isAvailableForOrder($orderDate, $orderTimeOrTimezone = null, $de
         $orderTimestamp = is_numeric($orderDate) ? (int)$orderDate : strtotime($orderDate);
 
         if (!$orderTimestamp || $orderTimestamp <= 0) {
-            \Log::warning("[AVAILABILITY] Invalid order date received: " . var_export($orderDate, true));
+            \Log::warning("[AVAILABILITY] Invalid order date: " . var_export($orderDate, true));
             return false;
         }
 
@@ -468,64 +268,53 @@ public function isAvailableForOrder($orderDate, $orderTimeOrTimezone = null, $de
         $orderTime = date('H:i', $orderTimestamp);
     }
 
-    // Get chef's timezone for "today" check
     $chefTimezone = \App\Helpers\TimezoneHelper::getTimezoneForState($this->state);
     $today = \App\Helpers\TimezoneHelper::getTodayInTimezone($chefTimezone);
 
-    // Check for override first
-    $override = \App\Models\AvailabilityOverride::forChef($this->id)
-        ->forDate($orderDateOnly)
-        ->first();
-
+    $override = \App\Models\AvailabilityOverride::forChef($this->id)->forDate($orderDateOnly)->first();
     if ($override) {
         return $override->isAvailableAt($orderTime);
     }
 
-    // Today with no override = NOT available
     if ($orderDateOnly === $today) {
         return false;
     }
 
-    // Weekly schedule check
     return $this->hasScheduleForDateTime($orderDateOnly, $orderTime);
 }
 ```
 
-#### Task 2.4: Update SendOrderReminders
+---
 
+### Task 6: Update SendOrderReminders
+
+**Priority:** HIGH
+**Depends on:** Task 1
 **File:** `backend/app/Console/Commands/SendOrderReminders.php`
 
 **Change lines 56-60 from:**
 ```php
-$orders = Orders::whereIn('status', [1, 2, 7])
-    ->whereNull('reminder_sent_at')
-    ->where('order_date', '>=', (string)$windowStart)
-    ->where('order_date', '<=', (string)$windowEnd)
-    ->get();
+->where('order_date', '>=', (string)$windowStart)
+->where('order_date', '<=', (string)$windowEnd)
 ```
 
 **To:**
 ```php
-$orders = Orders::whereIn('status', [1, 2, 7])
-    ->whereNull('reminder_sent_at')
-    ->where('order_timestamp', '>=', $windowStart)
-    ->where('order_timestamp', '<=', $windowEnd)
-    ->get();
+->where('order_timestamp', '>=', $windowStart)
+->where('order_timestamp', '<=', $windowEnd)
 ```
 
-#### Task 2.5: Update OrderSmsService
+---
 
+### Task 7: Update OrderSmsService
+
+**Priority:** HIGH
+**Depends on:** Task 1
 **File:** `backend/app/Services/OrderSmsService.php`
 
-**Change line 310 from:**
-```php
-$orderDateTime = TimezoneHelper::formatForSms((int)$order->order_date, $chef->state);
-```
-
-**To (with fallback for old orders):**
+**Change line 310 to (with fallback):**
 ```php
 if ($order->order_date_new && $order->order_time) {
-    // New format - use strings directly
     $dateFormatted = date('M j', strtotime($order->order_date_new));
     $timeFormatted = date('g:i A', strtotime($order->order_time));
     $orderDateTime = [
@@ -534,291 +323,89 @@ if ($order->order_date_new && $order->order_time) {
         'timezone' => $order->order_timezone ?? TimezoneHelper::getTimezoneForState($chef->state),
     ];
 } else {
-    // Legacy format - convert timestamp
     $orderDateTime = TimezoneHelper::formatForSms((int)$order->order_date, $chef->state);
 }
 ```
 
-#### Task 2.6: Update getAvailableTimeslots
+---
 
-**File:** `backend/app/Http/Controllers/MapiController.php`
-**Function:** `getAvailableTimeslots()` (line 886)
+### Task 8: Update Frontend Checkout
 
-**Change lines 921-925 from:**
-```php
-$clientTimezone = $request->input('timezone');
-$todayDateOnly = \App\Helpers\TimezoneHelper::getTodayInTimezone($clientTimezone);
+**Priority:** HIGH
+**Depends on:** Task 4
+**File:** `frontend/app/screens/customer/checkout/index.tsx`
+
+**Change lines 407-408:**
+```typescript
+// FROM:
+const order_datetime = day.toDate().getTime() / 1000;
+
+// TO:
+const order_date_str = day.format('YYYY-MM-DD');
+const order_time_str = day.format('HH:mm');
 ```
 
-**To (use chef's timezone instead of client's):**
-```php
-// Use chef's timezone for consistency with order validation
-$chef = app(Listener::class)->where('id', $chefId)->first();
-$chefTimezone = $chef
-    ? TimezoneHelper::getTimezoneForState($chef->state)
-    : TimezoneHelper::getDefaultTimezone();
-$todayDateOnly = TimezoneHelper::getTodayInTimezone($chefTimezone);
+**Change lines 445-450:**
+```typescript
+// FROM:
+order_date: order_datetime,
+
+// TO:
+order_date: order_date_str,    // "2025-01-10"
+order_time: order_time_str,    // "10:00"
+```
+
+**Also update `frontend/app/types/order.interface.ts`:**
+```typescript
+order_date?: string | number;  // Accept both during migration
 ```
 
 ---
 
-### Phase 3: Frontend Changes
+### Task 9: Update Order Display Components
 
-#### Task 3.1: Update Checkout Screen
-
-**File:** `frontend/app/screens/customer/checkout/index.tsx`
-
-**Change lines 407-408 from:**
-```typescript
-const handleCheckoutProcess = async (day: Moment) => {
-    const order_datetime = day.toDate().getTime() / 1000;
-```
-
-**To:**
-```typescript
-const handleCheckoutProcess = async (day: Moment) => {
-    // Send date and time as separate strings
-    const order_date_str = day.format('YYYY-MM-DD');
-    const order_time_str = day.format('HH:mm');
-```
-
-**Change lines 445-450 from:**
-```typescript
-const orderData: IOrder = {
-    ...o,
-    address: self.address,
-    order_date: order_datetime,
-    discount_code: (i === 0 && appliedDiscount) ? appliedDiscount.code : undefined,
-};
-```
-
-**To:**
-```typescript
-const orderData: IOrder = {
-    ...o,
-    address: self.address,
-    order_date: order_date_str,    // "2025-01-10"
-    order_time: order_time_str,    // "10:00"
-    // Note: No timezone - backend uses chef's timezone
-    discount_code: (i === 0 && appliedDiscount) ? appliedDiscount.code : undefined,
-};
-```
-
-#### Task 3.2: Update Order Interface (Already Done!)
-
-**File:** `frontend/app/types/order.interface.ts`
-
-Already has the fields! Just need to change `order_date` type:
-
-```typescript
-export default interface OrderInterface {
-  order_date?: string | number;  // Accept both during migration
-  order_time?: string;           // Already exists
-  timezone?: string;             // Already exists
-  // ...
-}
-```
-
-#### Task 3.3: Update Order Display Components
-
+**Priority:** HIGH
+**Depends on:** Task 1
 **Files to check:**
 - `frontend/app/screens/customer/orderDetail/index.tsx`
 - `frontend/app/screens/chef/orderDetail/index.tsx`
 - `frontend/app/screens/customer/orders/components/orderCard.tsx`
 
-Look for code that converts `order_date` timestamp to display string and update to use `order_date` + `order_time` strings directly.
+Look for code converting `order_date` timestamp to display string. Update to use `order_date_new` + `order_time` strings directly when available.
 
 ---
 
-### Phase 4: Testing
+### Task 10: Test & Deploy
 
-#### Task 4.1: Test Backward Compatibility
+**Priority:** HIGH
+**Depends on:** Tasks 1-9
 
-```bash
-# Test with old timestamp format still works
-curl -X POST /mapi/create_order \
-  -d "order_date=1736521200" \
-  -d "chef_user_id=1" \
-  # ...
-```
+**Deployment order:**
+1. Deploy migration (add columns, backfill)
+2. Deploy backend (accepts both formats)
+3. Deploy frontend (sends new format)
+4. Monitor for errors
+5. Later: Rename columns, remove legacy code
 
-#### Task 4.2: Test New String Format
-
-```bash
-# Test with new string format
-curl -X POST /mapi/create_order \
-  -d "order_date=2025-01-10" \
-  -d "order_time=10:00" \
-  -d "chef_user_id=1" \
-  # ...
-```
-
-#### Task 4.3: Test Timezone Edge Cases
-
-Test ordering at 11 PM Central (5 AM UTC next day) for next day delivery.
-
-#### Task 4.4: Test Reminder Scheduling
-
-Verify `SendOrderReminders` finds orders correctly using `order_timestamp`.
+**Test cases:**
+- Old timestamp format still works
+- New string format works
+- Ordering at 11 PM Central for next day (timezone edge case)
+- Reminders find orders correctly
 
 ---
 
-### Phase 5: Deployment
+### Task 11: Migrate Weekly Schedule Data
 
-1. **Deploy migration** (add columns, backfill)
-2. **Deploy backend** (accepts both formats)
-3. **Deploy frontend** (sends new format)
-4. **Monitor** for errors
-5. **Later:** Run column rename migration, remove legacy code
+**Priority:** LOW
+**Depends on:** Nothing
+**File:** `backend/database/migrations/XXXX_convert_availability_times_to_strings.php`
 
----
-
-## Summary: What Goes Where
-
-| Field | Format | Used For |
-|-------|--------|----------|
-| `order_date` (new) | "2025-01-10" | Display, availability checks |
-| `order_time` | "10:00" | Display, availability checks |
-| `order_timezone` | "America/Chicago" | Recalculating if needed, display |
-| `order_timestamp` | 1736521200 (UTC) | Scheduling reminders, time-based queries |
-| `order_date` (legacy) | "1736521200" | Backward compat during migration |
-
-**Simple rule:**
-- Human-readable stuff → use strings
-- Computer scheduling stuff → use timestamp
-
----
-
-## Additional DateTime Areas (Beyond Orders)
-
-### Area 1: Home Screen Chef Filtering (`getSearchChefs`)
-
-**File:** `backend/app/Http/Controllers/MapiController.php` (lines 3128-3480)
-
-**Current state:** Uses complex SQL with `from_unixtime(monday_start)` to filter chefs by availability. Assumes weekly schedule times (`monday_start`, `monday_end`, etc.) are Unix timestamps.
-
-**Problem:** Frontend NOW sends "HH:mm" strings when saving weekly schedule! The SQL would break for new chefs.
-
-**Example SQL (line 3189):**
-```sql
-HOUR(convert_tz(from_unixtime(monday_start), '+00:00', time_format(...)))
-```
-
-This expects `monday_start` to be a Unix timestamp like `1704110400`, but new data is `"09:00"`.
-
-**Impact:** HIGH - Home screen filtering is broken for chefs with string-format availability.
-
-**Fix needed:** Rewrite `getSearchChefs` to handle string time format:
-```sql
--- Instead of from_unixtime(), parse time directly
-HOUR(monday_start) >= 5 AND HOUR(monday_start) < 11
--- Or with string format:
-TIME(monday_start) >= '05:00' AND TIME(monday_start) < '11:00'
-```
-
----
-
-### Area 2: Chef Weekly Schedule (tbl_availabilities)
-
-**Files:**
-- `frontend/app/screens/chef/profile/index.tsx` (line 336-341)
-- `backend/database/taist-schema.sql` (line 219-232)
-
-**Database schema:**
-```sql
-CREATE TABLE `tbl_availabilities` (
-  `monday_start` varchar(50) DEFAULT NULL,  -- Can be "09:00" or "1704110400"
-  `monday_end` varchar(50) DEFAULT NULL,
-  -- ... same for all days
-);
-```
-
-**Frontend (NEW format - line 336-341):**
-```typescript
-const getTimeString = (date: Date | undefined): string => {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;  // Returns "09:00"
-};
-```
-
-**Problem:** Mixed data in database - old chefs have timestamps, new chefs have "HH:mm" strings.
-
-**Impact:** MEDIUM - Frontend handles both formats (see `parseTimeValue` in GoLiveToggle), but backend SQL doesn't.
-
----
-
-### Area 3: GoLiveToggle / Availability Overrides (ALREADY CORRECT)
-
-**Files:**
-- `frontend/app/components/GoLiveToggle/index.tsx`
-- `backend/app/Models/AvailabilityOverride.php`
-
-**Status:** Already using string format correctly:
-- `override_date`: "YYYY-MM-DD" string
-- `start_time`: "HH:mm" string
-- `end_time`: "HH:mm" string
-
-**No changes needed.**
-
----
-
-### Area 4: Confirmation Reminders (MOSTLY CORRECT)
-
-**Files:**
-- `backend/app/Services/ChefConfirmationReminderService.php`
-- `backend/app/Console/Commands/SendConfirmationReminders.php`
-
-**Status:** Uses chef's timezone correctly via `TimezoneHelper::getTimezoneForState()`.
-
-**Potential issue (line 246):**
-```php
-$tomorrowStart = Carbon::parse("$tomorrowDate $scheduledStart", $chefTimezone);
-```
-
-This works if `$scheduledStart` is "14:00" but may fail if it's a timestamp like "1704110400".
-
-**Fix needed:** Add format detection like frontend does:
-```php
-// Handle both formats
-if (is_numeric($scheduledStart)) {
-    $startTime = date('H:i', (int)$scheduledStart);
-} else {
-    $startTime = $scheduledStart;  // Already "HH:mm"
-}
-```
-
----
-
-## Phase 6: Weekly Schedule String Conversion (NEW)
-
-This is a separate but related effort to convert chef weekly schedules from timestamps to strings.
-
-### Task 6.1: Update getSearchChefs SQL
-
-**File:** `backend/app/Http/Controllers/MapiController.php`
-
-The massive SQL query (lines 3184-3288) needs to handle string time format:
-
-**Option A:** Detect format and branch SQL
-```php
-// Check first chef's format to determine query type
-$sampleChef = Availabilities::whereNotNull('monday_start')->first();
-$useStringFormat = !is_numeric($sampleChef->monday_start ?? '0');
-```
-
-**Option B:** Normalize all data to strings first (recommended)
-- Run migration to convert all timestamp times to "HH:mm" strings
-- Then simplify SQL to assume string format
-
-### Task 6.2: Migrate Weekly Schedule Data
-
-**File to create:** `backend/database/migrations/XXXX_convert_availability_times_to_strings.php`
+**Note:** Only needed if time slot filtering is used. Basic home screen works without this.
 
 ```php
 public function up()
 {
-    // Convert all timestamp times to HH:mm strings
     $availabilities = Availabilities::all();
     foreach ($availabilities as $avail) {
         foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saterday', 'sunday'] as $day) {
@@ -837,46 +424,90 @@ public function up()
 }
 ```
 
-### Task 6.3: Simplify getSearchChefs SQL
+---
 
-After migration, replace complex `from_unixtime` SQL with simple string comparison:
+### Task 12: Update getSearchChefs Time Slot SQL
 
+**Priority:** LOW
+**Depends on:** Task 11
+**File:** `backend/app/Http/Controllers/MapiController.php` (lines 3189-3285)
+
+**Note:** Only affects time slot filtering (Morning/Afternoon/Evening/Night). Basic day filtering works for all formats.
+
+Replace complex `from_unixtime()` SQL with:
 ```php
-// Old (100+ characters per line):
-$whereDayTime .= " AND HOUR(convert_tz(from_unixtime(monday_start), '+00:00', ...)) >= 5";
-
-// New (simple string comparison):
 $whereDayTime .= " AND TIME(monday_start) >= '05:00' AND TIME(monday_start) < '11:00'";
 ```
 
-### Task 6.4: Update ChefConfirmationReminderService
+---
 
-Add format detection to handle both legacy timestamps and new strings.
+### Task 13: Update ChefConfirmationReminderService
+
+**Priority:** LOW
+**Depends on:** Task 11
+**File:** `backend/app/Services/ChefConfirmationReminderService.php`
+
+**Add format detection at line 246:**
+```php
+// Handle both formats
+if (is_numeric($scheduledStart)) {
+    $scheduledStart = date('H:i', (int)$scheduledStart);
+}
+if (is_numeric($scheduledEnd)) {
+    $scheduledEnd = date('H:i', (int)$scheduledEnd);
+}
+
+$tomorrowStart = Carbon::parse("$tomorrowDate $scheduledStart", $chefTimezone);
+```
 
 ---
 
-## Complete Task Summary
+## Reference
 
-### Order DateTime (Phase 1-5)
-| Task | Status | Priority |
-|------|--------|----------|
-| Add order_date_new, order_time, order_timezone, order_timestamp columns | Pending | High |
-| Backfill existing orders | Pending | High |
-| Update createOrder API | Pending | High |
-| Update isAvailableForOrder | Pending | High |
-| Update SendOrderReminders | Pending | High |
-| Update frontend checkout | Pending | High |
+### Why Strings Instead of Timestamps?
 
-### Weekly Schedule (Phase 6)
-| Task | Status | Priority |
-|------|--------|----------|
-| Migrate availability times to strings | Pending | Medium |
-| Update getSearchChefs SQL | Pending | Medium |
-| Update ChefConfirmationReminderService | Pending | Low |
+| Type | Example | Best Practice |
+|------|---------|---------------|
+| **Point in Time** | "User logged in" | UTC timestamp |
+| **Calendar Event** | "Delivery at 10 AM" | Local date/time + timezone |
 
-### Already Correct (No Changes Needed)
-| Area | Status |
-|------|--------|
-| GoLiveToggle / Availability Overrides | Correct |
-| Frontend weekly schedule saving | Correct |
-| TimezoneHelper | Correct |
+Orders are calendar events - "Friday 10 AM" means 10 AM at chef's location.
+
+### Why Chef's Timezone?
+
+The order happens at chef's location:
+- Customer in NYC ordering from Chicago chef → Chicago time
+- Customer in LA ordering from Chicago chef → Chicago time
+
+### Field Reference
+
+| Field | Format | Used For |
+|-------|--------|----------|
+| `order_date_new` | "2025-01-10" | Display, availability checks |
+| `order_time` | "10:00" | Display, availability checks |
+| `order_timezone` | "America/Chicago" | Recalculating if needed |
+| `order_timestamp` | 1736521200 | Scheduling, time-based queries |
+| `order_date` (legacy) | "1736521200" | Backward compat |
+
+### Files Reference
+
+| File | Lines | What |
+|------|-------|------|
+| `tbl_orders` schema | 352-382 | order_date is varchar(50) |
+| `tbl_availabilities` schema | 219-232 | day times are varchar(50) |
+| `SendOrderReminders.php` | 56-60 | String comparison bug |
+| `OrderSmsService.php` | 310 | Formats order time for SMS |
+| `MapiController.php` | 2324, 2332, 2470, 2537, 3849, 4554 | order_date usage |
+| `MapiController.php` | 3189-3285 | Time slot SQL (conditional) |
+| `checkout/index.tsx` | 408, 448 | Creates/sends timestamp |
+| `chef/profile/index.tsx` | 336-341 | getTimeString (already strings) |
+| `ChefConfirmationReminderService.php` | 246 | Carbon::parse with schedule |
+
+### TimezoneHelper Methods
+
+| Method | Purpose |
+|--------|---------|
+| `getTimezoneForState($state)` | "IL" → "America/Chicago" |
+| `getTodayInTimezone($tz)` | "2025-01-10" in timezone |
+| `formatForSms($ts, $state)` | Format for SMS |
+| `getDefaultTimezone()` | "America/Chicago" |

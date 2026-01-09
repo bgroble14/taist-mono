@@ -39,6 +39,15 @@ class Orders extends Model
         'refund_stripe_id',
         'is_auto_closed',
         'closed_at',
+        // DateTime string fields (timezone-safe)
+        'order_date_new',
+        'order_time',
+        'order_timezone',
+        'order_timestamp',
+    ];
+
+    protected $casts = [
+        'order_timestamp' => 'integer',
     ];
 
     public function getCreatedAtAttribute($date)
@@ -168,5 +177,19 @@ class Orders extends Model
             'minutes_remaining' => floor($remaining / 60),
             'is_expired' => $this->isExpired(),
         ];
+    }
+
+    /**
+     * Get the order's scheduled datetime in the chef's timezone
+     *
+     * @return \DateTime|null
+     */
+    public function getScheduledDateTimeAttribute(): ?\DateTime
+    {
+        if (!$this->order_date_new || !$this->order_time) {
+            return null;
+        }
+        $tz = $this->order_timezone ?? 'America/Chicago';
+        return new \DateTime("{$this->order_date_new} {$this->order_time}", new \DateTimeZone($tz));
     }
 }
