@@ -42,7 +42,8 @@ class Kernel extends ConsoleKernel
         // Sends 24-hour reminders to chefs to confirm/modify/cancel tomorrow's scheduled hours
         $schedule->command('chef:send-confirmation-reminders')
                  ->everyFifteenMinutes()
-                 ->withoutOverlapping();
+                 ->withoutOverlapping()
+                 ->appendOutputTo('/dev/stdout');
 
         // TMA-011 REVISED: Clean up old availability overrides
         // Removes override records older than 7 days to keep database clean
