@@ -729,6 +729,10 @@ class MapiController extends Controller
             } else {
                 // Check against weekly schedule to see if modified
                 $dayOfWeek = strtolower(date('l', $dateTimestamp));
+                // Database column is misspelled as "saterday" - map to match
+                if ($dayOfWeek === 'saturday') {
+                    $dayOfWeek = 'saterday';
+                }
                 $availability = \App\Models\Availabilities::where('user_id', $user->id)->first();
 
                 if ($availability) {
@@ -926,6 +930,10 @@ class MapiController extends Controller
 
         // OPTIMIZATION: Fetch availability data ONCE instead of per-slot
         $dayOfWeek = strtolower(date('l', $dateTimestamp));
+        // Database column is misspelled as "saterday" - map to match
+        if ($dayOfWeek === 'saturday') {
+            $dayOfWeek = 'saterday';
+        }
         $dateOnly = date('Y-m-d', $dateTimestamp);
 
         // Check for override first (single query)
