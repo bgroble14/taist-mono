@@ -275,13 +275,18 @@ export const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   notAvailableButton: {
-    paddingVertical: Spacing.md,
-    paddingBottom: Spacing.lg,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#dc3545',
+    backgroundColor: '#fff5f5',
     alignItems: 'center',
   },
   notAvailableButtonText: {
     fontSize: 15,
-    color: AppColors.textSecondary,
-    fontWeight: '500',
+    color: '#dc3545',
+    fontWeight: '600',
   },
 });
