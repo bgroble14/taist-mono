@@ -15,7 +15,7 @@ class AddReminderTrackingToOrders extends Migration
     public function up()
     {
         Schema::table('tbl_orders', function (Blueprint $table) {
-            $table->timestamp('reminder_sent_at')->nullable()->after('acceptance_deadline');
+            $table->timestamp('reminder_sent_at')->nullable();
         });
     }
 

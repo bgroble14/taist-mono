@@ -9,10 +9,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('tbl_orders', function (Blueprint $table) {
-            $table->date('order_date_new')->nullable()->after('order_date');
-            $table->string('order_time', 5)->nullable()->after('order_date_new');  // "HH:MM"
-            $table->string('order_timezone', 50)->nullable()->after('order_time');
-            $table->unsignedBigInteger('order_timestamp')->nullable()->after('order_timezone');
+            $table->date('order_date_new')->nullable();
+            $table->string('order_time', 5)->nullable();  // "HH:MM"
+            $table->string('order_timezone', 50)->nullable();
+            $table->unsignedBigInteger('order_timestamp')->nullable();
             $table->index('order_timestamp');
         });
     }

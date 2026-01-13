@@ -15,20 +15,20 @@ class AddOnlineStatusToUsers extends Migration
     {
         Schema::table('tbl_users', function (Blueprint $table) {
             // Online toggle status
-            $table->boolean('is_online')->default(false)->after('fcm_token');
+            $table->boolean('is_online')->default(false);
 
             // When chef will start being available (for future scheduling)
-            $table->timestamp('online_start')->nullable()->after('is_online');
+            $table->timestamp('online_start')->nullable();
 
             // When chef will auto-toggle offline
-            $table->timestamp('online_until')->nullable()->after('online_start');
+            $table->timestamp('online_until')->nullable();
 
             // Timestamps for analytics and notifications
-            $table->timestamp('last_toggled_online_at')->nullable()->after('online_until');
-            $table->timestamp('last_toggled_offline_at')->nullable()->after('last_toggled_online_at');
+            $table->timestamp('last_toggled_online_at')->nullable();
+            $table->timestamp('last_toggled_offline_at')->nullable();
 
             // Track if we've sent reminder for current schedule block
-            $table->timestamp('last_online_reminder_sent_at')->nullable()->after('last_toggled_offline_at');
+            $table->timestamp('last_online_reminder_sent_at')->nullable();
 
             // Index for efficient queries
             $table->index(['user_type', 'is_online'], 'idx_users_type_online');

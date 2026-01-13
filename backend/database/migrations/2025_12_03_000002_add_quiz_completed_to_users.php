@@ -17,8 +17,7 @@ class AddQuizCompletedToUsers extends Migration
         Schema::table('tbl_users', function (Blueprint $table) {
             $table->tinyInteger('quiz_completed')
                   ->default(0)
-                  ->comment('0:not completed,1:completed')
-                  ->after('is_pending');
+                  ->comment('0:not completed,1:completed');
         });
     }
 
