@@ -62,12 +62,12 @@ const getEnvironmentUrls = () => {
     
     case 'production':
     default:
-    // Production environment
+    // Production environment - Railway
     return {
-      BASE_URL: 'https://taist.codeupscale.com/mapi/',
-      Photo_URL: 'https://taist.codeupscale.com/assets/uploads/images/',
-      Static_URL: 'https://taist.codeupscale.com/assets/images/',
-      HTML_URL: 'https://taist.codeupscale.com/assets/uploads/html/',
+      BASE_URL: 'https://taist-mono-production.up.railway.app/mapi/',
+      Photo_URL: 'https://taist-mono-production.up.railway.app/assets/uploads/images/',
+      Static_URL: 'https://taist-mono-production.up.railway.app/assets/images/',
+      HTML_URL: 'https://taist-mono-production.up.railway.app/assets/uploads/html/',
     };
   }
 };
