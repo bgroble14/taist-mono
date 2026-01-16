@@ -265,6 +265,6 @@ If issues arise after activation:
 ## Questions?
 
 Refer to:
-- [PLAN_notification_system_refactor.md](PLAN_notification_system_refactor.md) - Original refactor plan
-- [NOTIFICATION_TYPES_INVENTORY.md](NOTIFICATION_TYPES_INVENTORY.md) - Complete notification mapping
+- [NOTIFICATION_TYPES_INVENTORY.md](./NOTIFICATION_TYPES_INVENTORY.md) - Complete notification mapping
+- [Original refactor plan](../archive/plans/PLAN_notification_system_refactor.md) - Archived planning doc
 - [Laravel Notifications Docs](https://laravel.com/docs/notifications) - Official Laravel documentation

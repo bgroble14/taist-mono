@@ -349,9 +349,8 @@ tail -f backend/storage/logs/laravel.log
 
 ## Related Documentation
 
-- **Full Implementation Plan**: [TMA-001-TWILIO-SMS-NOTIFICATIONS-PLAN.md](TMA-001-TWILIO-SMS-NOTIFICATIONS-PLAN.md)
-- **Twilio Setup Guide**: [TWILIO-SETUP.md](TWILIO-SETUP.md)
-- **Sprint Tasks**: [sprint-tasks.md](../sprint-tasks.md)
+- **Twilio Setup Guide**: [twilio-setup.md](./twilio-setup.md)
+- **Twilio Implementation**: [twilio-implementation.md](./twilio-implementation.md)
 
 ---
 

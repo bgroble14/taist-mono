@@ -17,8 +17,8 @@ The Taist backend provides:
 ## Technology Stack
 
 ### Core Framework
-- **Laravel 7.x** - PHP web application framework
-- **PHP 7.2.5+** - Programming language
+- **Laravel 8.x** - PHP web application framework
+- **PHP 8.2+** - Programming language
 
 ### Database
 - **MySQL/MariaDB** - Primary database
@@ -93,7 +93,7 @@ backend/
 ### Prerequisites
 
 Ensure you have the following installed:
-- PHP >= 7.2.5
+- PHP >= 8.2
 - Composer
 - MySQL or MariaDB
 - Redis (optional, for caching)

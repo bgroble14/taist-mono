@@ -375,23 +375,12 @@ curl -X POST http://localhost:8000/mapi/create_review \
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
-- **Implementation Plans**:
-  - `AI-MENU-DESCRIPTION-PLAN.md` - Menu feature planning
-  - `AI-REVIEW-GENERATION-PLAN.md` - Review feature planning
-
-- **Completion Summaries**:
-  - `AI-MENU-IMPLEMENTATION-SUMMARY.md` - Menu implementation details
-  - `AI-REVIEW-IMPLEMENTATION-COMPLETE.md` - Review implementation details
-
-- **Testing Guides**:
-  - `BACKEND-TESTING-COMPLETE.md` - Backend test results
-  - `TEST-AI-MENU-FEATURES.md` - Frontend test guide
-
-- **Technical Reference**:
-  - `GPT5-RESPONSES-API-REFERENCE.md` - GPT-5 and Responses API docs
-  - `AI-MENU-QUICK-REFERENCE.md` - Quick reference card
+For detailed implementation history and technical reference, see the archived documents in `docs/archive/ai-features-implementation/`:
+- Implementation plans and completion summaries
+- Testing guides and results
+- API reference documentation
 
 ---
 

@@ -254,12 +254,10 @@ php artisan config:cache
 
 ---
 
-## 📚 Documentation Links
+## Documentation Links
 
-- **Main Guide**: [AI-FEATURES-README.md](./AI-FEATURES-README.md)
-- **Detailed Docs**: [docs/ai-features/](./docs/ai-features/)
-- **GPT-5 Reference**: [docs/ai-features/GPT5-RESPONSES-API-REFERENCE.md](./docs/ai-features/GPT5-RESPONSES-API-REFERENCE.md)
-- **Testing Guide**: [docs/ai-features/TEST-AI-MENU-FEATURES.md](./docs/ai-features/TEST-AI-MENU-FEATURES.md)
+- **AI Features**: [../features/ai-features.md](../features/ai-features.md)
+- **Archived Implementation Details**: [../archive/ai-features-implementation/](../archive/ai-features-implementation/)
 
 ---
 

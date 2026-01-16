@@ -87,7 +87,7 @@ TWILIO_FROM=+1xxxxxxxxxx
 ### Documentation
 
 #### 1. Setup Guide
-**File:** [docs/TWILIO-SETUP.md](docs/TWILIO-SETUP.md)
+**File:** [twilio-setup.md](twilio-setup.md)
 
 Comprehensive guide covering:
 - Twilio account setup
@@ -199,7 +199,7 @@ Look for:
    - Check if phone number already registered
    - Prevent multiple accounts per number
 
-See [docs/TWILIO-SETUP.md](docs/TWILIO-SETUP.md) for detailed security recommendations.
+See [twilio-setup.md](twilio-setup.md) for detailed security recommendations.
 
 ## Cost Estimate
 
@@ -229,7 +229,7 @@ See [docs/TWILIO-SETUP.md](docs/TWILIO-SETUP.md) for detailed security recommend
 - ✅ `frontend/app/services/api.ts` (already had function, now utilized)
 
 ### Documentation
-- ✅ `docs/TWILIO-SETUP.md` (new)
+- ✅ `twilio-setup.md` (new)
 - ✅ `TWILIO-IMPLEMENTATION-SUMMARY.md` (this file)
 
 ## Next Steps
@@ -283,11 +283,11 @@ If you encounter issues, check:
    - Verify SID and Token are correct
    - Check for typos or extra spaces
 
-See [docs/TWILIO-SETUP.md](docs/TWILIO-SETUP.md) for detailed troubleshooting guide.
+See [twilio-setup.md](twilio-setup.md) for detailed troubleshooting guide.
 
 ## Support Resources
 
 - **Twilio Documentation:** https://www.twilio.com/docs
 - **Twilio Console:** https://www.twilio.com/console
 - **Twilio Support:** https://support.twilio.com/
-- **Implementation Guide:** [docs/TWILIO-SETUP.md](docs/TWILIO-SETUP.md)
+- **Implementation Guide:** [twilio-setup.md](twilio-setup.md)

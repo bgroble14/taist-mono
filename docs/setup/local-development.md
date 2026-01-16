@@ -35,7 +35,7 @@ npm run dev:local
 ## 📦 Prerequisites
 
 ### Backend
-- **PHP 7.4** (installed via Homebrew: `php@7.4`)
+- **PHP 8.2+** (installed via Homebrew)
 - **Composer** (PHP package manager)
 - **MySQL 8.0** (running via `brew services start mysql`)
 
@@ -310,11 +310,11 @@ mysql -u root -p
 
 **PHP version issues**
 ```bash
-# Check PHP version (should be 7.4.x)
+# Check PHP version (should be 8.2.x)
 php -v
 
-# If wrong version, switch to PHP 7.4
-brew link php@7.4 --force
+# If wrong version, switch to PHP 8.2
+brew link php@8.2 --force
 ```
 
 ### Frontend can't reach backend
@@ -444,9 +444,8 @@ curl http://127.0.0.1:8000/mapi/get_allergens \
 ## 📝 Important Notes
 
 ### PHP Version
-- Local backend uses **PHP 7.4** for Laravel 7 compatibility
-- Deprecation warnings are suppressed in the error handler
-- Staging/production may use different PHP versions
+- Backend uses **PHP 8.2+** with Laravel 8
+- Staging/production use the same PHP version
 
 ### Database Schema
 - Schema exported directly from staging
@@ -496,9 +495,9 @@ curl http://127.0.0.1:8000/mapi/get_allergens \
 
 ---
 
-## 🆘 Getting Help
+## Getting Help
 
-1. **Check the quick guide**: `LOCAL-DEV-QUICKSTART.md`
+1. **Check the quick guide**: [quick-start.md](./quick-start.md)
 2. **Review backend logs**: `tail -f backend/storage/logs/laravel.log`
 3. **Test API manually**: Use `curl` commands above
 4. **Inspect database**: Use MySQL queries above
@@ -513,16 +512,13 @@ Common issues are usually:
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
-- [Quick Reference](./LOCAL-DEV-QUICKSTART.md)
-- [Backend README](./backend/README.md)
-- [Frontend README](./frontend/README.md)
-- [Sprint Tasks](./sprint-tasks.md)
+- [Quick Reference](./quick-start.md)
+- [Backend README](../../backend/README.md)
+- [Frontend README](../../frontend/README.md)
 
 ---
-
-**Happy coding! 🚀**
 
 Your local environment is fully configured and ready for development!
 

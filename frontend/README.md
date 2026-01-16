@@ -11,10 +11,10 @@ The Taist mobile app provides two distinct experiences:
 ## Technology Stack
 
 ### Core
-- **React Native 0.79.5** - Mobile app framework
-- **Expo SDK 53** - Development platform and build tools
-- **TypeScript 5.8** - Type safety and developer experience
-- **Expo Router 5** - File-based navigation
+- **React Native 0.81.5** - Mobile app framework
+- **Expo SDK 54** - Development platform and build tools
+- **TypeScript 5.9** - Type safety and developer experience
+- **Expo Router 6** - File-based navigation
 
 ### State Management
 - **Redux Toolkit 2.8** - Global state management

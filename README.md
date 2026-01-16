@@ -2,7 +2,7 @@
 
 A food marketplace connecting local chefs with customers.
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Local Development (Recommended)
 
@@ -24,18 +24,18 @@ npm run dev:local
 
 ---
 
-## 📁 Structure
+## Structure
 
 ```
 taist-mono/
-├── backend/          # Laravel 7 API (PHP 7.4)
-├── frontend/         # React Native Expo app
+├── backend/          # Laravel 8 API (PHP 8.2)
+├── frontend/         # React Native 0.81 + Expo SDK 54
 └── docs/             # Documentation
 ```
 
 ---
 
-## 🌍 Environments
+## Environments
 
 The frontend supports three environments:
 
@@ -52,33 +52,33 @@ npm run dev:prod       # https://taist.codeupscale.com
 
 ---
 
-## 📦 Prerequisites
+## Prerequisites
 
 ### Backend
-- PHP 7.4
+- PHP 8.2+
 - Composer
 - MySQL 8.0
 
 ### Frontend
 - Node.js 18+
-- npm or yarn
-- Expo CLI
+- npm
+- Expo CLI (`npm install -g expo-cli`)
 
 ---
 
-## 🗄️ Local Database
+## Local Database
 
 Fully configured with test data:
-- ✅ 3 verified chefs with menus
-- ✅ 2 customer accounts
-- ✅ 9 menu items ($12-$25)
-- ✅ 58 activated Chicago ZIP codes
+- 3 verified chefs with menus
+- 2 customer accounts
+- 9 menu items ($12-$25)
+- 58 activated Chicago ZIP codes
 
 **Access**: `mysql -u root taist_local`
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 ### Getting Started
 - [Quick Start Guide](docs/setup/quick-start.md) - Get running in 5 minutes
@@ -88,7 +88,8 @@ Fully configured with test data:
 ### Features
 - [AI Features](docs/features/ai-features.md) - AI menu descriptions & review generation
 - [SMS Notifications](docs/features/twilio-implementation.md) - Twilio SMS setup
-- [Discount Codes](docs/archive/sprint-1/tasks/TMA-007-IMPLEMENTATION-SUMMARY.md) - Coupon system
+- [Notification System](docs/features/NOTIFICATION_IMPLEMENTATION_GUIDE.md) - Push notification implementation
+- [Stripe Integration](docs/features/STRIPE_VERIFICATION_FIXES.md) - Payment & verification
 
 ### Infrastructure & Deployment
 - [AWS Setup](docs/infrastructure/aws-setup.md) - AWS configuration
@@ -98,14 +99,12 @@ Fully configured with test data:
 
 ### Reference
 - [UI Documentation](docs/ui/ui-documentation.md) - Complete UI reference
-- [Sprint 1 Archive](docs/archive/sprint-1/) - Completed sprint history
 - [Backend README](backend/README.md) - Backend API details
 - [Frontend README](frontend/README.md) - Frontend app details
-- [Current Sprint Tasks](sprint-tasks.md) - Active sprint tracking
 
 ---
 
-## 🔧 Common Commands
+## Common Commands
 
 ### Backend
 ```bash
@@ -127,7 +126,7 @@ npm start -- --clear  # Clear Metro cache
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **Port 8000 in use?**
 ```bash
@@ -148,20 +147,7 @@ See [troubleshooting guide](docs/setup/local-development.md#-troubleshooting) fo
 
 ---
 
-## 📝 Current Sprint
-
-See [sprint-tasks.md](./sprint-tasks.md) for active tasks.
-
-**Recent completions**:
-- ✅ AI menu descriptions & grammar enhancement
-- ✅ AI review generation (3 per authentic review)
-- ✅ TMA-002: Multi-step customer signup
-- ✅ Address collection at checkout
-- ✅ Local development environment with test data
-
----
-
-## 🤝 Contributing
+## Contributing
 
 1. Create feature branch from `main`
 2. Make changes and test locally
@@ -172,10 +158,6 @@ See [sprint-tasks.md](./sprint-tasks.md) for active tasks.
 
 ---
 
-## 📄 License
+## License
 
 ISC
-
----
-
-**Happy coding! 🚀**

@@ -1,8 +1,8 @@
-# Local Development Quick Start 🚀
+# Local Development Quick Start
 
 Your local environment is **fully configured** with database and test data ready to use!
 
-## ⚡ Start Development
+## Start Development
 
 ### Terminal 1: Backend
 ```bash
@@ -20,7 +20,7 @@ That's it! Backend runs at `http://127.0.0.1:8000`, frontend opens in Expo.
 
 ---
 
-## 👤 Test Accounts
+## Test Accounts
 
 All passwords are: `password`
 
@@ -35,7 +35,7 @@ All passwords are: `password`
 
 ---
 
-## 🌍 Environment Switching
+## Environment Switching
 
 ```bash
 npm run dev:local      # Local backend (development)
@@ -45,19 +45,19 @@ npm run dev:prod       # Production backend (careful!)
 
 ---
 
-## 📊 What's in the Database
+## What's in the Database
 
-- ✅ 58 activated Chicago zip codes
-- ✅ 3 verified chefs with full profiles
-- ✅ 9 live menu items ($12-$25 each)
-- ✅ 8 food categories
-- ✅ 8 allergens
-- ✅ 6 appliances
-- ✅ 7 menu customizations
+- 58 activated Chicago zip codes
+- 3 verified chefs with full profiles
+- 9 live menu items ($12-$25 each)
+- 8 food categories
+- 8 allergens
+- 6 appliances
+- 7 menu customizations
 
 ---
 
-## 🗄️ Database Access
+## Database Access
 
 ```bash
 # Access database
@@ -74,7 +74,7 @@ SELECT id, title, price FROM tbl_menus;
 
 ---
 
-## ✅ Health Check
+## Health Check
 
 ```bash
 # Backend responding?
@@ -85,7 +85,7 @@ curl http://127.0.0.1:8000/mapi/get-version
 
 ---
 
-## 🐛 Quick Fixes
+## Quick Fixes
 
 ### "Port 8000 already in use"
 ```bash
@@ -106,15 +106,15 @@ sudo systemctl start mysql    # Linux
 
 ---
 
-## 📚 Full Documentation
+## Full Documentation
 
-- **Complete Guide**: [LOCAL-DEVELOPMENT-GUIDE.md](./LOCAL-DEVELOPMENT-GUIDE.md)
-- **Backend Details**: [backend/README.md](./backend/README.md)
-- **Frontend Details**: [frontend/README.md](./frontend/README.md)
+- **Complete Guide**: [local-development.md](./local-development.md)
+- **Backend Details**: [backend/README.md](../../backend/README.md)
+- **Frontend Details**: [frontend/README.md](../../frontend/README.md)
 
 ---
 
-## 🎯 Common Tasks
+## Common Tasks
 
 ### Reset Database
 ```bash

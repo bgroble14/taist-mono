@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [29.0.0] - 2026-01-16
+
+### Changed
+- Updated React Native to 0.81.5
+- Updated Expo SDK to 54
+- Updated TypeScript to 5.9
+- Updated Expo Router to 6
+- Bumped iOS build number to 10
+- Bumped Android versionCode to 146
+
+### Infrastructure
+- Documentation consolidation and cleanup
+- Updated README files with correct version information
+
+---
+
 ## [28.0.4] - 2025-12-01
 
 ### ✨ Added
